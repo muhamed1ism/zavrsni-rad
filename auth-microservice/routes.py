@@ -32,7 +32,7 @@ def unauthorized():
 
 @login_manager.needs_refresh_handler
 def refresh():
-    return jsonify({'message': 'You need to reauthenticate.', 'status': 'danger'})
+    return jsonify({'message': 'You need to re-authenticate.', 'status': 'danger'})
 
 
 @app.get('/')
@@ -62,11 +62,12 @@ def register():
     else:
         return jsonify({'message': 'Passwords do not match.', 'status': 'danger'})
 
-    existing_email = User.query.filter_by(email=email).first()
+    existing_email = db.session.query(User).filter_by(email=email).first()
 
     if existing_email:
         return jsonify({'message': 'Email already taken. Please choose another.', 'status': 'danger'})
     else:
+        # noinspection PyArgumentList
         new_user = User(
             email=email,
             password_hash=hashed_password,
@@ -89,7 +90,7 @@ def login():
     email = data['email']
     password = data['password']
 
-    user = User.query.filter_by(email=email).first()
+    user = db.session.query(User).filter_by(email=email).first()
     if user and bcrypt.check_password_hash(user.password_hash, password):
         login_user(user)
         user.last_login = datetime.now()
@@ -118,23 +119,20 @@ def update():
 
     user = db.session.query(User).filter_by(id=current_user.id).first()
 
-    match data:
-        case {'email': _}:
-            user.email = data['email']
-        case {'password': _}:
-            user.password_hash = bcrypt.generate_password_hash(data['password']).decode('utf-8')
-        case {'first_name': _}:
-            user.first_name = data['first_name']
-        case {'last_name': _}:
-            user.last_name = data['last_name']
-        case {'date_of_birth': _}:
-            user.date_of_birth = data['date_of_birth']
-        case {'address': _}:
-            user.address = data['address']
-        case {'phone_number': _}:
-            user.phone_number = data['phone_number']
-        case _:
-            return jsonify({'message': 'Invalid request.', 'status': 'danger'})
+    if 'email' in data:
+        user.email = data['email']
+    if 'password' in data:
+        user.password_hash = bcrypt.generate_password_hash(data['password']).decode('utf-8')
+    if 'first_name' in data:
+        user.first_name = data['first_name']
+    if 'last_name' in data:
+        user.last_name = data['last_name']
+    if 'date_of_birth' in data:
+        user.date_of_birth = data['date_of_birth']
+    if 'address' in data:
+        user.address = data['address']
+    if 'phone_number' in data:
+        user.phone_number = data['phone_number']
 
     db.session.commit()
 
@@ -160,7 +158,7 @@ def logout():
     return jsonify({'message': 'Logout successful!', 'status': 'success'})
 
 
-@app.get('/check_session')
+@app.get('/check-session')
 @login_required
 def check_session():
     return jsonify({'message': 'Session active!', 'user_id': current_user.id, 'status': 'success'})
@@ -174,7 +172,7 @@ def get_user():
         'email': current_user.email,
         'name': current_user.first_name + ' ' + current_user.last_name
     }
-    return jsonify(user_data)
+    return jsonify(user_data) and jsonify({'status': 'success'})
 
 
 @app.get('/user/<string:string>')
@@ -183,28 +181,28 @@ def get_user_string(string):
     match string:
         case 'email':
             email = current_user.email
-            return jsonify({'email': email})
+            return jsonify({'email': email, 'status': 'success'})
         case 'first_name':
             first_name = current_user.first_name
-            return jsonify({'first_name': first_name})
+            return jsonify({'first_name': first_name, 'status': 'success'})
         case 'last_name':
             last_name = current_user.last_name
-            return jsonify({'last_name': last_name})
+            return jsonify({'last_name': last_name, 'status': 'success'})
         case 'address':
             address = current_user.address
-            return jsonify({'address': address})
+            return jsonify({'address': address, 'status': 'success'})
         case 'phone_number':
             phone_number = current_user.phone_number
-            return jsonify({'phone_number': phone_number})
+            return jsonify({'phone_number': phone_number, 'status': 'success'})
         case 'date_of_birth':
             date_of_birth = current_user.date_of_birth
-            return jsonify({'date_of_birth': date_of_birth})
+            return jsonify({'date_of_birth': date_of_birth, 'status': 'success'})
         case _:
             return jsonify({'message': 'Invalid request.', 'status': 'danger'})
 
 
-@app.get('/user/last_login')
+@app.get('/user/last-login')
 @login_required
 def get_user_last_login():
     last_login = current_user.last_login
-    return jsonify({'last_login': last_login})
+    return jsonify({'last-login': last_login, 'status': 'success'})
