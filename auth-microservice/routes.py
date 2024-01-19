@@ -2,9 +2,9 @@ from flask import Flask, request, jsonify, session
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
-from models import db, User
 from secrets import compare_digest
 from datetime import datetime
+from models import db, User
 
 app = Flask(__name__)
 CORS(app)
@@ -12,9 +12,9 @@ CORS(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-app.config['SECRET_KEY'] = 'tajni_kljuc'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = 'tajni_kljuc'
 
 db.init_app(app)
 bcrypt = Bcrypt(app)
@@ -44,18 +44,16 @@ def home():
 def register():
     data = request.get_json()
 
-    required_fields = ['email', 'password', 'first_name', 'last_name']
-    if not all(field in data for field in required_fields):
-        return jsonify({'message': 'Missing required fields.', 'status': 'danger'})
+    if 'email' not in data:
+        return jsonify({'message': 'Email required.', 'status': 'danger'})
+    if 'password' not in data:
+        return jsonify({'message': 'Password required.', 'status': 'danger'})
+    if 'password_confirm' not in data:
+        return jsonify({'message': 'Password confirmation required.', 'status': 'danger'})
 
     email = data['email']
     password = data['password']
     password_confirm = data['password_confirm']
-    first_name = data['first_name']
-    last_name = data['last_name']
-    date_of_birth = data['date_of_birth']
-    address = data['address']
-    phone_number = data['phone_number']
 
     if compare_digest(password, password_confirm):
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
@@ -70,12 +68,7 @@ def register():
         # noinspection PyArgumentList
         new_user = User(
             email=email,
-            password_hash=hashed_password,
-            first_name=first_name,
-            last_name=last_name,
-            date_of_birth=date_of_birth,
-            address=address,
-            phone_number=phone_number
+            password_hash=hashed_password
         )
         db.session.add(new_user)
         db.session.commit()
@@ -123,16 +116,8 @@ def update():
         user.email = data['email']
     if 'password' in data:
         user.password_hash = bcrypt.generate_password_hash(data['password']).decode('utf-8')
-    if 'first_name' in data:
-        user.first_name = data['first_name']
-    if 'last_name' in data:
-        user.last_name = data['last_name']
-    if 'date_of_birth' in data:
-        user.date_of_birth = data['date_of_birth']
-    if 'address' in data:
-        user.address = data['address']
-    if 'phone_number' in data:
-        user.phone_number = data['phone_number']
+
+    user.updated_at = datetime.now()
 
     db.session.commit()
 
@@ -169,36 +154,27 @@ def check_session():
 def get_user():
     user_data = {
         'id': current_user.id,
-        'email': current_user.email,
-        'name': current_user.first_name + ' ' + current_user.last_name
+        'email': current_user.email
     }
     return jsonify(user_data) and jsonify({'status': 'success'})
 
 
-@app.get('/user/<string:string>')
+@app.get('/user/id')
 @login_required
-def get_user_string(string):
-    match string:
-        case 'email':
-            email = current_user.email
-            return jsonify({'email': email, 'status': 'success'})
-        case 'first_name':
-            first_name = current_user.first_name
-            return jsonify({'first_name': first_name, 'status': 'success'})
-        case 'last_name':
-            last_name = current_user.last_name
-            return jsonify({'last_name': last_name, 'status': 'success'})
-        case 'address':
-            address = current_user.address
-            return jsonify({'address': address, 'status': 'success'})
-        case 'phone_number':
-            phone_number = current_user.phone_number
-            return jsonify({'phone_number': phone_number, 'status': 'success'})
-        case 'date_of_birth':
-            date_of_birth = current_user.date_of_birth
-            return jsonify({'date_of_birth': date_of_birth, 'status': 'success'})
-        case _:
-            return jsonify({'message': 'Invalid request.', 'status': 'danger'})
+def get_user_id():
+    return jsonify({'id': current_user.id, 'status': 'success'})
+
+
+@app.get('/user/email')
+@login_required
+def get_user_email():
+    return jsonify({'email': current_user.email, 'status': 'success'})
+
+
+@app.get('/check-user/<int:user_id>')
+def check_user(user_id):
+    user_exists = db.session.query(User).filter_by(id=user_id).first() is not None
+    return jsonify({'user_exists': user_exists})
 
 
 @app.get('/user/last-login')

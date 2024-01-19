@@ -27,12 +27,7 @@ def test_register(client):
     data = {
         'email': 'test@example.com',
         'password': 'password',
-        'password_confirm': 'password',
-        'first_name': 'Test',
-        'last_name': 'User',
-        'date_of_birth': '01/01/2000',
-        'address': '123 Test St',
-        'phone_number': '0612345678'
+        'password_confirm': 'password'
     }
 
     response = client.post('/register', json=data)
@@ -57,7 +52,7 @@ def test_update(client):
     test_login(client)
 
     data = {
-        'first_name': 'Updated'
+        'email': 'test@example.ba'
     }
 
     response = client.post('/update', json=data)
@@ -89,15 +84,20 @@ def test_get_user(client):
     assert response.json['status'] == 'success'
 
 
-def test_get_user_string(client):
+def test_get_user_id(client):
     test_login(client)
 
-    strings = ['email', 'first_name', 'last_name', 'address', 'phone_number', 'date_of_birth']
+    response = client.get('/user/id')
+    assert response.status_code == 200
+    assert response.json['status'] == 'success'
 
-    for string in strings:
-        response = client.get(f'/user/{string}')
-        assert response.status_code == 200
-        assert response.json['status'] == 'success'
+
+def test_get_user_email(client):
+    test_login(client)
+
+    response = client.get('/user/email')
+    assert response.status_code == 200
+    assert response.json['status'] == 'success'
 
 
 def test_get_user_last_login(client):
