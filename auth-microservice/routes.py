@@ -1,184 +1,180 @@
-from flask import Flask, request, jsonify, session
-from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from flask import Flask, request, jsonify
+from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity, get_jwt
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from secrets import compare_digest
-from datetime import datetime
-from models import db, User
+from datetime import datetime, timedelta, timezone
+from models import db, User, TokenBlocklist
 
 app = Flask(__name__)
 CORS(app)
 
-login_manager = LoginManager()
-login_manager.init_app(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+if app.config['TESTING']:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+
+ACCESS_EXPIRES = timedelta(hours=1)
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'tajni_kljuc'
+app.config['JWT_SECRET_KEY'] = 'tajni_kljuc'
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = ACCESS_EXPIRES
 
 db.init_app(app)
 bcrypt = Bcrypt(app)
+jwt = JWTManager(app)
 
 
-@login_manager.user_loader
-def load_user(user_id):
-    return db.session.query(User).get(user_id) if user_id else None
+@jwt.token_in_blocklist_loader
+def check_if_token_is_revoked(jwt_header, jwt_payload: dict) -> bool:
+    jti = jwt_payload["jti"]
+    token = db.session.query(TokenBlocklist.id).filter_by(jti=jti).scalar()
+
+    return token is not None
 
 
-@login_manager.unauthorized_handler
-def unauthorized():
-    return jsonify({'message': 'You are not logged in.', 'status': 'danger'})
-
-
-@login_manager.needs_refresh_handler
-def refresh():
-    return jsonify({'message': 'You need to re-authenticate.', 'status': 'danger'})
-
-
-@app.get('/')
+@app.route('/', methods=['GET'])
 def home():
     return 'Welcome to the authentication microservice!'
 
 
-@app.post('/register')
+@app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
-
-    if 'email' not in data:
-        return jsonify({'message': 'Email required.', 'status': 'danger'})
-    if 'password' not in data:
-        return jsonify({'message': 'Password required.', 'status': 'danger'})
-    if 'password_confirm' not in data:
-        return jsonify({'message': 'Password confirmation required.', 'status': 'danger'})
-
     email = data['email']
     password = data['password']
     password_confirm = data['password_confirm']
 
-    if compare_digest(password, password_confirm):
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-    else:
-        return jsonify({'message': 'Passwords do not match.', 'status': 'danger'})
+    fields = ['email', 'password', 'password_confirm']
+    for field in fields:
+        if field not in data:
+            return jsonify(msg=f'{field} is required.'), 400
+
+    if not compare_digest(password, password_confirm):
+        return jsonify({'msg': 'Passwords do not match.'}), 400
 
     existing_email = db.session.query(User).filter_by(email=email).first()
-
     if existing_email:
-        return jsonify({'message': 'Email already taken. Please choose another.', 'status': 'danger'})
-    else:
-        # noinspection PyArgumentList
-        new_user = User(
-            email=email,
-            password_hash=hashed_password
-        )
-        db.session.add(new_user)
-        db.session.commit()
+        return jsonify(msg='Email already taken. Please choose another.'), 409
 
-        return jsonify({'message': 'User created successfully!', 'status': 'success'})
+    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+    new_user = User(
+        email=email,
+        password_hash=hashed_password,
+    )
+    db.session.add(new_user)
+    db.session.commit()
+
+    return jsonify(msg='User created successfully!'), 200
 
 
-@app.post('/login')
+@app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-
     email = data['email']
     password = data['password']
 
+    if not email or not password:
+        return jsonify(msg='Email and password are required.'), 400
+
     user = db.session.query(User).filter_by(email=email).first()
     if user and bcrypt.check_password_hash(user.password_hash, password):
-        login_user(user)
-        user.last_login = datetime.now()
-        db.session.commit()
-
-        response_data = {
-            'message': 'Login successful!',
-            'status': 'success',
-            'user': {
-                'id': user.id,
-                'email': user.email
-            }
-        }
-
-        session['user_id'] = user.id
-
-        return jsonify(response_data)
+        access_token = create_access_token(identity=user.id)
+        return jsonify(access_token=access_token), 200
     else:
-        return jsonify({'message': 'Invalid email or password.', 'status': 'danger'})
+        return jsonify(msg='Invalid credentials.'), 401
 
 
-@app.post('/update')
-@login_required
-def update():
-    data = request.get_json()
+@app.route('/refresh', methods=['POST'])
+@jwt_required(refresh=True)
+def refresh():
+    user_id = get_jwt_identity()
+    access_token = create_access_token(identity=user_id)
+    return jsonify(access_token=access_token), 200
 
-    user = db.session.query(User).filter_by(id=current_user.id).first()
 
-    if 'email' in data:
-        user.email = data['email']
-    if 'password' in data:
-        user.password_hash = bcrypt.generate_password_hash(data['password']).decode('utf-8')
+@app.route('/logout', methods=['DELETE'])
+@jwt_required(verify_type=False)
+def modify_token():
+    token = get_jwt()
+    jti = token['jti']
+    ttype = token['type']
+    user_id = get_jwt_identity()
+    now = datetime.now(timezone.utc)
 
-    user.updated_at = datetime.now()
-
+    db.session.add(TokenBlocklist(jti=jti, type=ttype, user_id=user_id, created_at=now))
     db.session.commit()
 
-    return jsonify({'message': 'User updated successfully!', 'status': 'success'})
+    return jsonify(msg=f'{ttype.capitalize()} token successfully revoked'), 200
 
 
-@app.post('/delete')
-@login_required
+@app.route('/update-email', methods=['POST'])
+@jwt_required()
+def update_email():
+    user_id = get_jwt_identity()
+    user = db.session.query(User).get(user_id)
+
+    if not user:
+        return jsonify(msg='User not found.'), 404
+
+    data = request.get_json()
+
+    if 'email' not in data:
+        return jsonify(msg='Email is required.'), 400
+
+    email = data['email']
+    existing_email = db.session.query(User).filter(User.email == email, User.id != user_id).first()
+    if existing_email:
+        return jsonify(msg='Email already taken. Please choose another.'), 409
+    user.email = email
+
+    user.updated_at = datetime.now(timezone.utc)
+    db.session.commit()
+
+    return jsonify(msg='Email updated successfully!'), 200
+
+
+@app.route('/update-password', methods=['POST'])
+@jwt_required()
+def update_password():
+    user_id = get_jwt_identity()
+    user = db.session.query(User).get(user_id)
+
+    if not user:
+        return jsonify(msg='User not found.'), 404
+
+    data = request.get_json()
+
+    if 'current_password' not in data or 'new_password' not in data or 'new_password_confirm' not in data:
+        return jsonify(msg='All fields are required.'), 400
+
+    current_password = data['current_password']
+    new_password = data['new_password']
+    new_password_confirm = data['new_password_confirm']
+
+    if not compare_digest(new_password, new_password_confirm):
+        return jsonify(msg='Passwords do not match.'), 400
+    if not bcrypt.check_password_hash(user.password_hash, current_password):
+        return jsonify(msg='Current password is incorrect.'), 400
+    if compare_digest(current_password, new_password):
+        return jsonify(msg='New password cannot be the same as the current password.'), 400
+
+    hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
+    user.password_hash = hashed_password
+    user.updated_at = datetime.now(timezone.utc)
+    db.session.commit()
+
+    return jsonify(msg='Password updated successfully!'), 200
+
+
+@app.route('/delete', methods=['DELETE'])
+@jwt_required()
 def delete():
-    user = db.session.query(User).filter_by(id=current_user.id).first()
+    user_id = get_jwt_identity()
+    user = db.session.query(User).filter_by(id=user_id).first()
 
     db.session.delete(user)
     db.session.commit()
 
-    return jsonify({'message': 'User deleted successfully!', 'status': 'success'})
-
-
-@app.post('/logout')
-@login_required
-def logout():
-    logout_user()
-    session.pop('user_id', None)
-    return jsonify({'message': 'Logout successful!', 'status': 'success'})
-
-
-@app.get('/check-session')
-@login_required
-def check_session():
-    return jsonify({'message': 'Session active!', 'user_id': current_user.id, 'status': 'success'})
-
-
-@app.get('/user')
-@login_required
-def get_user():
-    user_data = {
-        'id': current_user.id,
-        'email': current_user.email
-    }
-    return jsonify(user_data) and jsonify({'status': 'success'})
-
-
-@app.get('/user/id')
-@login_required
-def get_user_id():
-    return jsonify({'id': current_user.id, 'status': 'success'})
-
-
-@app.get('/user/email')
-@login_required
-def get_user_email():
-    return jsonify({'email': current_user.email, 'status': 'success'})
-
-
-@app.get('/check-user/<int:user_id>')
-def check_user(user_id):
-    user_exists = db.session.query(User).filter_by(id=user_id).first() is not None
-    return jsonify({'user_exists': user_exists})
-
-
-@app.get('/user/last-login')
-@login_required
-def get_user_last_login():
-    last_login = current_user.last_login
-    return jsonify({'last-login': last_login, 'status': 'success'})
+    return jsonify(msg='User deleted successfully!'), 200

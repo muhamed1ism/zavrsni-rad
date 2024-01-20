@@ -1,108 +1,78 @@
-import pytest
-from routes import app
-from models import db
+from flask_testing import TestCase
+from app import app, db
 
 
-@pytest.fixture
-def client():
-    app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+class TestAuth(TestCase):
+    def create_app(self):
+        app.config['TESTING'] = True
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+        app.config['JWT_SECRET_KEY'] = 'test_secret'
+        return app
 
-    with app.test_client() as client:
-        with app.app_context():
-            db.create_all()
-        yield client
+    def setUp(self):
+        db.create_all()
 
+    def tearDown(self):
+        db.session.remove()
         db.drop_all()
 
+    def test_home(self):
+        response = self.client.get('/')
+        assert response.status_code == 200
+        assert response.data == b'Welcome to the authentication microservice!'
 
-def test_home(client):
-    response = client.get('/')
-    assert response.status_code == 200
-    assert response.data == b'Welcome to the authentication microservice!'
+    def test_register(self):
+        data = {
+            'email': 'test@example.com',
+            'password': 'password',
+            'password_confirm': 'password'
+        }
 
+        response = self.client.post('/register', json=data)
+        assert response.status_code == 200
 
-def test_register(client):
-    data = {
-        'email': 'test@example.com',
-        'password': 'password',
-        'password_confirm': 'password'
-    }
+    def test_login(self):
+        self.test_register()
 
-    response = client.post('/register', json=data)
-    assert response.status_code == 200
-    assert response.json['status'] == 'success'
+        data = {
+            'email': 'test@example.com',
+            'password': 'password'
+        }
 
+        response = self.client.post('/login', json=data)
+        assert response.status_code == 200
+        token = 'Bearer ' + response.get_json()['access_token']
+        return token
 
-def test_login(client):
-    test_register(client)
+    def test_logout(self):
+        token = self.test_login()
+        response = self.client.delete('/logout', headers={'Authorization': token})
+        assert response.status_code == 200
 
-    data = {
-        'email': 'test@example.com',
-        'password': 'password'
-    }
+    def test_update_email(self):
+        token = self.test_login()
 
-    response = client.post('/login', json=data)
-    assert response.status_code == 200
-    assert response.json['status'] == 'success'
+        data = {
+            'email': 'test@example.ba'
+        }
 
+        response = self.client.post('/update-email', headers={'Authorization': token}, json=data)
+        assert response.status_code == 200
 
-def test_update(client):
-    test_login(client)
+    def test_update_password(self):
+        token = self.test_login()
 
-    data = {
-        'email': 'test@example.ba'
-    }
+        data = {
+            'current_password': 'password',
+            'new_password': 'new_password',
+            'new_password_confirm': 'new_password'
+        }
 
-    response = client.post('/update', json=data)
-    assert response.status_code == 200
-    assert response.json['status'] == 'success'
+        response = self.client.post('/update-password', headers={'Authorization': token}, json=data)
+        assert response.status_code == 200
 
+    def test_delete(self):
+        token = self.test_login()
 
-def test_logout(client):
-    test_login(client)
-
-    response = client.post('/logout')
-    assert response.status_code == 200
-    assert response.json['status'] == 'success'
-
-
-def test_check_session(client):
-    test_login(client)
-
-    response = client.get('/check-session')
-    assert response.status_code == 200
-    assert response.json['status'] == 'success'
-
-
-def test_get_user(client):
-    test_login(client)
-
-    response = client.get('/user')
-    assert response.status_code == 200
-    assert response.json['status'] == 'success'
-
-
-def test_get_user_id(client):
-    test_login(client)
-
-    response = client.get('/user/id')
-    assert response.status_code == 200
-    assert response.json['status'] == 'success'
-
-
-def test_get_user_email(client):
-    test_login(client)
-
-    response = client.get('/user/email')
-    assert response.status_code == 200
-    assert response.json['status'] == 'success'
-
-
-def test_get_user_last_login(client):
-    test_login(client)
-
-    response = client.get('/user/last-login')
-    assert response.status_code == 200
-    assert response.json['status'] == 'success'
+        response = self.client.delete('/delete', headers={'Authorization': token})
+        assert response.status_code == 200
