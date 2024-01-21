@@ -3,23 +3,13 @@ from flask_jwt_extended import JWTManager, jwt_required, create_access_token, ge
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from secrets import compare_digest
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from models import db, User, TokenBlocklist
 
 app = Flask(__name__)
 CORS(app)
 
-
-if app.config['TESTING']:
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-else:
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
-
-ACCESS_EXPIRES = timedelta(hours=1)
-
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = 'tajni_kljuc'
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = ACCESS_EXPIRES
+app.config.from_object('config')
 
 db.init_app(app)
 bcrypt = Bcrypt(app)

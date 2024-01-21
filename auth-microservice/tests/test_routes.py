@@ -4,9 +4,7 @@ from app import app, db
 
 class TestAuth(TestCase):
     def create_app(self):
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        app.config['JWT_SECRET_KEY'] = 'test_secret'
+        app.config.from_object('test_config')
         return app
 
     def setUp(self):

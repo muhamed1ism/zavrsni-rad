@@ -10,7 +10,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, default=datetime.now(), onupdate=datetime.now())
-    role = db.Column(db.String(50), nullable=False)
+    role = db.Column(db.String(50), default='patient', nullable=False)
 
     def __repr__(self):
         return f'<User {self.email}>'
