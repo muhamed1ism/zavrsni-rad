@@ -3,7 +3,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
 
-from models import db, Patient
+from models import db, Doctor
 
 # Flask
 app = Flask(__name__)
@@ -23,7 +23,7 @@ jwt = JWTManager(app)
 # Home route
 @app.route('/', methods=['GET'])
 def home():
-    return 'Welcome to the patient microservice!'
+    return 'Welcome to the doctor microservice!'
 
 
 # Create profile route
@@ -47,7 +47,7 @@ def create_profile():
         if 'address' not in data:
             return jsonify(error='Address is required.'), 400
 
-        new_patient = Patient(
+        new_patient = Doctor(
             user_id=user_id,
             first_name=data['first_name'],
             last_name=data['last_name'],
@@ -76,19 +76,19 @@ def get_profile():
     try:
         user_id = get_jwt_identity()
 
-        patient = db.session.query(Patient).filter(Patient.user_id == user_id).first()
+        doctor = db.session.query(Doctor).filter(Doctor.user_id == user_id).first()
 
-        if not patient:
-            return jsonify(msg='Patient not found.'), 404
+        if not doctor:
+            return jsonify(msg='Doctor not found.'), 404
 
         return jsonify({
-            'id': patient.id,
-            'user_id': patient.user_id,
-            'first_name': patient.first_name,
-            'last_name': patient.last_name,
-            'date_of_birth': patient.date_of_birth,
-            'address': patient.address,
-            'phone_number': patient.phone_number
+            'id': doctor.id,
+            'user_id': doctor.user_id,
+            'first_name': doctor.first_name,
+            'last_name': doctor.last_name,
+            'date_of_birth': doctor.date_of_birth,
+            'address': doctor.address,
+            'phone_number': doctor.phone_number
         }), 200
 
     except sqlalchemy.exc.SQLAlchemyError as e:
@@ -104,37 +104,37 @@ def get_profile():
 def update_profile():
     try:
         user_id = get_jwt_identity()
-        patient = db.session.query(Patient).filter(Patient.user_id == user_id).first()
+        doctor = db.session.query(Doctor).filter(Doctor.user_id == user_id).first()
 
-        if not patient:
-            return jsonify(error='Patient not found.'), 404
+        if not doctor:
+            return jsonify(error='Doctor not found.'), 404
 
         data = request.get_json()
 
         if data is None:
             return jsonify(error='No data provided.'), 400
 
-        if user_id != patient.user_id:
+        if user_id != doctor.user_id:
             return jsonify(error='User does not match token.'), 403
 
         if 'first_name' in data:
-            patient.first_name = data['first_name']
+            doctor.first_name = data['first_name']
 
         if 'last_name' in data:
-            patient.last_name = data['last_name']
+            doctor.last_name = data['last_name']
 
         if 'date_of_birth' in data:
-            patient.date_of_birth = data['date_of_birth']
+            doctor.date_of_birth = data['date_of_birth']
 
         if 'address' in data:
-            patient.address = data['address']
+            doctor.address = data['address']
 
         if 'phone_number' in data:
-            patient.phone_number = data['phone_number']
+            doctor.phone_number = data['phone_number']
 
         db.session.commit()
 
-        return jsonify(msg='Patient profile updated successfully!'), 200
+        return jsonify(msg='Doctor profile updated successfully!'), 200
 
     except sqlalchemy.exc.SQLAlchemyError as e:
         db.session.rollback()
@@ -151,18 +151,18 @@ def delete_profile():
     try:
         user_id = get_jwt_identity()
 
-        patient = db.session.query(Patient).filter(Patient.user_id == user_id).first()
+        doctor = db.session.query(Doctor).filter(Doctor.user_id == user_id).first()
 
-        if not patient:
-            return jsonify(error='Patient not found.'), 404
+        if not doctor:
+            return jsonify(error='Doctor not found.'), 404
 
-        if user_id != patient.user_id:
+        if user_id != doctor.user_id:
             return jsonify(error='User does not match token.'), 403
 
-        db.session.delete(patient)
+        db.session.delete(doctor)
         db.session.commit()
 
-        return jsonify(msg='Patient profile deleted successfully!'), 200
+        return jsonify(msg='Doctor profile deleted successfully!'), 200
 
     except sqlalchemy.exc.SQLAlchemyError as e:
         db.session.rollback()

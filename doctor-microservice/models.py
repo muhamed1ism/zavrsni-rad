@@ -4,7 +4,7 @@ from datetime import datetime
 db = SQLAlchemy()
 
 
-class Patient(db.Model):
+class Doctor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, nullable=False, unique=True)
     first_name = db.Column(db.String(50), nullable=False)
@@ -16,4 +16,4 @@ class Patient(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.now(), onupdate=datetime.now())
 
     def __repr__(self):
-        return f'<Patient {self.first_name} {self.last_name}>'
+        return f'<Doctor {self.first_name} {self.last_name}>'
