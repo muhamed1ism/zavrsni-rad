@@ -2,6 +2,10 @@ from flask_testing import TestCase
 from app import app, db
 
 
+def authorization_header(token):
+    return {'Authorization': 'Bearer ' + token}
+
+
 class TestAuth(TestCase):
     def create_app(self):
         app.config.from_object('test_config')
@@ -39,26 +43,34 @@ class TestAuth(TestCase):
 
         response = self.client.post('/login', json=data)
         assert response.status_code == 200
-        token = 'Bearer ' + response.get_json()['access_token']
-        return token
+        return response
 
     def test_logout(self):
-        token = self.test_login()
-        response = self.client.delete('/logout', headers={'Authorization': token})
+        login_response = self.test_login()
+        access_token = login_response.json['access_token']
+        response = self.client.delete('/logout', headers=authorization_header(access_token))
+        assert response.status_code == 200
+
+    def test_refresh(self):
+        login_response = self.test_login()
+        refresh_token = login_response.json['refresh_token']
+        response = self.client.post('/refresh', headers=authorization_header(refresh_token))
         assert response.status_code == 200
 
     def test_update_email(self):
-        token = self.test_login()
+        login_response = self.test_login()
+        access_token = login_response.json['access_token']
 
         data = {
             'email': 'test@example.ba'
         }
 
-        response = self.client.post('/update-email', headers={'Authorization': token}, json=data)
+        response = self.client.put('/user/update-email', headers=authorization_header(access_token), json=data)
         assert response.status_code == 200
 
     def test_update_password(self):
-        token = self.test_login()
+        login_response = self.test_login()
+        access_token = login_response.json['access_token']
 
         data = {
             'current_password': 'password',
@@ -66,11 +78,12 @@ class TestAuth(TestCase):
             'new_password_confirm': 'new_password'
         }
 
-        response = self.client.post('/update-password', headers={'Authorization': token}, json=data)
+        response = self.client.put('/user/update-password', headers=authorization_header(access_token), json=data)
         assert response.status_code == 200
 
     def test_delete(self):
-        token = self.test_login()
+        login_response = self.test_login()
+        access_token = login_response.json['access_token']
 
-        response = self.client.delete('/delete', headers={'Authorization': token})
+        response = self.client.delete('/user/delete', headers=authorization_header(access_token))
         assert response.status_code == 200
