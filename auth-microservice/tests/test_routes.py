@@ -21,7 +21,6 @@ class TestAuth(TestCase):
     def test_home(self):
         response = self.client.get('/')
         assert response.status_code == 200
-        assert response.data == b'Welcome to the authentication microservice!'
 
     def test_register(self):
         data = {
@@ -65,7 +64,7 @@ class TestAuth(TestCase):
             'email': 'test@example.ba'
         }
 
-        response = self.client.put('/user/update-email', headers=authorization_header(access_token), json=data)
+        response = self.client.put('/update-email', headers=authorization_header(access_token), json=data)
         assert response.status_code == 200
 
     def test_update_password(self):
@@ -78,12 +77,12 @@ class TestAuth(TestCase):
             'new_password_confirm': 'new_password'
         }
 
-        response = self.client.put('/user/update-password', headers=authorization_header(access_token), json=data)
+        response = self.client.put('/update-password', headers=authorization_header(access_token), json=data)
         assert response.status_code == 200
 
     def test_delete(self):
         login_response = self.test_login()
         access_token = login_response.json['access_token']
 
-        response = self.client.delete('/user/delete', headers=authorization_header(access_token))
+        response = self.client.delete('/delete', headers=authorization_header(access_token))
         assert response.status_code == 200

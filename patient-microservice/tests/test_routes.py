@@ -33,7 +33,7 @@ class TestAuth(TestCase):
         }
 
         response = self.client.post(
-            '/profile/create',
+            '/create-patient',
             json=data,
             headers=headers
         )
@@ -45,7 +45,7 @@ class TestAuth(TestCase):
         headers = self.test_create_profile()
 
         response = self.client.get(
-            '/profile',
+            '/get-patient',
             headers=headers
         )
 
@@ -65,7 +65,7 @@ class TestAuth(TestCase):
         }
 
         response = self.client.put(
-            '/profile/update',
+            '/update-patient',
             json=data,
             headers=headers
         )
@@ -73,7 +73,7 @@ class TestAuth(TestCase):
         assert response.status_code == 200
 
         get_response = self.client.get(
-            '/profile',
+            '/get-patient',
             headers=headers
         )
 
@@ -84,14 +84,14 @@ class TestAuth(TestCase):
         headers = self.test_create_profile()
 
         response = self.client.delete(
-            '/profile/delete',
+            '/delete-patient',
             headers=headers
         )
 
         assert response.status_code == 200
 
         get_response = self.client.get(
-            '/profile',
+            '/get-patient',
             headers=headers
         )
 

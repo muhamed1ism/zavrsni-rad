@@ -1,6 +1,4 @@
 from flask import Flask
-from flask_cors import CORS
-from flask_jwt_extended import JWTManager
 
 from models import db
 from routes import app_routes, jwt, cors
@@ -29,4 +27,4 @@ with app.app_context():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5002)
+    app.run(debug=True, port=5003)
