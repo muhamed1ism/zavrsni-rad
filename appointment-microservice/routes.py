@@ -166,22 +166,20 @@ def app_route_get_appointment_by_id(app):
         }), 200
 
 
-# Delete appointment route # TODO - Restrict to admin only
+# Delete appointment route by appointment ID if user is admin
 def app_route_delete_appointment(app):
     @app.route('/delete-appointment/<appointment_id>', methods=['DELETE'])
     @jwt_required()
     def delete_appointment(appointment_id):
+        user_role = get_user_role()
+
+        if user_role != 'admin':
+            return jsonify(error='You do not have permission to delete appointments.'), 403
+
         appointment = db.session.query(Appointment).filter(Appointment.id == appointment_id).first()
 
         if not appointment:
             return jsonify(msg='Appointment not found.'), 404
-
-        user_id = get_jwt_identity()
-        patient_id = get_patient_id(user_id)
-
-        if appointment.patient_id != patient_id:
-            return jsonify(error='You do not have permission to delete this appointment.'), 403
-
         try:
             db.session.delete(appointment)
             db.session.commit()
