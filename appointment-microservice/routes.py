@@ -166,7 +166,7 @@ def app_route_get_appointment_by_id(app):
         }), 200
 
 
-# Delete appointment route by appointment ID if user is admin
+# Delete appointment route appointment ID if user is admin
 def app_route_delete_appointment(app):
     @app.route('/delete-appointment/<appointment_id>', methods=['DELETE'])
     @jwt_required()
