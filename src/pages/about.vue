@@ -1,7 +1,7 @@
 <template>
     <div>
-        <h1>About</h1>
-        <p>This is the about page</p>
+        <h1>O nama</h1>
+        <p>Ovo je stranica o nama</p>
     </div>
 </template>
 

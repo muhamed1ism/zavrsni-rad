@@ -3,7 +3,7 @@
     <v-row class="justify-center align-center mb-16">
       <v-col cols="12" sm="8" md="6" lg="4">
         <v-card border variant="flat" class="pa-4 mx-auto">
-          <v-card-title class="text-center text-h5">Prijava </v-card-title>
+          <v-card-title class="text-center text-h5">Prijava</v-card-title>
           <v-card-item>
             <v-sheet>
               <v-form @submit.prevent="submit">
@@ -65,12 +65,11 @@
 
 <script setup>
 import { ref } from "vue";
-import axios from "axios";
-import router from "@/router";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 const form = ref({
   email: "",
-  password: ""
+  password: "",
 });
 
 const email_rule = [
@@ -85,25 +84,12 @@ const password_rule = [
 
 const visible = ref(false);
 
-const submit = () => {
-    axios
-        .post("http://localhost:5000/login", form.value)
-        .then((res) => {
-            console.log(res);
+const authStore = useAuthStore();
 
-            if (res.data.status == 'success') {
-                const user = res.data.user;
-                localStorage.setItem("user", JSON.stringify(user));
-
-                router.push("/");
-            }
-            else {
-                console.error(res.data.message);
-            }
-        })
-        .catch((error) => {
-            console.log(error);
-        });
-}
-
+const submit = async () => {
+  await authStore.login(form.value.email, form.value.password);
+  if (authStore.isAuthenticated) {
+    console.log(localStorage.getItem("role") + " login success")
+  }
+};
 </script>

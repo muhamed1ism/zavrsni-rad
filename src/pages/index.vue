@@ -1,6 +1,6 @@
 <template>
   <div>
-    Hello Home
+    Početna stranica aplikacije
   </div>
 </template>
 
