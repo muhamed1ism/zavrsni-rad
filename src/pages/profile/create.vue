@@ -97,8 +97,6 @@
 
 <script setup>
 import { ref } from "vue";
-import axios from "axios";
-import router from "@/router";
 import {usePatientStore} from "@/stores/usePatientStore";
 
 const form = ref({
