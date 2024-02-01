@@ -210,7 +210,7 @@ def app_route_get_doctor_by_id(app):
 
     @app.route('/get-doctor/<int:doctor_id>', methods=['GET'])
     def get_doctor_by_id(doctor_id):
-        doctor = db.session.query(Doctor).filter(Doctor.doctor_id == doctor_id).first()
+        doctor = db.session.query(Doctor).filter(Doctor.id == doctor_id).first()
 
         if not doctor:
             return jsonify(msg='Doctor not found.'), 404

@@ -25,6 +25,13 @@ def get_patient(user_id):
     return patient
 
 
+def get_patient_by_id(patient_id):
+    patient_url = f'http://localhost:5001/get-patient/{patient_id}'
+    patient_response = requests.get(patient_url, headers={'Authorization': request.headers['Authorization']})
+    patient = patient_response.json()
+    return patient
+
+
 def get_doctor(user_id):
     doctor_url = f'http://localhost:5002/get-doctor/user/{user_id}'
     doctor_response = requests.get(doctor_url, headers={'Authorization': request.headers['Authorization']})
@@ -32,10 +39,11 @@ def get_doctor(user_id):
     return doctor
 
 
-def get_patient_name(user_id):
-    patient = get_patient(user_id)
-    patient_name = patient['firstName'] + ' ' + patient['lastName']
-    return patient_name
+def get_doctor_by_id(doctor_id):
+    doctor_url = f'http://localhost:5002/get-doctor/{doctor_id}'
+    doctor_response = requests.get(doctor_url, headers={'Authorization': request.headers['Authorization']})
+    doctor = doctor_response.json()
+    return doctor
 
 
 def get_patient_id(user_id):
@@ -44,16 +52,22 @@ def get_patient_id(user_id):
     return patient_id
 
 
-def get_doctor_name(user_id):
-    doctor = get_doctor(user_id)
-    doctor_name = doctor['firstName'] + ' ' + doctor['lastName']
-    return doctor_name
+def get_patient_name(user_id):
+    patient = get_patient(user_id)
+    patient_name = patient['firstName'] + ' ' + patient['lastName']
+    return patient_name
 
 
 def get_doctor_id(user_id):
     doctor = get_doctor(user_id)
     doctor_id = doctor['id']
     return doctor_id
+
+
+def get_doctor_name(doctor_id):
+    doctor = get_doctor_by_id(doctor_id)
+    doctor_name = doctor['firstName'] + ' ' + doctor['lastName']
+    return doctor_name
 
 
 def get_user_role():
@@ -102,9 +116,12 @@ def app_route_create_appointment(app):
         if 'time' not in data or data['time'] == '':
             return jsonify(error='Time is required.'), 400
 
+        # getting patient id and patient name of current user
         user_id = get_jwt_identity()
-        patient_name = get_patient_name(user_id)
         patient_id = get_patient_id(user_id)
+        patient_name = get_patient_name(user_id)
+
+        # getting selected doctor name
         doctor_id = data['doctorId']
         doctor_name = get_doctor_name(doctor_id)
 
@@ -153,7 +170,7 @@ def app_route_get_appointment_by_id(app):
 
         elif user_role == 'doctor':
             user_id = get_jwt_identity()
-            doctor_id = get_doctor_id(user_id)
+            doctor_id = get_doctor_by_user_id(user_id)
 
             if appointment.doctor_id != doctor_id:
                 return jsonify(error='You do not have permission to view this appointment.'), 403
@@ -172,34 +189,6 @@ def app_route_get_appointment_by_id(app):
             'status': appointment.status
         }), 200
 
-
-# Delete appointment by appointment ID if user is admin
-def app_route_delete_appointment(app):
-
-    @app.route('/delete-appointment/<appointment_id>', methods=['DELETE'])
-    @jwt_required()
-    def delete_appointment(appointment_id):
-        user_role = get_user_role()
-
-        if user_role != 'admin':
-            return jsonify(error='You do not have permission to delete appointments.'), 403
-
-        appointment = db.session.query(Appointment).filter(Appointment.id == appointment_id).first()
-
-        if not appointment:
-            return jsonify(msg='Appointment not found.'), 404
-        try:
-            db.session.delete(appointment)
-            db.session.commit()
-
-        except sqlalchemy.exc.SQLAlchemyError as e:
-            db.session.rollback()
-            return jsonify(error=f'An error occurred while deleting the appointment. {str(e)}'), 500
-
-        finally:
-            db.session.close()
-
-        return jsonify(msg='Appointment deleted successfully.'), 200
 
 
 # Get all user appointments based on user role
@@ -243,6 +232,35 @@ def app_route_get_all_appointments(app):
             })
 
         return jsonify(appointments_list), 200
+
+
+# Delete appointment by appointment ID if user is admin
+def app_route_delete_appointment(app):
+
+    @app.route('/delete-appointment/<appointment_id>', methods=['DELETE'])
+    @jwt_required()
+    def delete_appointment(appointment_id):
+        user_role = get_user_role()
+
+        if user_role != 'admin':
+            return jsonify(error='You do not have permission to delete appointments.'), 403
+
+        appointment = db.session.query(Appointment).filter(Appointment.id == appointment_id).first()
+
+        if not appointment:
+            return jsonify(msg='Appointment not found.'), 404
+        try:
+            db.session.delete(appointment)
+            db.session.commit()
+
+        except sqlalchemy.exc.SQLAlchemyError as e:
+            db.session.rollback()
+            return jsonify(error=f'An error occurred while deleting the appointment. {str(e)}'), 500
+
+        finally:
+            db.session.close()
+
+        return jsonify(msg='Appointment deleted successfully.'), 200
 
 
 # Set appointment status to approved route using appointment id

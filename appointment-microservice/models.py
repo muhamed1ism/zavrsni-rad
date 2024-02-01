@@ -13,7 +13,6 @@ class Appointment(db.Model):
     patient_name = db.Column(db.String(50), nullable=False)
     doctor_name = db.Column(db.String(50), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.now())
-    updated_at = db.Column(db.DateTime, default=datetime.now(), onupdate=datetime.now())
     status = db.Column(db.String(50), default='pending', nullable=False)
 
     def __repr__(self):
