@@ -1,108 +1,143 @@
 import { defineStore } from "pinia";
+import { useLocalStorage } from "@vueuse/core";
 import { useUserStore } from "@/stores/useUserStore";
 import { usePatientStore } from "@/stores/usePatientStore";
+import { useDoctorStore } from "@/stores/useDoctorStore";
+import axios from "axios";
 
 const apiUrl = "http://localhost:5000";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
-    access_token: "",
-    refresh_token: "",
+    auth: useLocalStorage("auth", {
+      isAuthenticated: false,
+      accessToken: "",
+      refreshToken: "",
+    }),
   }),
 
   actions: {
-    async register(email, password, password_confirm, role) {
-      const res = await fetch(`${apiUrl}/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-          password_confirm,
-          role,
-        }),
-      });
-
-      const data = await res.json();
-      if (data.error) {
-        throw data.error;
+    async makeApiRequest(callback, errorMessage) {
+      try {
+        return await callback();
+      } catch (error) {
+        console.error(`${errorMessage}: `, error);
+        throw error;
       }
-
-      this.access_token = data.access_token;
-      this.refresh_token = data.refresh_token;
-
-      localStorage.setItem("access_token", this.access_token);
-      localStorage.setItem("refresh_token", this.refresh_token);
-
-      await this.login(email, password);
     },
 
-    async login(email, password) {
-      const res = await fetch(`${apiUrl}/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
+    async register(credentials) {
+      const registerApiCall = () =>
+        axios.post(`${apiUrl}/register`, credentials);
+      const res = await this.makeApiRequest(
+        registerApiCall,
+        "Registration error",
+      );
 
-      const data = await res.json();
-      if (data.error) {
-        throw data.error;
+      if (res?.status === 201) {
+        await this.login({
+          email: credentials.email,
+          password: credentials.password,
+        });
+      }
+    },
+
+    async login(credentials) {
+      const loginApiCall = () => axios.post(`${apiUrl}/login`, credentials);
+      const res = await this.makeApiRequest(loginApiCall, "Login error");
+
+      if (res?.status === 200) {
+        this.auth = {
+          isAuthenticated: true,
+          accessToken: res.data.accessToken,
+          refreshToken: res.data.refreshToken,
+        };
+        await useUserStore().getUser();
+        const role = useUserStore().user.role;
+        if (role === "patient") {
+          await usePatientStore().getPatient();
+        } else if (role === "doctor") {
+          await useDoctorStore().getDoctor();
+        }
+        window.location.href = "/dashboard";
+      }
+    },
+
+    async refreshAccessToken() {
+      const refreshApiCall = () =>
+        axios.post(`${apiUrl}/refresh-token`, this.auth.refreshToken);
+
+      const res = await this.makeApiRequest(
+        refreshApiCall,
+        "Refresh token error",
+      );
+
+      if (res?.status === 200) {
+        this.auth.accessToken = res.data.accessToken;
+      }
+    },
+
+    async revokeAccessToken() {
+      const deleteAuthApiCall = () =>
+        axios.delete(`${apiUrl}/logout`, {
+          headers: {
+            Authorization: `Bearer ${this.auth.accessToken}`,
+          },
+        });
+      const res = await this.makeApiRequest(
+        deleteAuthApiCall,
+        "Error revoking access token",
+      );
+
+      if (res?.status === 401) {
+        await this.refreshAccessToken();
+        await this.revokeAccessToken();
+      }
+      if (res?.status === 200) {
+        this.auth.accessToken = "";
+      }
+    },
+
+    async revokeRefreshToken() {
+      const deleteAuthApiCall = () =>
+        axios.delete(`${apiUrl}/logout`, {
+          headers: {
+            Authorization: `Bearer ${this.auth.refreshToken}`,
+          },
+        });
+      const res = await this.makeApiRequest(
+        deleteAuthApiCall,
+        "Error revoking refresh token",
+      );
+
+      if (res?.status === 200) {
+        this.auth.refreshToken = "";
+      }
+    },
+
+    async clearUserData() {
+      const role = useUserStore().user.role;
+
+      if (role === "patient") {
+        await usePatientStore().clearPatient();
+      } else if (role === "doctor") {
+        await useDoctorStore().clearDoctor();
       }
 
-      this.access_token = data.access_token;
-      this.refresh_token = data.refresh_token;
-
-      localStorage.setItem("access_token", this.access_token);
-      localStorage.setItem("refresh_token", this.refresh_token);
-
-      const userStore = useUserStore();
-      await userStore.getUser();
-
-      window.location.href = "/dashboard";
+      await useUserStore().clearUser();
     },
 
     async logout() {
-      await fetch(`${apiUrl}/logout`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + localStorage.getItem("access_token"),
-        },
-      });
-
-      await fetch(`${apiUrl}/logout`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + localStorage.getItem("refresh_token"),
-        },
-      });
-
-      this.access_token = "";
-      this.refresh_token = "";
-
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-
-      const userStore = useUserStore();
-      await userStore.clearUser();
-      const patientStore = usePatientStore();
-      await patientStore.clearPatient();
-
-      window.location.href = "/";
-    },
-  },
-
-  getters: {
-    isAuthenticated: () => {
-      return localStorage.getItem("access_token") !== null;
+      try {
+        await this.revokeAccessToken();
+        await this.revokeRefreshToken();
+        await this.clearUserData();
+        this.auth.isAuthenticated = false;
+        window.location.href = "/";
+      } catch (error) {
+        console.error("Logout error: ", error);
+        throw error;
+      }
     },
   },
 });

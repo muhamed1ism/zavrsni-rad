@@ -1,87 +1,102 @@
 import { defineStore } from "pinia";
+import { useLocalStorage } from "@vueuse/core";
+import { useAuthStore } from "@/stores/useAuthStore";
+import axios from "axios";
 
-const apiUrl = "http://localhost:5000"
+const apiUrl = "http://localhost:5000";
 
 export const useUserStore = defineStore("user", {
-    state: () => ({
-        user: {
-            id: "",
-            email: "",
-            role: "",
-            created_at: "",
-            updated_at: "",
-        }
+  state: () => ({
+    user: useLocalStorage("user", {
+      id: null,
+      email: "",
+      role: "",
+      createdAt: "",
+      updatedAt: "",
     }),
+  }),
 
-    actions: {
-        async getUser() {
-                const res = await fetch(`${apiUrl}/get-user`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": "Bearer " + localStorage.getItem("access_token"),
-                    },
-                });
-
-                const data = await res.json();
-                if (data.error) {
-                    throw ("Failed to get user: " + data.error);
-                }
-
-                this.user = data;
-                if (this.user) {
-                    await this.setUser();
-                }
-        },
-
-        async setUser() {
-                localStorage.setItem("id", this.user.id);
-                localStorage.setItem("email", this.user.email);
-                localStorage.setItem("role", this.user.role);
-                localStorage.setItem("createdAt", this.user.created_at);
-                localStorage.setItem("updatedAt", this.user.updated_at);
-        },
-
-        async clearUser() {
-                localStorage.removeItem("id");
-                localStorage.removeItem("email");
-                localStorage.removeItem("role");
-                localStorage.removeItem("createdAt");
-                localStorage.removeItem("updatedAt");
-        },
-
-        async updateEmail(email) {
-                const res = await fetch(`${apiUrl}/update-email`, {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": "Bearer " + localStorage.getItem("access_token")
-                    },
-                    body: JSON.stringify({
-                        email,
-                    }),
-                });
-
-                const data = await res.json();
-                this.email = data.email;
-
-                localStorage.setItem("email", this.email);
-        },
-
-        async updatePassword(current_password, new_password, new_password_confirm) {
-                await fetch(`${apiUrl}/update-password`,{
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": "Bearer " + localStorage.getItem("access_token")
-                    },
-                    body: JSON.stringify({
-                        current_password,
-                        new_password,
-                        new_password_confirm,
-                    }),
-                });
-        },
-
+  actions: {
+    async makeApiRequest(callback, errorMessage) {
+      try {
+        return await callback();
+      } catch (error) {
+        console.error(`${errorMessage}: `, error);
+        throw error;
+      }
     },
-})
+
+    async getUser() {
+      const getUserApiCall = () =>
+        axios.get(`${apiUrl}/get-user`, {
+          headers: {
+            Authorization: "Bearer " + useAuthStore().auth.accessToken,
+          },
+        });
+      const res = await this.makeApiRequest(
+        getUserApiCall,
+        "Error getting user data",
+      );
+
+      if (res.status === 200) {
+        this.user = {
+          id: res.data.id,
+          email: res.data.email,
+          role: res.data.role,
+          createdAt: res.data.createdAt,
+          updatedAt: res.data.updatedAt,
+        };
+      }
+    },
+
+    async clearUser() {
+      try {
+        this.user = {
+          id: null,
+          email: "",
+          role: "",
+          createdAt: "",
+          updatedAt: "",
+        };
+      } catch (error) {
+        console.error("Error: ", error);
+        throw error;
+      }
+    },
+
+    async updateEmail(email) {
+      const updateEmailApiCall = () =>
+        axios.put(`${apiUrl}/update-email`, email, {
+          headers: {
+            Authorization: "Bearer " + useAuthStore().auth.accessToken,
+          },
+        });
+      const res = await this.makeApiRequest(
+        updateEmailApiCall,
+        "Error updating email",
+      );
+
+      if (res.status === 200) {
+        this.user.email = email;
+        window.location.href = "/settings";
+      }
+    },
+
+    async updatePassword(passwords) {
+      const updatePasswordApiCall = () =>
+        axios.put(`${apiUrl}/update-password`, passwords, {
+          headers: {
+            Authorization: "Bearer " + useAuthStore().auth.accessToken,
+          },
+        });
+      const res = await this.makeApiRequest(
+        updatePasswordApiCall,
+        "Error updating password",
+      );
+
+      if (res.status === 200) {
+        window.location.href = "/settings";
+      }
+    },
+  },
+});

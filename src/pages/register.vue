@@ -1,43 +1,42 @@
 <script setup>
   import { ref } from "vue";
   import { useAuthStore } from "@/stores/useAuthStore";
-  import {useUserStore} from "@/stores/useUserStore";
 
   const form = ref({
     email: "",
     password: "",
-    password_confirm: "",
+    passwordConfirm: "",
     role: "patient",
   });
 
   const visible = ref(false);
 
-  const email_rule = [
+  const emailRule = [
     (v) => !!v || "Email je obavezan",
     (v) => /.+@.+/.test(v) || "Email nije validan",
   ];
 
-  const password_rule = [
+  const passwordRule = [
     (v) => !!v || "Lozinka je obavezna",
     (v) => (v && v.length >= 8) || "Lozinka mora biti duža od 8 karaktera",
   ];
 
-  const password_confirm_rule = [
+  const passwordConfirmRule = [
     (v) =>!!v || "Potvrda lozinke je obavezna",
     (v) => v === form.value.password || "Lozinke se ne poklapaju",
   ];
 
-  const role_rule = [
+  const roleRule = [
     (v) =>!!v || "Role je obavezan",
   ];
 
   const authStore = useAuthStore();
-  const userStore = useUserStore();
 
   const submit = async () => {
-      await authStore.register(form.value.email, form.value.password, form.value.password_confirm, form.value.role);
-      if (authStore.isAuthenticated) {
-        console.log(localStorage.getItem("role") + " register success")
+      try {
+        await authStore.register(form.value);
+      } catch (error) {
+        console.log(error);
       }
   };
 
@@ -60,7 +59,7 @@
                     placeholder="Email adresa"
                     variant="outlined"
                     v-model="form.email"
-                    :rules="email_rule"
+                    :rules="emailRule"
                 ></v-text-field>
 
                 <div class="text-subtitle-1 text-medium-emphasis">Lozinka</div>
@@ -72,7 +71,7 @@
                     variant="outlined"
                     v-model="form.password"
                     @click:append-inner="visible = !visible"
-                    :rules="password_rule"
+                    :rules="passwordRule"
                 ></v-text-field>
 
                 <div class="text-subtitle-1 text-medium-emphasis">
@@ -84,16 +83,16 @@
                     density="compact"
                     placeholder="Potvrdi lozinku"
                     variant="outlined"
-                    v-model="form.password_confirm"
+                    v-model="form.passwordConfirm"
                     @click:append-inner="visible = !visible"
-                    :rules="password_confirm_rule"
+                    :rules="passwordConfirmRule"
                 ></v-text-field>
 
                 <div class="mt-6 text-center text-subtitle-1 text-medium-emphasis">
                   Da li si pacijent ili doktor?
                 </div>
                 <v-container class="d-flex justify-center align-content-center">
-                  <v-radio-group v-model="form.role" inline :rules="role_rule">
+                  <v-radio-group v-model="form.role" inline :rules="roleRule">
                     <v-container class="d-flex justify-space-evenly">
                     <v-radio label="Pacijent" color="blue" value="patient"></v-radio>
                     <v-radio label="Doktor" color="red" value="doctor"></v-radio>

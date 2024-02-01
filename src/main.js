@@ -9,6 +9,7 @@ import { registerPlugins } from '@/plugins'
 
 // Components
 import App from './App.vue'
+import Notifications from '@kyvg/vue3-notification'
 
 // Composables
 import { createApp } from 'vue'
@@ -19,5 +20,6 @@ const app = createApp(App)
 
 registerPlugins(app)
 
+app.use(Notifications)
 app.use(pinia)
 app.mount('#app')

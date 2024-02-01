@@ -1,8 +1,8 @@
 <script setup>
-import { onMounted, ref } from "vue";
-import { useTheme } from "vuetify";
 import NavDrawer from "@/components/NavDrawer.vue";
 import {useAuthStore} from "@/stores/useAuthStore";
+import { onMounted, ref } from "vue";
+import { useTheme } from "vuetify";
 
 const theme = useTheme();
 const darkTheme = ref(false);
@@ -20,7 +20,8 @@ async function logOut() {
   try {
     await authStore.logout();
   } catch (error) {
-    console.log('Error during logout: ', error);
+    console.error('Error during logout: ', error);
+    throw error;
   }
 }
 
@@ -43,7 +44,7 @@ onMounted(() => {
     </template>
 
     <v-app-bar-title>
-      <div v-if="authStore.isAuthenticated">
+      <div v-if="authStore.auth.isAuthenticated">
         <RouterLink
             class="text-decoration-none text-h4 px-4 font-weight-light"
             :class="darkTheme ? 'text-white' : 'text-black'"
@@ -68,13 +69,17 @@ onMounted(() => {
         :icon="darkTheme ? 'mdi-weather-sunny' : 'mdi-weather-night'"
       ></v-icon>
     </v-btn>
+    <v-btn
+        @click="logOut"
+        text="LogOut"
+        ></v-btn>
     <template v-slot:append>
       <v-btn
           to="/login"
           variant="outlined"
           color="blue-darken-2"
           text="Prijavi se"
-          v-if="!authStore.isAuthenticated"
+          v-if="!authStore.auth.isAuthenticated"
       >
       </v-btn>
 
@@ -83,7 +88,7 @@ onMounted(() => {
           variant="flat"
           color="blue-darken-2"
           text="Odjavi se"
-          v-else-if="authStore.isAuthenticated"
+          v-else-if="authStore.auth.isAuthenticated"
       >
         Odjavi se
         <v-icon class="pl-4">mdi-logout</v-icon>
