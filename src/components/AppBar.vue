@@ -1,6 +1,6 @@
 <script setup>
 import NavDrawer from "@/components/NavDrawer.vue";
-import {useAuthStore} from "@/stores/useAuthStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { onMounted, ref } from "vue";
 import { useTheme } from "vuetify";
 
@@ -69,10 +69,6 @@ onMounted(() => {
         :icon="darkTheme ? 'mdi-weather-sunny' : 'mdi-weather-night'"
       ></v-icon>
     </v-btn>
-    <v-btn
-        @click="logOut"
-        text="LogOut"
-        ></v-btn>
     <template v-slot:append>
       <v-btn
           to="/login"

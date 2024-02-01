@@ -144,8 +144,7 @@ const submit = async () => {
                   color="blue-darken-2"
                   size="large"
                   class="mb-8 mt-2"
-                  >Spremi</v-btn
-                >
+                  >Spremi</v-btn>
               </v-form>
             </v-sheet>
           </v-card-item>
