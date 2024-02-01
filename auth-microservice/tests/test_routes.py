@@ -53,7 +53,7 @@ class TestAuth(TestCase):
     def test_refresh(self):
         login_response = self.test_login()
         refresh_token = login_response.json['refresh_token']
-        response = self.client.post('/refresh', headers=authorization_header(refresh_token))
+        response = self.client.post('/refresh-token', headers=authorization_header(refresh_token))
         assert response.status_code == 200
 
     def test_update_email(self):
@@ -84,5 +84,5 @@ class TestAuth(TestCase):
         login_response = self.test_login()
         access_token = login_response.json['access_token']
 
-        response = self.client.delete('/delete', headers=authorization_header(access_token))
+        response = self.client.delete('/delete-user', headers=authorization_header(access_token))
         assert response.status_code == 200

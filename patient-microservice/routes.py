@@ -1,3 +1,4 @@
+import requests
 import sqlalchemy
 from flask import request, jsonify
 from flask_cors import CORS
@@ -6,24 +7,34 @@ from flask_jwt_extended import jwt_required, get_jwt_identity, JWTManager
 from models import Patient, db
 
 # CORS
-cors = CORS()
-
+CORS_ORIGINS = [
+    'http://localhost:3000',
+    'http://localhost:5000',
+    'http://localhost:5002',
+    'http://localhost:5003'
+]
+cors = CORS(origins=CORS_ORIGINS)
 # JWT
 jwt = JWTManager()
 
 
+def get_user_role():
+    user_url = 'http://localhost:5000/get-user'
+    user_response = requests.get(user_url, headers={'Authorization': request.headers['Authorization']})
+    user = user_response.json()
+    user_role = user['role']
+    return user_role
+
+
 def create_data_check(data):
-    if 'first_name' not in data or data['first_name'] == '':
+    if 'firstName' not in data or data['firstName'] == '':
         return jsonify(error='First name is required.'), 400
 
-    if 'last_name' not in data or data['last_name'] == '':
+    if 'lastName' not in data or data['lastName'] == '':
         return jsonify(error='Last name is required.'), 400
 
-    if 'date_of_birth' not in data or data['date_of_birth'] == '':
+    if 'dateOfBirth' not in data or data['dateOfBirth'] == '':
         return jsonify(error='Date of birth is required.'), 400
-
-    if 'address' not in data or data['address'] == '':
-        return jsonify(error='Address is required.'), 400
 
     return None
 
@@ -38,20 +49,20 @@ def update_data_check(data, patient, user_id):
     if user_id != patient.user_id:
         return jsonify(error='User does not match token.'), 403
 
-    if 'first_name' in data and data['first_name'] != '':
-        patient.first_name = data['first_name']
+    if 'firstName' in data and data['firstName'] != '':
+        patient.first_name = data['firstName']
 
-    if 'last_name' in data and data['last_name'] != '':
-        patient.last_name = data['last_name']
+    if 'lastName' in data and data['lastName'] != '':
+        patient.last_name = data['lastName']
 
-    if 'date_of_birth' in data and data['date_of_birth'] != '':
-        patient.date_of_birth = data['date_of_birth']
+    if 'dateOfBirth' in data and data['dateOfBirth'] != '':
+        patient.date_of_birth = data['dateOfBirth']
 
     if 'address' in data and data['address'] != '':
         patient.address = data['address']
 
-    if 'phone_number' in data and data['phone_number'] != '':
-        patient.phone_number = data['phone_number']
+    if 'phoneNumber' in data and data['phoneNumber'] != '':
+        patient.phone_number = data['phoneNumber']
 
     return None
 
@@ -70,6 +81,7 @@ def app_routes(app):
 
 # Home route
 def app_route_home(app):
+
     @app.route('/', methods=['GET'])
     def home():
         return jsonify(msg='Patient service is up and running.'), 200
@@ -77,6 +89,7 @@ def app_route_home(app):
 
 # Create a patient profile
 def app_route_create_patient(app):
+
     @app.route('/create-patient', methods=['POST'])
     @jwt_required()
     def create_patient():
@@ -85,13 +98,18 @@ def app_route_create_patient(app):
 
         create_data_check(data)
 
+        user_role = get_user_role()
+
+        if user_role != 'patient':
+            return jsonify(error='User is not a patient.'), 403
+
         new_patient = Patient(
             user_id=user_id,
-            first_name=data['first_name'],
-            last_name=data['last_name'],
-            date_of_birth=data['date_of_birth'],
-            address=data['address'],
-            phone_number=data.get('phone_number', None)
+            first_name=data['firstName'],
+            last_name=data['lastName'],
+            date_of_birth=data['dateOfBirth'],
+            address=data.get('address', None),
+            phone_number=data.get('phoneNumber', None)
         )
 
         try:
@@ -105,11 +123,12 @@ def app_route_create_patient(app):
         finally:
             db.session.close()
 
-        return jsonify(msg='Profile created successfully.'), 200
+        return jsonify(msg='Profile created successfully.'), 201
 
 
 # Update patient information
 def app_route_update_patient(app):
+
     @app.route('/update-patient', methods=['PUT'])
     @jwt_required()
     def update_patient():
@@ -117,7 +136,29 @@ def app_route_update_patient(app):
         user_id = get_jwt_identity()
         patient = db.session.query(Patient).filter(Patient.user_id == user_id).first()
 
-        update_data_check(data, patient, user_id)
+        if data is None:
+            return jsonify(error='No data provided.'), 400
+
+        if not patient:
+            return jsonify(error='Patient not found.'), 404
+
+        if user_id != patient.user_id:
+            return jsonify(error='User does not match token.'), 403
+
+        if 'firstName' in data and data['firstName'] != '':
+            patient.first_name = data['firstName']
+
+        if 'lastName' in data and data['lastName'] != '':
+            patient.last_name = data['lastName']
+
+        if 'dateOfBirth' in data and data['dateOfBirth'] != '':
+            patient.date_of_birth = data['dateOfBirth']
+
+        if 'address' in data and data['address'] != '':
+            patient.address = data['address']
+
+        if 'phoneNumber' in data and data['phoneNumber'] != '':
+            patient.phone_number = data['phoneNumber']
 
         try:
             db.session.commit()
@@ -134,6 +175,7 @@ def app_route_update_patient(app):
 
 # Delete a patient profile
 def app_route_delete_patient(app):
+
     @app.route('/delete-patient', methods=['DELETE'])
     @jwt_required()
     def delete_patient():
@@ -162,6 +204,7 @@ def app_route_delete_patient(app):
 
 # Get the current patient's profile
 def app_route_get_patient(app):
+
     @app.route('/get-patient', methods=['GET'])
     @jwt_required()
     def get_patient():
@@ -173,12 +216,12 @@ def app_route_get_patient(app):
 
         patient_data = {
             'id': patient.id,
-            'user_id': patient.user_id,
-            'first_name': patient.first_name,
-            'last_name': patient.last_name,
-            'date_of_birth': patient.date_of_birth,
+            'userId': patient.user_id,
+            'firstName': patient.first_name,
+            'lastName': patient.last_name,
+            'dateOfBirth': patient.date_of_birth,
             'address': patient.address,
-            'phone_number': patient.phone_number
+            'phoneNumber': patient.phone_number
         }
 
         return jsonify(patient_data), 200
@@ -186,7 +229,9 @@ def app_route_get_patient(app):
 
 # Get patient information by patient ID
 def app_route_get_patient_by_id(app):
+
     @app.route('/get-patient/<int:patient_id>', methods=['GET'])
+    @jwt_required()
     def get_patient_by_id(patient_id):
         patient = db.session.query(Patient).filter(Patient.id == patient_id).first()
 
@@ -195,12 +240,12 @@ def app_route_get_patient_by_id(app):
 
         patient_data = {
             'id': patient.id,
-            'user_id': patient.user_id,
-            'first_name': patient.first_name,
-            'last_name': patient.last_name,
-            'date_of_birth': patient.date_of_birth,
+            'userId': patient.user_id,
+            'firstName': patient.first_name,
+            'lastName': patient.last_name,
+            'dateOfBirth': patient.date_of_birth,
             'address': patient.address,
-            'phone_number': patient.phone_number
+            'phoneNumber': patient.phone_number
         }
 
         return jsonify(patient_data), 200
@@ -208,7 +253,9 @@ def app_route_get_patient_by_id(app):
 
 # Get patient information by user ID
 def app_route_get_patient_by_user_id(app):
+
     @app.route('/get-patient/user/<int:user_id>', methods=['GET'])
+    @jwt_required()
     def get_patient_by_user_id(user_id):
         patient = db.session.query(Patient).filter(Patient.user_id == user_id).first()
 
@@ -217,12 +264,12 @@ def app_route_get_patient_by_user_id(app):
 
         patient_data = {
             'id': patient.id,
-            'user_id': patient.user_id,
-            'first_name': patient.first_name,
-            'last_name': patient.last_name,
-            'date_of_birth': patient.date_of_birth,
+            'userId': patient.user_id,
+            'firstName': patient.first_name,
+            'lastName': patient.last_name,
+            'dateOfBirth': patient.date_of_birth,
             'address': patient.address,
-            'phone_number': patient.phone_number
+            'phoneNumber': patient.phone_number
         }
 
         return jsonify(patient_data), 200
