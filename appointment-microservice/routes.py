@@ -77,7 +77,7 @@ def app_routes(app):
 # -------------------------------------------------------------------------------------------------------------------- #
 
 
-# Home route
+# Home
 def app_route_home(app):
 
     @app.route('/', methods=['GET'])
@@ -85,7 +85,7 @@ def app_route_home(app):
         return jsonify(msg='Appointment service is up and running.'), 200
 
 
-# Create appointment route
+# Create appointment
 def app_route_create_appointment(app):
 
     @app.route('/create-appointment', methods=['POST'])
@@ -131,7 +131,7 @@ def app_route_create_appointment(app):
         return jsonify(msg='Appointment created successfully.'), 201
 
 
-# Get appointment route by appointment ID
+# Get appointment by appointment ID
 def app_route_get_appointment_by_id(app):
 
     @app.route('/get-appointment/<int:appointment_id>', methods=['GET'])
@@ -173,7 +173,7 @@ def app_route_get_appointment_by_id(app):
         }), 200
 
 
-# Delete appointment route appointment ID if user is admin
+# Delete appointment by appointment ID if user is admin
 def app_route_delete_appointment(app):
 
     @app.route('/delete-appointment/<appointment_id>', methods=['DELETE'])

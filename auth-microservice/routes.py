@@ -61,14 +61,14 @@ def app_routes(app):
 # -------------------------------------------------------------------------------------------------------------------- #
 
 
-# Home route
+# Home
 def app_route_home(app):
     @app.route('/', methods=['GET'])
     def home():
         return jsonify(msg='Auth service is up and running.'), 200
 
 
-# Register user route
+# Register user
 def app_route_register(app):
 
     @app.route('/register', methods=['POST'])
@@ -128,7 +128,7 @@ def app_route_register(app):
         )
 
 
-# Login user route
+# Login user
 def app_route_login(app):
 
     @app.route('/login', methods=['POST'])
@@ -158,7 +158,7 @@ def app_route_login(app):
             return jsonify(error='Invalid credentials.'), 401
 
 
-# Logout route
+# Logout user
 def app_route_logout(app):
 
     @app.route('/logout', methods=['DELETE'])
@@ -187,7 +187,7 @@ def app_route_logout(app):
         return jsonify(msg=f'{ttype.capitalize()} token successfully revoked'), 200
 
 
-# Refresh token route
+# Refresh token
 def app_route_refresh_token(app):
 
     @app.route('/refresh-token', methods=['POST'])
@@ -198,7 +198,7 @@ def app_route_refresh_token(app):
         return jsonify(accessToken=access_token), 200
 
 
-# Revoke access token route
+# Revoke access token
 def app_route_revoke_refresh_token(app):
 
     @app.route('/revoke-refresh-token', methods=['POST'])
@@ -221,7 +221,7 @@ def app_route_revoke_refresh_token(app):
         return jsonify(msg='Refresh token successfully revoked'), 200
 
 
-# Token status route
+# Token status
 def app_route_token_status(app):
 
     @app.route('/token-status', methods=['GET'])
@@ -233,7 +233,7 @@ def app_route_token_status(app):
         return jsonify(accessTokenExpires=access_token_expires, refreshTokenStatus=refresh_token_status), 200
 
 
-# Exchange refresh token route
+# Exchange refresh token
 def app_route_exchange_refresh_token(app):
 
     @app.route('/exchange-refresh', methods=['POST'])
@@ -267,7 +267,7 @@ def app_route_get_user(app):
         }), 200
 
 
-# Update email route
+# Update email
 def app_route_update_email(app):
 
     @app.route('/update-email', methods=['PUT'])
@@ -308,7 +308,7 @@ def app_route_update_email(app):
         return jsonify(msg='Email updated successfully!'), 200
 
 
-# Update password route
+# Update password
 def app_route_update_password(app):
 
     @app.route('/update-password', methods=['PUT'])
@@ -363,7 +363,7 @@ def app_route_update_password(app):
         return jsonify(msg='Password updated successfully!'), 200
 
 
-# Delete user route
+# Delete user
 def app_route_delete_user(app):
 
     @app.route('/delete-user', methods=['DELETE'])
