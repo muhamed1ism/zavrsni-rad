@@ -1,8 +1,11 @@
 <script setup>
 import { useUserStore } from "@/stores/useUserStore";
-import {usePatientStore} from "@/stores/usePatientStore";
-import {useDoctorStore} from "@/stores/useDoctorStore";
+import { usePatientStore } from "@/stores/usePatientStore";
+import { useDoctorStore } from "@/stores/useDoctorStore";
+import { useAuthStore } from "@/stores/useAuthStore";
+import router from "@/router";
 
+const authStore = useAuthStore();
 const userStore = useUserStore();
 const role = userStore.user.role;
 
@@ -36,6 +39,13 @@ const items = [
   },
 ]
 
+if (!authStore.auth.isAuthenticated) {
+  router.push("/login");
+}
+
+if (!authStore.auth.hasProfile) {
+  router.push("/profile/create");
+}
 </script>
 
 <template>

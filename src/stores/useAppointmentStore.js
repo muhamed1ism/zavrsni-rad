@@ -1,13 +1,25 @@
 import { defineStore } from "pinia";
-import { useLocalStorage } from "@vueuse/core";
 import axios from "axios";
 import {useAuthStore} from "@/stores/useAuthStore";
+import router from "@/router";
 
 const apiUrl = "http://localhost:5003";
 
 export const useAppointmentStore = defineStore("appointment", {
     state: () => ({
-        appointments: []
+        appointments: [
+            {
+                id: null,
+                patientId: null,
+                doctorId: null,
+                date: "",
+                time: "",
+                patientName: "",
+                doctorName: "",
+                createdAt: "",
+                status: "",
+            }
+        ]
     }),
 
     actions: {
@@ -32,8 +44,8 @@ export const useAppointmentStore = defineStore("appointment", {
                 "Error creating appointment"
             );
 
-            if (res?.status === 201) {
-                window.location.href = "/appointments";
+            if (res.status === 201) {
+                await router.push("/appointments");
             }
         },
 
@@ -49,10 +61,63 @@ export const useAppointmentStore = defineStore("appointment", {
                 "Error getting appointments"
             );
 
-            if (res?.status === 200) {
+            if (res.status === 200) {
                 this.appointments = res.data;
             }
-        }
+        },
 
+        async approveAppointment(appointmentId) {
+            const approveAppointmentApiCall = () =>
+                axios.put(`${apiUrl}/appointment/approve/${appointmentId}`,
+                    appointmentId,{
+                    headers: {
+                        Authorization: "Bearer " + useAuthStore().auth.accessToken,
+                    },
+                });
+            const res = await this.makeApiRequest(
+                approveAppointmentApiCall,
+                "Error setting appointment status"
+            );
+
+            if (res.status === 200) {
+                await this.getAppointments();
+            }
+        },
+
+        async rejectAppointment(appointmentId) {
+            const rejectAppointmentApiCall = () =>
+                axios.put(`${apiUrl}/appointment/reject/${appointmentId}`,
+                    appointmentId, {
+                    headers: {
+                        Authorization: "Bearer " + useAuthStore().auth.accessToken,
+                    },
+                });
+            const res = await this.makeApiRequest(
+                rejectAppointmentApiCall,
+                "Error setting appointment status"
+            );
+
+            if (res.status === 200) {
+                await this.getAppointments();
+            }
+        },
+
+        async cancelAppointment(appointmentId) {
+            const cancelAppointmentApiCall = () =>
+                axios.put(`${apiUrl}/appointment/cancel/${appointmentId}`,
+                    appointmentId, {
+                    headers: {
+                        Authorization: "Bearer " + useAuthStore().auth.accessToken,
+                    },
+                });
+            const res = await this.makeApiRequest(
+                cancelAppointmentApiCall,
+                "Failed to cancel appointment"
+            );
+
+            if (res.status === 200) {
+                await this.getAppointments();
+            }
+        },
     },
 });

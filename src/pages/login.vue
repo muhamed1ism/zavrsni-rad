@@ -1,6 +1,10 @@
 <script setup>
 import { ref } from "vue";
 import { useAuthStore } from "@/stores/useAuthStore";
+import router from "@/router";
+import {usePatientStore} from "@/stores/usePatientStore";
+import {useDoctorStore} from "@/stores/useDoctorStore";
+import {useUserStore} from "@/stores/useUserStore";
 
 const form = ref({
   email: "",
@@ -24,10 +28,22 @@ const authStore = useAuthStore();
 const submit = async () => {
   try {
     await authStore.login(form.value);
+    await useUserStore().getUser();
+    const role = useUserStore().user.role;
+    if (role === "patient") {
+      await usePatientStore().getPatient();
+    } else if (role === "doctor") {
+      await useDoctorStore().getDoctor();
+    }
+    window.location.href = "/dashboard";
   } catch (error) {
     console.log(error);
   }
 };
+
+if (authStore.auth.isAuthenticated) {
+  router.push("/dashboard");
+}
 </script>
 
 <template>

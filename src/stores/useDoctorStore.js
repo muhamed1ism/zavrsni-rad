@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { useLocalStorage } from "@vueuse/core";
 import axios from "axios";
 import { useAuthStore } from "@/stores/useAuthStore";
+import router from "@/router";
 
 const apiUrl = "http://localhost:5002";
 
@@ -15,6 +16,7 @@ export const useDoctorStore = defineStore("doctor", {
             address: "",
             phoneNumber: "",
         }),
+        doctors: [],
     }),
 
     actions: {
@@ -41,7 +43,7 @@ export const useDoctorStore = defineStore("doctor", {
 
             if (res.status === 201) {
                 await this.getDoctor();
-                window.location.href = "/dashboard";
+                await router.push("/dashboard");
             }
         },
 
@@ -66,6 +68,24 @@ export const useDoctorStore = defineStore("doctor", {
                     address: res.data.address,
                     phoneNumber: res.data.phoneNumber,
                 };
+                useAuthStore().auth.hasProfile = true;
+            }
+        },
+
+        async getDoctors() {
+            const getDoctorsApiCall = () =>
+                axios.get(`${apiUrl}/get-doctors`, {
+                    headers: {
+                        Authorization: "Bearer " + useAuthStore().auth.accessToken,
+                    }
+                });
+            const res = await this.makeApiRequest(
+                getDoctorsApiCall,
+                "Failed to get doctors"
+            );
+
+            if (res.status === 200) {
+                this.doctors = res.data;
             }
         },
 

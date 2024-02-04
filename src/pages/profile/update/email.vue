@@ -1,6 +1,9 @@
 <script setup>
 import { useUserStore } from "@/stores/useUserStore";
+import { useAuthStore } from "@/stores/useAuthStore";
+import router from "@/router";
 
+const authStore = useAuthStore();
 const userStore = useUserStore();
 const email = userStore.user.email || "";
 
@@ -22,8 +25,16 @@ const submit = async () => {
 };
 
 const cancel = () => {
-  window.location.href = "/settings";
+  router.push("/settings");
 };
+
+if (!authStore.auth.isAuthenticated) {
+  router.push("/login");
+}
+
+if (!authStore.auth.hasProfile) {
+  router.push("/profile/create");
+}
 </script>
 
 <template>

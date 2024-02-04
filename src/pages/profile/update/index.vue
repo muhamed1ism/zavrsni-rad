@@ -1,9 +1,12 @@
 <script setup>
-import {ref} from "vue";
-import {useUserStore} from "@/stores/useUserStore";
-import {usePatientStore} from "@/stores/usePatientStore";
-import {useDoctorStore} from "@/stores/useDoctorStore";
+import { ref } from "vue";
+import { useUserStore } from "@/stores/useUserStore";
+import { usePatientStore } from "@/stores/usePatientStore";
+import { useDoctorStore } from "@/stores/useDoctorStore";
+import { useAuthStore } from "@/stores/useAuthStore";
+import router from "@/router";
 
+const authStore = useAuthStore();
 const role = useUserStore().user.role;
 
 const data = async () => {
@@ -38,6 +41,14 @@ const submit = async () => {
   } catch (error) {
     console.log(error);
   }
+}
+
+if (!authStore.auth.isAuthenticated) {
+  router.push("/login");
+}
+
+if (!authStore.auth.hasProfile) {
+  router.push("/profile/create");
 }
 </script>
 

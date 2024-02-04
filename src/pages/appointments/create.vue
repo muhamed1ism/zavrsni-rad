@@ -1,9 +1,9 @@
 <script setup>
-import {ref} from "vue";
+import { ref } from "vue";
 import {useUserStore} from "@/stores/useUserStore";
 import {useAuthStore} from "@/stores/useAuthStore";
-import {usePatientStore} from "@/stores/usePatientStore";
 import {useAppointmentStore} from "@/stores/useAppointmentStore";
+import router from "@/router";
 
 const form = ref({
   doctorId: "",
@@ -13,17 +13,28 @@ const form = ref({
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
-const patientStore = usePatientStore();
 const appointmentStore = useAppointmentStore();
 const role = userStore.user.role;
 
 const submit = async () => {
   try {
     await appointmentStore.createAppointment(form.value);
-
   } catch (error) {
     console.log(error);
   }
+}
+
+if (!authStore.auth.isAuthenticated) {
+  router.push("/login");
+}
+
+if (!authStore.auth.hasProfile) {
+  router.push("/profile/create");
+}
+
+if (role !== "patient") {
+  console.log("Nemate pristup ovoj stranici");
+  router.push("/dashboard");
 }
 </script>
 

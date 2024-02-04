@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { useLocalStorage } from "@vueuse/core";
 import { useAuthStore } from "@/stores/useAuthStore";
 import axios from "axios";
+import router from "@/router";
 
 const apiUrl = "http://localhost:5000";
 
@@ -78,7 +79,7 @@ export const useUserStore = defineStore("user", {
 
       if (res.status === 200) {
         this.user.email = email;
-        window.location.href = "/settings";
+        await router.push("/settings");
       }
     },
 
@@ -95,7 +96,7 @@ export const useUserStore = defineStore("user", {
       );
 
       if (res.status === 200) {
-        window.location.href = "/settings";
+        await router.push("/settings");
       }
     },
   },

@@ -10,6 +10,7 @@ const apiUrl = "http://localhost:5000";
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     auth: useLocalStorage("auth", {
+      hasProfile: false,
       isAuthenticated: false,
       accessToken: "",
       refreshToken: "",
@@ -34,7 +35,7 @@ export const useAuthStore = defineStore("auth", {
         "Registration error",
       );
 
-      if (res?.status === 201) {
+      if (res.status === 201) {
         await this.login({
           email: credentials.email,
           password: credentials.password,
@@ -46,33 +47,24 @@ export const useAuthStore = defineStore("auth", {
       const loginApiCall = () => axios.post(`${apiUrl}/login`, credentials);
       const res = await this.makeApiRequest(loginApiCall, "Login error");
 
-      if (res?.status === 200) {
+      if (res.status === 200) {
         this.auth = {
           isAuthenticated: true,
           accessToken: res.data.accessToken,
           refreshToken: res.data.refreshToken,
         };
-        await useUserStore().getUser();
-        const role = useUserStore().user.role;
-        if (role === "patient") {
-          await usePatientStore().getPatient();
-        } else if (role === "doctor") {
-          await useDoctorStore().getDoctor();
-        }
-        window.location.href = "/dashboard";
       }
     },
 
     async refreshAccessToken() {
       const refreshApiCall = () =>
         axios.post(`${apiUrl}/refresh-token`, this.auth.refreshToken);
-
       const res = await this.makeApiRequest(
         refreshApiCall,
         "Refresh token error",
       );
 
-      if (res?.status === 200) {
+      if (res.status === 200) {
         this.auth.accessToken = res.data.accessToken;
       }
     },
@@ -89,11 +81,11 @@ export const useAuthStore = defineStore("auth", {
         "Error revoking access token",
       );
 
-      if (res?.status === 401) {
+      if (res.status === 401) {
         await this.refreshAccessToken();
         await this.revokeAccessToken();
       }
-      if (res?.status === 200) {
+      if (res.status === 200) {
         this.auth.accessToken = "";
       }
     },
@@ -110,30 +102,25 @@ export const useAuthStore = defineStore("auth", {
         "Error revoking refresh token",
       );
 
-      if (res?.status === 200) {
+      if (res.status === 200) {
         this.auth.refreshToken = "";
       }
     },
 
     async clearUserData() {
       const role = useUserStore().user.role;
-
       if (role === "patient") {
         await usePatientStore().clearPatient();
       } else if (role === "doctor") {
         await useDoctorStore().clearDoctor();
       }
-
       await useUserStore().clearUser();
     },
 
     async logout() {
       try {
-        await this.revokeAccessToken();
-        await this.revokeRefreshToken();
-        await this.clearUserData();
+        this.auth.hasProfile = false;
         this.auth.isAuthenticated = false;
-        window.location.href = "/";
       } catch (error) {
         console.error("Logout error: ", error);
         throw error;

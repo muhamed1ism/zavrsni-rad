@@ -1,7 +1,7 @@
 <script setup>
 import NavDrawer from "@/components/NavDrawer.vue";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { onMounted, ref } from "vue";
+import {  ref } from "vue";
 import { useTheme } from "vuetify";
 
 const theme = useTheme();
@@ -19,17 +19,19 @@ function changeTheme() {
 async function logOut() {
   try {
     await authStore.logout();
+    await authStore.revokeAccessToken();
+    await authStore.revokeRefreshToken();
+    await authStore.clearUserData();
+    window.location.href = "/";
   } catch (error) {
     console.error('Error during logout: ', error);
     throw error;
   }
 }
 
-onMounted(() => {
-  const storedTheme = localStorage.getItem("darkTheme");
-  darkTheme.value = storedTheme === "true";
-  theme.global.name.value = darkTheme.value ? "dark" : "light";
-});
+const storedTheme = localStorage.getItem("darkTheme");
+darkTheme.value = storedTheme === "true";
+theme.global.name.value = darkTheme.value ? "dark" : "light";
 </script>
 
 <template>

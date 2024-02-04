@@ -1,16 +1,27 @@
 <script setup>
 import { useUserStore } from "@/stores/useUserStore";
+import {useAuthStore} from "@/stores/useAuthStore";
+import router from "@/router";
 
+const authStore = useAuthStore();
 const userStore = useUserStore();
 const email = userStore.user.email;
 
 const emailAction = () => {
-  window.location.href = "/profile/update/email";
+  router.push("/profile/update/email");
 };
 
 const passwordAction = () => {
-  window.location.href = "/profile/update/password"
+  router.push("/profile/update/password");
 };
+
+if (!authStore.auth.isAuthenticated) {
+  router.push("/login");
+}
+
+if (!authStore.auth.hasProfile) {
+  router.push("/profile/create");
+}
 
 </script>
 
