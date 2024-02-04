@@ -82,8 +82,9 @@ def app_routes(app):
     app_route_home(app)
     app_route_create_appointment(app)
     app_route_get_appointment_by_id(app)
-    app_route_delete_appointment(app)
     app_route_get_all_appointments(app)
+    app_route_get_doctors_patients(app)
+    app_route_delete_appointment(app)
     app_route_approve_appointment(app)
     app_route_reject_appointment(app)
     app_route_cancel_appointment(app)
@@ -216,7 +217,7 @@ def app_route_get_all_appointments(app):
             return jsonify(error='You do not have permission to view appointments.'), 403
 
         if not appointments:
-            return jsonify(msg='No appointments found.'), 404
+            return jsonify(msg='No appointments found.')
 
         appointments_list = []
         for appointment in appointments:
@@ -232,6 +233,29 @@ def app_route_get_all_appointments(app):
             })
 
         return jsonify(appointments_list), 200
+
+
+# Get doctor's patients from appointments where doctor id is equal to the doctor id of the current user
+def app_route_get_doctors_patients(app):
+
+        @app.route('/get-doctors-patients', methods=['GET'])
+        @jwt_required()
+        def get_doctors_patients():
+            user_id = get_jwt_identity()
+            doctor_id = get_doctor_id(user_id)
+            appointments = db.session.query(Appointment).filter(Appointment.doctor_id == doctor_id).all()
+
+            if not appointments:
+                return jsonify(msg='No patients found.')
+
+            patients_list = []
+            for appointment in appointments:
+                patients_list.append({
+                    'id': appointment.patient_id,
+                    'name': appointment.patient_name
+                })
+
+            return jsonify(patients_list), 200
 
 
 # Delete appointment by appointment ID if user is admin

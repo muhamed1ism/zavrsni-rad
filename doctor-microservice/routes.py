@@ -55,6 +55,7 @@ def app_routes(app):
     app_route_update_doctor(app)
     app_route_delete_doctor(app)
     app_route_get_doctor(app)
+    app_route_get_all_doctors(app)
     app_route_get_doctor_by_id(app)
     app_route_get_doctor_by_user_id(app)
 
@@ -220,3 +221,23 @@ def app_route_get_doctor_by_id(app):
             'firstName': doctor.first_name,
             'lastName': doctor.last_name,
         }), 200
+
+# Get all doctors
+def app_route_get_all_doctors(app):
+
+    @app.route('/get-doctors', methods=['GET'])
+    @jwt_required()
+    def get_all_doctors():
+        doctors = db.session.query(Doctor).all()
+
+        if not doctors:
+            return jsonify(msg='No doctors found.'), 404
+
+        doctors_list = []
+        for doctor in doctors:
+            doctors_list.append({
+                'id': doctor.id,
+                'name': f'{doctor.first_name} {doctor.last_name}',
+            })
+
+        return jsonify(doctors_list), 200
