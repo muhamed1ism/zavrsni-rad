@@ -8,6 +8,7 @@ import router from "@/router";
 const authStore = useAuthStore();
 const patientStore = usePatientStore();
 const role = useUserStore().user.role;
+const body = document.querySelector("body");
 
 const patient = patientStore.patient;
 
@@ -16,8 +17,12 @@ const form = ref({
   lastName: patient.lastName || "",
   address: patient.address || "",
   phoneNumber: patient.phoneNumber || "",
-  dateOfBirth: null,
+  dateOfBirth: patient.dateOfBirth || null,
 });
+
+const dateFormat = (date) => {
+  return date.toLocaleDateString("hr-HR");
+};
 
 const submit = async () => {
   try {
@@ -26,8 +31,7 @@ const submit = async () => {
       }
       const patientStore = usePatientStore();
       await patientStore.updatePatient(form.value);
-
-    await router.push("/patient");
+      await router.push("/patient");
   } catch (error) {
     console.log(error);
   }
@@ -99,16 +103,15 @@ if (!authStore.auth.hasProfile) {
                 </div>
                 <v-container>
                   <v-row justify="center">
-                    <v-locale-provider locale="hr">
-                      <v-date-picker
-                          width="100%"
-                          v-model="form.dateOfBirth"
-                          title=""
-                          header="Unesi datum"
-                          border
-                      >
-                      </v-date-picker>
-                    </v-locale-provider>
+                    <VueDatePicker
+                        v-model="form.dateOfBirth"
+                        placeholder="Unesi datum rođenja"
+                        :format="dateFormat"
+                        locale="hr"
+                        auto-apply
+                        :enable-time-picker="false"
+                        :teleport="body"
+                    ></VueDatePicker>
                   </v-row>
                 </v-container>
 

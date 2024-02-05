@@ -8,6 +8,7 @@ import router from "@/router";
 const userStore = useUserStore();
 const authStore = useAuthStore();
 const role = userStore.user.role;
+const body = document.querySelector("body");
 
 const form = ref({
   firstName: "",
@@ -38,6 +39,10 @@ const phoneNumberRule = [
     return true;
   },
 ];
+
+const dateFormat = (date) => {
+  return date.toLocaleDateString("hr-HR");
+};
 
 const submit = async () => {
     try {
@@ -109,16 +114,15 @@ if (!authStore.auth.isAuthenticated) {
                 </div>
                 <v-container>
                   <v-row justify="center">
-                    <v-locale-provider locale="hr">
-                      <v-date-picker
-                        width="100%"
+                    <VueDatePicker
                         v-model="form.dateOfBirth"
-                        title=""
-                        header="Unesi datum"
-                        border
-                      >
-                      </v-date-picker>
-                    </v-locale-provider>
+                        placeholder="Unesi datum rođenja"
+                        :format="dateFormat"
+                        locale="hr"
+                        auto-apply
+                        :enable-time-picker="false"
+                        :teleport="body"
+                    ></VueDatePicker>
                   </v-row>
                 </v-container>
 

@@ -31,6 +31,7 @@ export const usePatientStore = defineStore("patient", {
         if (res.status === 201) {
           await this.getPatient();
           await router.push("/dashboard");
+          window.location.reload();
         }
       } catch (error) {
         console.error("Failed to create patient: ", error);

@@ -29,10 +29,10 @@ export const useDoctorStore = defineStore("doctor", {
                         Authorization: "Bearer " + useAuthStore().auth.accessToken,
                     }
                 });
-
                 if (res.status === 201) {
                     await this.getDoctor();
                     await router.push("/dashboard");
+                    window.location.reload();
                 }
             } catch (error) {
                 console.error("Failed to create doctor: " + error);

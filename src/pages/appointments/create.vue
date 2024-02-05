@@ -17,11 +17,17 @@ const authStore = useAuthStore();
 const doctorStore = useDoctorStore();
 const appointmentStore = useAppointmentStore();
 const role = userStore.user.role;
+const body = document.querySelector("body");
 
 doctorStore.getDoctors();
 
+const dateFormat = (date) => {
+  return date.toLocaleDateString("hr-HR");
+};
+
 const submit = async () => {
   try {
+    console.log(form.value.time);
     await appointmentStore.createAppointment(form.value);
   } catch (error) {
     console.log(error);
@@ -63,28 +69,30 @@ if (role !== "patient") {
                     density="compact"
                 ></v-select>
 
-                <v-container>
-                  <v-row justify="center">
-                    <v-locale-provider locale="hr">
-                      <v-date-picker
-                          width="100%"
-                          v-model="form.date"
-                          header="Datum termina"
-                          border
-                          title="Odaberi"
-                      >
-                      </v-date-picker>
-                    </v-locale-provider>
-                  </v-row>
-                </v-container>
+                <div class="text-subtitle-1 text-medium-emphasis">
+                  Datum rođenja
+                </div>
+                <VueDatePicker
+                    class="vue-date-picker mb-6"
+                    v-model="form.date"
+                    placeholder="Unesi datum termina"
+                    :format="dateFormat"
+                    locale="hr"
+                    auto-apply
+                    disable-year-select
+                    :enable-time-picker="false"
+                    :teleport="body"
+                ></VueDatePicker>
 
                 <div class="text-subtitle-1 text-medium-emphasis">Odaberi vrijeme</div>
-                <v-text-field
-                    density="compact"
+                <VueDatePicker
+                    class="mb-8"
                     placeholder="Unesi vrijeme"
-                    variant="outlined"
                     v-model="form.time"
-                ></v-text-field>
+                    locale="hr"
+                    hide-input-icon
+                    :teleport="body"
+                    time-picker></VueDatePicker>
 
                 <v-btn
                     border
@@ -105,5 +113,4 @@ if (role !== "patient") {
 </template>
 
 <style scoped>
-
 </style>
