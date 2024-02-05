@@ -1,3 +1,4 @@
+import datetime
 import requests
 import sqlalchemy
 from flask import request, jsonify
@@ -29,10 +30,8 @@ def get_user_role():
 def create_data_check(data):
     if 'firstName' not in data or data['firstName'] == '':
         return jsonify(error='First name is required.'), 400
-
     if 'lastName' not in data or data['lastName'] == '':
         return jsonify(error='Last name is required.'), 400
-
     if 'dateOfBirth' not in data or data['dateOfBirth'] == '':
         return jsonify(error='Date of birth is required.'), 400
 
@@ -42,25 +41,19 @@ def create_data_check(data):
 def update_data_check(data, patient, user_id):
     if data is None:
         return jsonify(error='No data provided.'), 400
-
     if not patient:
         return jsonify(error='Patient not found.'), 404
-
     if user_id != patient.user_id:
         return jsonify(error='User does not match token.'), 403
-
     if 'firstName' in data and data['firstName'] != '':
         patient.first_name = data['firstName']
-
     if 'lastName' in data and data['lastName'] != '':
         patient.last_name = data['lastName']
-
     if 'dateOfBirth' in data and data['dateOfBirth'] != '':
-        patient.date_of_birth = data['dateOfBirth']
-
+        date_of_birth = datetime.datetime.strptime(data['dateOfBirth'], '%Y-%m-%dT%H:%M:%S.%fZ')
+        patient.date_of_birth = date_of_birth
     if 'address' in data and data['address'] != '':
         patient.address = data['address']
-
     if 'phoneNumber' in data and data['phoneNumber'] != '':
         patient.phone_number = data['phoneNumber']
 
@@ -103,11 +96,13 @@ def app_route_create_patient(app):
         if user_role != 'patient':
             return jsonify(error='User is not a patient.'), 403
 
+        date_of_birth = datetime.datetime.strptime(data['dateOfBirth'], '%Y-%m-%dT%H:%M:%S.%fZ')
+
         new_patient = Patient(
             user_id=user_id,
             first_name=data['firstName'],
             last_name=data['lastName'],
-            date_of_birth=data['dateOfBirth'],
+            date_of_birth=date_of_birth,
             address=data.get('address', None),
             phone_number=data.get('phoneNumber', None)
         )
@@ -136,29 +131,7 @@ def app_route_update_patient(app):
         user_id = get_jwt_identity()
         patient = db.session.query(Patient).filter(Patient.user_id == user_id).first()
 
-        if data is None:
-            return jsonify(error='No data provided.'), 400
-
-        if not patient:
-            return jsonify(error='Patient not found.'), 404
-
-        if user_id != patient.user_id:
-            return jsonify(error='User does not match token.'), 403
-
-        if 'firstName' in data and data['firstName'] != '':
-            patient.first_name = data['firstName']
-
-        if 'lastName' in data and data['lastName'] != '':
-            patient.last_name = data['lastName']
-
-        if 'dateOfBirth' in data and data['dateOfBirth'] != '':
-            patient.date_of_birth = data['dateOfBirth']
-
-        if 'address' in data and data['address'] != '':
-            patient.address = data['address']
-
-        if 'phoneNumber' in data and data['phoneNumber'] != '':
-            patient.phone_number = data['phoneNumber']
+        update_data_check(data, patient, user_id)
 
         try:
             db.session.commit()

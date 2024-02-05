@@ -9,7 +9,7 @@ class Patient(db.Model):
     user_id = db.Column(db.Integer, nullable=False, unique=True)
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
-    date_of_birth = db.Column(db.String(25), nullable=False)
+    date_of_birth = db.Column(db.Date, nullable=False)
     address = db.Column(db.String(255))
     phone_number = db.Column(db.String(20))
     created_at = db.Column(db.DateTime, default=datetime.now())

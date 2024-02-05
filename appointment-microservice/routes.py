@@ -1,3 +1,4 @@
+import datetime
 import requests
 import sqlalchemy
 from flask import request, jsonify
@@ -17,13 +18,11 @@ cors = CORS(origins=CORS_ORIGINS)
 # JWT
 jwt = JWTManager()
 
-
 def get_patient(user_id):
     patient_url = f'http://localhost:5001/get-patient/user/{user_id}'
     patient_response = requests.get(patient_url, headers={'Authorization': request.headers['Authorization']})
     patient = patient_response.json()
     return patient
-
 
 def get_patient_by_id(patient_id):
     patient_url = f'http://localhost:5001/get-patient/{patient_id}'
@@ -31,13 +30,11 @@ def get_patient_by_id(patient_id):
     patient = patient_response.json()
     return patient
 
-
 def get_doctor(user_id):
     doctor_url = f'http://localhost:5002/get-doctor/user/{user_id}'
     doctor_response = requests.get(doctor_url, headers={'Authorization': request.headers['Authorization']})
     doctor = doctor_response.json()
     return doctor
-
 
 def get_doctor_by_id(doctor_id):
     doctor_url = f'http://localhost:5002/get-doctor/{doctor_id}'
@@ -45,30 +42,40 @@ def get_doctor_by_id(doctor_id):
     doctor = doctor_response.json()
     return doctor
 
-
 def get_patient_id(user_id):
     patient = get_patient(user_id)
     patient_id = patient['id']
     return patient_id
-
 
 def get_patient_name(user_id):
     patient = get_patient(user_id)
     patient_name = patient['firstName'] + ' ' + patient['lastName']
     return patient_name
 
+def get_patient_address(patient_id):
+    patient = get_patient_by_id(patient_id)
+    address = patient['address']
+    return address
+
+def get_patient_date_of_birth(patient_id):
+    patient = get_patient_by_id(patient_id)
+    date_of_birth = patient['dateOfBirth']
+    return date_of_birth
+
+def get_patient_phone_number(patient_id):
+    patient = get_patient_by_id(patient_id)
+    phone_number = patient['phoneNumber']
+    return phone_number
 
 def get_doctor_id(user_id):
     doctor = get_doctor(user_id)
     doctor_id = doctor['id']
     return doctor_id
 
-
 def get_doctor_name(doctor_id):
     doctor = get_doctor_by_id(doctor_id)
     doctor_name = doctor['firstName'] + ' ' + doctor['lastName']
     return doctor_name
-
 
 def get_user_role():
     user_url = 'http://localhost:5000/get-user'
@@ -76,7 +83,6 @@ def get_user_role():
     user = user_response.json()
     user_role = user['role']
     return user_role
-
 
 def app_routes(app):
     app_route_home(app)
@@ -126,14 +132,21 @@ def app_route_create_appointment(app):
         doctor_id = data['doctorId']
         doctor_name = get_doctor_name(doctor_id)
 
+        date = datetime.datetime.strptime(data['date'], '%Y-%m-%dT%H:%M:%S.%fZ')
+        hours = data['time']['hours']
+        minutes = data['time']['minutes']
+        seconds = "00"
+        time = f'{hours}:{minutes}:{seconds}'
+        formated_time = datetime.datetime.strptime(time, '%H:%M:%S').time()
+
         new_appointment = Appointment(
             patient_id=patient_id,
             doctor_id=doctor_id,
-            date=data['date'],
-            time=data['time'],
+            date=date,
+            time=formated_time,
             patient_name=patient_name,
             doctor_name=doctor_name,
-            status='pending'
+            status='na čekanju'
         )
         try:
             db.session.add(new_appointment)
@@ -179,6 +192,8 @@ def app_route_get_appointment_by_id(app):
         elif user_role != 'admin':
             return jsonify(error='You do not have permission to view this appointment.'), 403
 
+        time = appointment.time.strftime('%H:%M:%S')
+
         return jsonify({
             'id': appointment.id,
             'patientId': appointment.patient_id,
@@ -186,7 +201,7 @@ def app_route_get_appointment_by_id(app):
             'doctorId': appointment.doctor_id,
             'doctorName': appointment.doctor_name,
             'date': appointment.date,
-            'time': appointment.time,
+            'time': time,
             'status': appointment.status
         }), 200
 
@@ -221,6 +236,7 @@ def app_route_get_all_appointments(app):
 
         appointments_list = []
         for appointment in appointments:
+            time = appointment.time.strftime('%H:%M:%S')
             appointments_list.append({
                 'id': appointment.id,
                 'patientId': appointment.patient_id,
@@ -228,7 +244,7 @@ def app_route_get_all_appointments(app):
                 'doctorId': appointment.doctor_id,
                 'doctorName': appointment.doctor_name,
                 'date': appointment.date,
-                'time': appointment.time,
+                'time': time,
                 'status': appointment.status
             })
 
@@ -245,14 +261,21 @@ def app_route_get_doctors_patients(app):
             doctor_id = get_doctor_id(user_id)
             appointments = db.session.query(Appointment).filter(Appointment.doctor_id == doctor_id).all()
 
+
             if not appointments:
                 return jsonify(msg='No patients found.')
 
             patients_list = []
             for appointment in appointments:
+                date_of_birth = get_patient_date_of_birth(appointment.patient_id)
+                address = get_patient_address(appointment.patient_id)
+                phone_number = get_patient_phone_number(appointment.patient_id)
                 patients_list.append({
                     'id': appointment.patient_id,
-                    'name': appointment.patient_name
+                    'name': appointment.patient_name,
+                    'dateOfBirth': date_of_birth,
+                    'address': address,
+                    'phoneNumber': phone_number
                 })
 
             return jsonify(patients_list), 200
@@ -303,7 +326,7 @@ def app_route_approve_appointment(app):
         if not appointment:
             return jsonify(msg='Appointment not found.'), 404
 
-        appointment.status = 'approved'
+        appointment.status = 'odobren'
 
         try:
             db.session.commit()
@@ -333,7 +356,7 @@ def app_route_reject_appointment(app):
         if not appointment:
             return jsonify(msg='Appointment not found.'), 404
 
-        appointment.status = 'rejected'
+        appointment.status = 'odbijen'
 
         try:
             db.session.commit()
@@ -364,7 +387,7 @@ def app_route_cancel_appointment(app):
         if not appointment:
             return jsonify(msg='Appointment not found.'), 404
 
-        appointment.status = 'canceled'
+        appointment.status = 'otkazan'
 
         try:
             db.session.commit()

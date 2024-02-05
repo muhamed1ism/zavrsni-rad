@@ -1,3 +1,4 @@
+import datetime
 import requests
 import sqlalchemy
 from flask import request, jsonify
@@ -27,16 +28,10 @@ def get_user_role():
 
 
 def data_create_check(data):
-    mandatory_fields = ['firstName', 'lastName', 'dateOfBirth']
+    mandatory_fields = ['firstName', 'lastName', 'specialty', 'dateOfBirth']
     missing_fields = [field for field in mandatory_fields if field not in data or data[field] == ""]
     if missing_fields:
         return jsonify(error=f'{", ".join(missing_fields)} are required.'), 400
-
-
-def update_doctor_data(doctor, data, fields):
-    for field in fields:
-        if field in data and data[field] != '':
-            setattr(doctor, field, data[field])
 
 
 def data_update_check(data, doctor, user_id):
@@ -46,7 +41,19 @@ def data_update_check(data, doctor, user_id):
         return jsonify(error='Doctor not found.'), 404
     if user_id != doctor.user_id:
         return jsonify(error='User does not match token.'), 403
-    update_doctor_data(doctor, data, ['firstName', 'lastName', 'dateOfBirth', 'address', 'phoneNumber'])
+    if 'firstName' in data and data['firstName'] != "":
+        doctor.first_name = data['firstName']
+    if 'lastName' in data and data['lastName'] != "":
+        doctor.last_name = data['lastName']
+    if 'specialty' in data and data['specialty'] != "":
+        doctor.specialty = data['specialty']
+    if 'address' in data and data['address'] != "":
+        doctor.address = data['address']
+    if 'phoneNumber' in data and data['phoneNumber'] != "":
+        doctor.phone_number = data['phoneNumber']
+    if 'dateOfBirth' in data and data['dateOfBirth'] != "":
+        date_of_birth = datetime.datetime.strptime(data['dateOfBirth'], '%Y-%m-%dT%H:%M:%S.%fZ')
+        doctor.date_of_birth = date_of_birth
 
 
 def app_routes(app):
@@ -88,17 +95,20 @@ def app_route_create_doctor(app):
         if user_role != 'doctor':
             return jsonify(error='User is not a doctor.'), 403
 
-        new_patient = Doctor(
+        date_of_birth = datetime.datetime.strptime(data['dateOfBirth'], '%Y-%m-%dT%H:%M:%S.%fZ')
+
+        new_doctor = Doctor(
             user_id=user_id,
             first_name=data['firstName'],
             last_name=data['lastName'],
-            date_of_birth=data['dateOfBirth'],
+            specialty=data['specialty'],
+            date_of_birth=date_of_birth,
             address=data.get('address', None),
             phone_number=data.get('phoneNumber', None)
         )
 
         try:
-            db.session.add(new_patient)
+            db.session.add(new_doctor)
             db.session.commit()
 
         except sqlalchemy.exc.SQLAlchemyError as e:
@@ -177,11 +187,13 @@ def app_route_get_doctor(app):
         if not doctor:
             return jsonify(msg='Doctor not found.'), 404
 
+
         return jsonify({
             'id': doctor.id,
             'userId': doctor.user_id,
             'firstName': doctor.first_name,
             'lastName': doctor.last_name,
+            'specialty': doctor.specialty,
             'dateOfBirth': doctor.date_of_birth,
             'address': doctor.address,
             'phoneNumber': doctor.phone_number
@@ -203,6 +215,7 @@ def app_route_get_doctor_by_user_id(app):
             'id': doctor.id,
             'firstName': doctor.first_name,
             'lastName': doctor.last_name,
+            'specialty': doctor.specialty,
         }), 200
 
 
@@ -220,6 +233,7 @@ def app_route_get_doctor_by_id(app):
             'id': doctor.id,
             'firstName': doctor.first_name,
             'lastName': doctor.last_name,
+            'specialty': doctor.specialty,
         }), 200
 
 # Get all doctors
@@ -238,6 +252,7 @@ def app_route_get_all_doctors(app):
             doctors_list.append({
                 'id': doctor.id,
                 'name': f'{doctor.first_name} {doctor.last_name}',
+                'specialty': doctor.specialty,
             })
 
         return jsonify(doctors_list), 200

@@ -108,9 +108,6 @@ def app_route_register(app):
             role=role
         )
 
-        access_token = create_access_token(identity=new_user.id, fresh=True)
-        refresh_token = create_refresh_token(identity=new_user.id)
-
         try:
             db.session.add(new_user)
             db.session.commit()
@@ -121,11 +118,7 @@ def app_route_register(app):
         finally:
             db.session.close()
 
-
-        return (
-            jsonify(msg='User created successfully!')
-            and jsonify(accessToken=access_token, refreshToken=refresh_token), 201
-        )
+        return jsonify(msg='User created successfully!'), 201
 
 
 # Login user
