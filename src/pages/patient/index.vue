@@ -1,41 +1,37 @@
 <script setup>
 import { useUserStore } from "@/stores/useUserStore";
 import { usePatientStore } from "@/stores/usePatientStore";
-import { useDoctorStore } from "@/stores/useDoctorStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import router from "@/router";
 
 const authStore = useAuthStore();
 const userStore = useUserStore();
+const patientStore = usePatientStore();
 const role = userStore.user.role;
 
-const patientStore = usePatientStore();
-const doctorStore = useDoctorStore();
 
-const profile = role === "patient" ? patientStore.patient : doctorStore.doctor;
-
-const user = profile || {};
+const patient = patientStore.patient;
 const title = "Moji podaci";
 const items = [
   {
     title: "Ime",
-    value: `${user.firstName}`,
+    value: `${patient.firstName}`,
   },
   {
     title: "Prezime",
-    value: `${user.lastName}`,
+    value: `${patient.lastName}`,
   },
   {
     title: "Adresa",
-    value: `${user.address}`,
+    value: `${patient.address}`,
   },
   {
     title: "Broj telefona",
-    value: `${user.phoneNumber}`,
+    value: `${patient.phoneNumber}`,
   },
   {
     title: "Datum rođenja",
-    value: `${user.dateOfBirth}`,
+    value: `${patient.dateOfBirth}`,
   },
 ]
 
@@ -44,7 +40,7 @@ if (!authStore.auth.isAuthenticated) {
 }
 
 if (!authStore.auth.hasProfile) {
-  router.push("/profile/create");
+  router.push("/patient/create");
 }
 </script>
 
@@ -73,7 +69,7 @@ if (!authStore.auth.hasProfile) {
                   color="blue-darken-2"
                   variant="tonal"
                   append-icon="mdi-pencil"
-                  :to="`/profile/update`"
+                  :to="`/patient/update`"
               >Uredi</v-btn>
 
             </v-sheet>

@@ -21,72 +21,63 @@ export const usePatientStore = defineStore("patient", {
   }),
 
   actions: {
-    async makeApiRequest(callback, errorMessage) {
+    async createPatient(data) {
       try {
-        return await callback();
+        const res = await axios.post(`${apiUrl}/create-patient`, data, {
+          headers: {
+            Authorization: "Bearer " + useAuthStore().auth.accessToken,
+          },
+        });
+        if (res.status === 201) {
+          await this.getPatient();
+          await router.push("/dashboard");
+        }
       } catch (error) {
-        console.error(`${errorMessage}: `, error);
+        console.error("Failed to create patient: ", error);
         throw error;
       }
     },
 
-    async createPatient(data) {
-      const createPatientApiCall = () =>
-        axios.post(`${apiUrl}/create-patient`, data, {
-          headers: {
-            Authorization: "Bearer " + useAuthStore().auth.accessToken,
-          },
-        });
-      const res = await this.makeApiRequest(
-        createPatientApiCall,
-        "Failed to create patient",
-      );
-
-      if (res.status === 201) {
-        await this.getPatient();
-        await router.push("/dashboard");
-      }
-    },
-
     async getPatient() {
-      const getPatientApiCall = () =>
-        axios.get(`${apiUrl}/get-patient`, {
+      try {
+        const res = await axios.get(`${apiUrl}/get-patient`, {
           headers: {
             Authorization: "Bearer " + useAuthStore().auth.accessToken,
           },
         });
-      const res = await this.makeApiRequest(
-        getPatientApiCall,
-        "Failed to get patient",
-      );
-
-      if (res.status === 200) {
-        this.patient = {
-          id: res.data.id,
-          firstName: res.data.firstName,
-          lastName: res.data.lastName,
-          dateOfBirth: res.data.dateOfBirth,
-          address: res.data.address,
-          phoneNumber: res.data.phoneNumber,
-        };
-        useAuthStore().auth.hasProfile = true;
+        if (res.status === 200) {
+          this.patient = {
+            id: res.data.id,
+            firstName: res.data.firstName,
+            lastName: res.data.lastName,
+            dateOfBirth: res.data.dateOfBirth,
+            address: res.data.address,
+            phoneNumber: res.data.phoneNumber,
+          };
+          useAuthStore().auth.hasProfile = true;
+        }
+      } catch (error) {
+        if (error.response.status === 404) {
+          await router.push("/patient/create");
+        }
+        console.error("Failed to get patient: ", error);
+        throw error;
       }
     },
 
     async getPatients() {
-      const getPatientsApiCall = () =>
-          axios.get(`${appointmentApiUrl}/get-doctors-patients`, {
-            headers: {
-              Authorization: "Bearer " + useAuthStore().auth.accessToken,
-            },
-          });
-      const res = await this.makeApiRequest(
-          getPatientsApiCall,
-          "Error getting patients"
-      );
-
-      if (res.status === 200) {
-        this.patients = res.data;
+      try {
+        const res = await axios.get(`${appointmentApiUrl}/get-patients`, {
+          headers: {
+            Authorization: "Bearer " + useAuthStore().auth.accessToken,
+          },
+        });
+        if (res.status === 200) {
+          this.patients = res.data;
+        }
+      } catch (error) {
+        console.error("Failed to get patients: ", error);
+        throw error;
       }
     },
 
@@ -107,19 +98,18 @@ export const usePatientStore = defineStore("patient", {
     },
 
     async updatePatient(data) {
-      const updatePatientApiCall = () =>
-        axios.put(`${apiUrl}/update-patient`, data, {
+      try {
+        const res = await axios.put(`${apiUrl}/update-patient`, data, {
           headers: {
             Authorization: "Bearer " + useAuthStore().auth.accessToken,
           },
         });
-      const res = await this.makeApiRequest(
-        updatePatientApiCall,
-        "Failed to update patient",
-      );
-
-      if (res.status === 200) {
-        this.patient = data;
+        if (res.status === 200) {
+          this.patient = data;
+        }
+      } catch (error) {
+        console.error("Failed to update patient: ", error);
+        throw error;
       }
     },
   },

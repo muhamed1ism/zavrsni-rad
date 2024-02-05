@@ -17,6 +17,8 @@ const visible_1 = ref(false);
 const visible_2 = ref(false);
 const visible_3 = ref(false);
 
+const alertMessage = ref("");
+const alertVisible = ref(false);
 
 const newPasswordRule = [
   (v) => !!v || "Trenutna lozinka je obavezna"
@@ -36,6 +38,12 @@ const submit = async () => {
   try {
     await userStore.updatePassword(form.value);
   } catch (error) {
+    if (error.response.status === 400) {
+      alertMessage.value =
+          "Trenutna lozinka nije ispravna" +
+          " ili je nova lozinka ista kao trenutna";
+      alertVisible.value = true;
+    }
     console.log(error);
   }
 };
@@ -49,7 +57,7 @@ if (!authStore.auth.isAuthenticated) {
 }
 
 if (!authStore.auth.hasProfile) {
-  router.push("/profile/create");
+  router.push("/patient/create");
 }
 </script>
 
@@ -97,10 +105,17 @@ if (!authStore.auth.hasProfile) {
               :rules="passwordConfirmRule"
           ></v-text-field>
 
+          <v-alert
+              v-if="alertVisible"
+              v-model="alertVisible"
+              density="compact"
+              type="error"
+          >{{ alertMessage }}</v-alert>
+
           <div class="d-flex pa-4 justify-space-evenly">
             <v-btn
                 append-icon="mdi-check"
-                color="primary"
+                color="blue-darken-2"
                 variant="tonal"
                 @click="submit"
             >Promijeni lozinku</v-btn

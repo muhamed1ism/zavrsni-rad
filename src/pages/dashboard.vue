@@ -12,10 +12,6 @@
   if (!authStore.auth.isAuthenticated) {
     router.push("/login");
   }
-
-  if (!authStore.auth.hasProfile) {
-    router.push("/doctors/create");
-  }
 </script>
 
 <template>

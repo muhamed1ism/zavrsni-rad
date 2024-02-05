@@ -15,12 +15,7 @@ if (!authStore.auth.isAuthenticated){
 }
 
 if (!authStore.auth.hasProfile){
-  router.push("/profile/create");
-}
-
-if (role !== "patient") {
-  console.log("Nemate pristup ovoj stranici");
-  router.push("/dashboard");
+  router.push("/doctor/create");
 }
 
 doctorStore.getDoctors();
@@ -28,18 +23,17 @@ doctorStore.getDoctors();
 const headers = [
   { title: "ID", text: "ID", value: "id", align: "start"},
   { title: "Ime", text: "Ime", value: "name", align: "center"},
+  { title: "Specijalnost", text: "Specijalnost", value: "specialty", align: "end"},
 ]
 </script>
 
 <template>
-  <h1>Doktori</h1>
   <v-container>
+    <h1 class="mb-4 mt-2 mx-2">Doktori</h1>
     <v-data-table
-
         :headers="headers"
         :items="doctorStore.doctors"
         :items-per-page="10"
-        class="elevation-1"
     >
     </v-data-table>
   </v-container>

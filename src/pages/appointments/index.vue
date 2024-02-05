@@ -14,17 +14,18 @@ if (!authStore.auth.isAuthenticated) {
 }
 
 if (!authStore.auth.hasProfile) {
-  router.push("/profile/create");
+  router.push("/doctor/create");
 }
 
 appointmentStore.getAppointments();
 
 const patientHeaders = [
-  { text: "ID", value: "id" },
-  { text: "Doktor", value: "doctorName" },
-  { text: "Datum", value: "date" },
-  { text: "Vrijeme", value: "time" },
-  { text: "Status", value: "status" },
+  {title: "ID", text: "ID", value: "id" },
+  {title: "Doktor", text: "Doktor", value: "doctorName" },
+  {title: "Datum", text: "Datum", value: "date" },
+  {title: "Vrijeme", text: "Vrijeme", value: "time" },
+  {title: "Status", text: "Status", value: "status" },
+  {title: "Akcije", text: "Akcije", value: "actions", sortable: false },
 ];
 
 const doctorHeaders = [
@@ -33,7 +34,6 @@ const doctorHeaders = [
   {title: "Datum", text: "Datum", value: "date" },
   {title: "Vrijeme", text: "Vrijeme", value: "time" },
   {title: "Status", text: "Status", value: "status" },
-  {title: "Akcije", text: "Akcije", value: "actions", sortable: false },
 ];
 </script>
 
@@ -44,19 +44,10 @@ const doctorHeaders = [
         :headers="patientHeaders"
         :items="appointmentStore.appointments"
         :items-per-page="10"
-        class="elevation-1"
-    ></v-data-table>
-  </v-container>
-  <v-container v-else-if="role === 'doctor'">
-    <h1 class="mb-4 mt-2 mx-2">Termini pacijenata</h1>
-    <v-data-table
-        :headers="doctorHeaders"
-        :items="appointmentStore.appointments"
-        :items-per-page="10"
-        class="elevation-1"
     >
       <template v-slot:item.actions="{ item }">
         <v-btn
+            v-if="item.id !== null"
             prepend-icon="mdi-close"
             variant="tonal"
             color="blue-darken-2"
@@ -64,6 +55,14 @@ const doctorHeaders = [
           Otkaži</v-btn>
       </template>
     </v-data-table>
+  </v-container>
+  <v-container v-else-if="role === 'doctor'">
+    <h1 class="mb-4 mt-2 mx-2">Termini pacijenata</h1>
+    <v-data-table
+        :headers="doctorHeaders"
+        :items="appointmentStore.appointments"
+        :items-per-page="10"
+    ></v-data-table>
   </v-container>
 </template>
 

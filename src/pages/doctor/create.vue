@@ -1,14 +1,18 @@
 <script setup>
 import { ref } from "vue";
-import { usePatientStore } from "@/stores/usePatientStore";
 import { useDoctorStore } from "@/stores/useDoctorStore";
 import { useUserStore } from "@/stores/useUserStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import router from "@/router";
 
+const userStore = useUserStore();
+const authStore = useAuthStore();
+const role = userStore.user.role;
+
 const form = ref({
   firstName: "",
   lastName: "",
+  specialty: "",
   address: "",
   phoneNumber: "",
   dateOfBirth: null,
@@ -24,6 +28,11 @@ const lastNameRule = [
   (v) => (v && v.length <= 20) || "Prezime mora biti manje od 20 karaktera",
 ];
 
+const specialtyRule = [
+  (v) => !!v || "Specijalnost je obavezna",
+  (v) => (v && v.length <= 20) || "Specijalnost mora biti manje od 20 karaktera",
+];
+
 const phoneNumberRule = [
   (v) => {
     const numberWithoutSpace = v.replace(/\s+/g, "");
@@ -36,35 +45,19 @@ const phoneNumberRule = [
   },
 ];
 
-const userStore = useUserStore();
-const authStore = useAuthStore();
-const role = userStore.user.role;
-
 const submit = async () => {
-  if (role === "patient") {
-    try {
-      const patientStore = usePatientStore();
-      await patientStore.createPatient(form.value);
-    } catch (error) {
-      console.log(error);
-    }
-  } else if (role === "doctor") {
     try {
       const doctorStore = useDoctorStore();
       await doctorStore.createDoctor(form.value);
     } catch (error) {
       console.log(error);
     }
-  }
 };
 
 if (!authStore.auth.isAuthenticated) {
   router.push("/login");
 }
 
-if (authStore.auth.hasProfile) {
-  router.push("/profile");
-}
 </script>
 
 <template>
@@ -94,6 +87,15 @@ if (authStore.auth.hasProfile) {
                   variant="outlined"
                   v-model="form.lastName"
                   :rules="lastNameRule"
+                ></v-text-field>
+
+                <div class="text-subtitle-1 text-medium-emphasis">Specijalnost</div>
+                <v-text-field
+                    density="compact"
+                    placeholder="Unesi specijalnost"
+                    variant="outlined"
+                    v-model="form.specialty"
+                    :rules="specialtyRule"
                 ></v-text-field>
 
                 <div class="text-subtitle-1 text-medium-emphasis">

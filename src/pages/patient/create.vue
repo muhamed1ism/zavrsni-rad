@@ -1,10 +1,13 @@
 <script setup>
 import { ref } from "vue";
 import { usePatientStore } from "@/stores/usePatientStore";
-import { useDoctorStore } from "@/stores/useDoctorStore";
 import { useUserStore } from "@/stores/useUserStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import router from "@/router";
+
+const userStore = useUserStore();
+const authStore = useAuthStore();
+const role = userStore.user.role;
 
 const form = ref({
   firstName: "",
@@ -36,35 +39,19 @@ const phoneNumberRule = [
   },
 ];
 
-const userStore = useUserStore();
-const authStore = useAuthStore();
-const role = userStore.user.role;
-
 const submit = async () => {
-  if (role === "patient") {
     try {
       const patientStore = usePatientStore();
       await patientStore.createPatient(form.value);
     } catch (error) {
       console.log(error);
     }
-  } else if (role === "doctor") {
-    try {
-      const doctorStore = useDoctorStore();
-      await doctorStore.createDoctor(form.value);
-    } catch (error) {
-      console.log(error);
-    }
-  }
 };
 
 if (!authStore.auth.isAuthenticated) {
   router.push("/login");
 }
 
-if (authStore.auth.hasProfile) {
-  router.push("/profile");
-}
 </script>
 
 <template>

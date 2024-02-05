@@ -23,100 +23,86 @@ export const useAppointmentStore = defineStore("appointment", {
     }),
 
     actions: {
-        async makeApiRequest(callback, errorMessage) {
+        async createAppointment(data) {
             try {
-                return await callback();
+                const res = await axios.post(`${apiUrl}/create-appointment`, data, {
+                    headers: {
+                        Authorization: "Bearer " + useAuthStore().auth.accessToken,
+                    },
+                });
+                if (res.status === 201) {
+                    await router.push("/appointments");
+                }
             } catch (error) {
-                console.error(`${errorMessage}: `, error);
+                console.error("Error creating appointment: ", error);
                 throw error;
             }
         },
 
-        async createAppointment(data) {
-            const createAppointmentApiCall = () =>
-                axios.post(`${apiUrl}/create-appointment`, data, {
-                    headers: {
-                        Authorization: "Bearer " + useAuthStore().auth.accessToken,
-                    },
-                });
-            const res = await this.makeApiRequest(
-                createAppointmentApiCall,
-                "Error creating appointment"
-            );
-
-            if (res.status === 201) {
-                await router.push("/appointments");
-            }
-        },
-
         async getAppointments() {
-            const getAppointmentsApiCall = () =>
-                axios.get(`${apiUrl}/get-all-appointments`, {
+            try {
+                const res = await axios.get(`${apiUrl}/get-all-appointments`, {
                     headers: {
                         Authorization: "Bearer " + useAuthStore().auth.accessToken,
                     },
                 });
-            const res = await this.makeApiRequest(
-                getAppointmentsApiCall,
-                "Error getting appointments"
-            );
-
-            if (res.status === 200) {
-                this.appointments = res.data;
+                if (res.status === 200 && res.data.length > 0) {
+                    this.appointments = res.data;
+                }
+            } catch (error) {
+                console.error("Error getting appointments: ", error);
+                throw error;
             }
         },
 
         async approveAppointment(appointmentId) {
-            const approveAppointmentApiCall = () =>
-                axios.put(`${apiUrl}/appointment/approve/${appointmentId}`,
+            try {
+                const res = await axios.put(`${apiUrl}/appointment/approve/${appointmentId}`,
                     appointmentId,{
-                    headers: {
-                        Authorization: "Bearer " + useAuthStore().auth.accessToken,
-                    },
-                });
-            const res = await this.makeApiRequest(
-                approveAppointmentApiCall,
-                "Error setting appointment status"
-            );
-
-            if (res.status === 200) {
-                await this.getAppointments();
+                        headers: {
+                            Authorization: "Bearer " + useAuthStore().auth.accessToken,
+                        },
+                    });
+                if (res.status === 200) {
+                    await this.getAppointments();
+                }
+            } catch (error) {
+                console.error("Error setting appointment status: ", error);
+                throw error;
             }
         },
 
         async rejectAppointment(appointmentId) {
-            const rejectAppointmentApiCall = () =>
-                axios.put(`${apiUrl}/appointment/reject/${appointmentId}`,
+            try {
+                const res = await axios.put(`${apiUrl}/appointment/reject/${appointmentId}`,
                     appointmentId, {
-                    headers: {
-                        Authorization: "Bearer " + useAuthStore().auth.accessToken,
-                    },
-                });
-            const res = await this.makeApiRequest(
-                rejectAppointmentApiCall,
-                "Error setting appointment status"
-            );
-
-            if (res.status === 200) {
-                await this.getAppointments();
+                        headers: {
+                            Authorization: "Bearer " + useAuthStore().auth.accessToken,
+                        },
+                    });
+                if (res.status === 200) {
+                    await this.getAppointments();
+                }
+            } catch (error) {
+                console.error("Error setting appointment status: ", error);
+                throw error;
             }
         },
 
         async cancelAppointment(appointmentId) {
-            const cancelAppointmentApiCall = () =>
-                axios.put(`${apiUrl}/appointment/cancel/${appointmentId}`,
+            try {
+                const res = await axios.put(`${apiUrl}/appointment/cancel/${appointmentId}`,
                     appointmentId, {
-                    headers: {
-                        Authorization: "Bearer " + useAuthStore().auth.accessToken,
-                    },
-                });
-            const res = await this.makeApiRequest(
-                cancelAppointmentApiCall,
-                "Failed to cancel appointment"
-            );
-
-            if (res.status === 200) {
-                await this.getAppointments();
+                        headers: {
+                            Authorization: "Bearer " + useAuthStore().auth.accessToken,
+                        },
+                    });
+                if (res.status === 200) {
+                    await this.getAppointments();
+                }
+            } catch (error) {
+                console.error("Error setting appointment status: ", error);
+                throw error;
             }
         },
     },

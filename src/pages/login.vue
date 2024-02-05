@@ -11,6 +11,9 @@ const form = ref({
   password: "",
 });
 
+const alertVisible = ref(false);
+const alertMessage = ref("");
+
 const email_rule = [
   (v) => !!v || "Email je obavezan",
   (v) => /.+@.+/.test(v) || "Email nije validanog formata",
@@ -38,6 +41,11 @@ const submit = async () => {
     window.location.href = "/dashboard";
   } catch (error) {
     console.log(error);
+    if (error.response.status === 401) {
+      alertMessage.value = "Pogrešan email ili lozinka";
+      alertVisible.value = true;
+    }
+
   }
 };
 
@@ -83,6 +91,12 @@ if (authStore.auth.isAuthenticated) {
                     @click:append-inner="visible = !visible"
                     :rules="password_rule"
                 ></v-text-field>
+
+                <v-alert
+                    v-if="alertVisible"
+                    v-model="alertVisible"
+                    density="compact"
+                    type="error">{{ alertMessage }}</v-alert>
 
                 <v-btn
                     border

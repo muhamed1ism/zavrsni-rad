@@ -6,13 +6,22 @@ import router from "@/router";
 const authStore = useAuthStore();
 const userStore = useUserStore();
 const email = userStore.user.email;
+const role = userStore.user.role;
 
 const emailAction = () => {
-  router.push("/profile/update/email");
+  if (role === "patient") {
+    router.push("/patient/update/email");
+  } else if (role === "doctor") {
+    router.push("/doctor/update/email");
+  }
 };
 
 const passwordAction = () => {
-  router.push("/profile/update/password");
+  if (role === "patient") {
+    router.push("/patient/update/password");
+  } else if (role === "doctor") {
+    router.push("/doctor/update/password");
+  }
 };
 
 if (!authStore.auth.isAuthenticated) {
@@ -20,7 +29,11 @@ if (!authStore.auth.isAuthenticated) {
 }
 
 if (!authStore.auth.hasProfile) {
-  router.push("/profile/create");
+  if (role === "patient") {
+    router.push("/patient/create");
+  } else if (role === "doctor") {
+    router.push("/doctor/create");
+  }
 }
 
 </script>
@@ -38,7 +51,7 @@ if (!authStore.auth.hasProfile) {
                 <p>{{ email }}</p>
                 <v-btn
                     class="ml-10"
-                    color="primary"
+                    color="blue-darken-2"
                     variant="tonal"
                     icon="mdi-pencil"
                     @click="emailAction">
@@ -52,7 +65,7 @@ if (!authStore.auth.hasProfile) {
                 <p>**********</p>
                 <v-btn
                     class="ml-10"
-                    color="primary"
+                    color="blue-darken-2"
                     variant="tonal"
                     icon="mdi-pencil"
                     @click="passwordAction">

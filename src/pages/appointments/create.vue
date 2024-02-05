@@ -1,20 +1,24 @@
 <script setup>
-import { ref } from "vue";
+import {ref} from "vue";
 import {useUserStore} from "@/stores/useUserStore";
 import {useAuthStore} from "@/stores/useAuthStore";
+import {useDoctorStore} from "@/stores/useDoctorStore";
 import {useAppointmentStore} from "@/stores/useAppointmentStore";
 import router from "@/router";
 
 const form = ref({
   doctorId: "",
-  date: "",
+  date: null,
   time: "",
 });
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
+const doctorStore = useDoctorStore();
 const appointmentStore = useAppointmentStore();
 const role = userStore.user.role;
+
+doctorStore.getDoctors();
 
 const submit = async () => {
   try {
@@ -29,7 +33,7 @@ if (!authStore.auth.isAuthenticated) {
 }
 
 if (!authStore.auth.hasProfile) {
-  router.push("/profile/create");
+  router.push("/doctor/create");
 }
 
 if (role !== "patient") {
@@ -50,20 +54,29 @@ if (role !== "patient") {
             <v-sheet>
               <v-form @submit.prevent="submit">
                 <div class="text-subtitle-1 text-medium-emphasis">Odaberi doktora</div>
-                <v-text-field
-                    density="compact"
-                    placeholder="Unesi ID doktora"
-                    variant="outlined"
+                <v-select
                     v-model="form.doctorId"
-                ></v-text-field>
-
-                <div class="text-subtitle-1 text-medium-emphasis">Odaberi datum</div>
-                <v-text-field
-                    density="compact"
-                    placeholder="Unesi datum"
+                    :items="doctorStore.doctors"
+                    :item-title="doctor => doctor.name"
+                    :item-value="doctor => doctor.id"
                     variant="outlined"
-                    v-model="form.date"
-                ></v-text-field>
+                    density="compact"
+                ></v-select>
+
+                <v-container>
+                  <v-row justify="center">
+                    <v-locale-provider locale="hr">
+                      <v-date-picker
+                          width="100%"
+                          v-model="form.date"
+                          header="Datum termina"
+                          border
+                          title="Odaberi"
+                      >
+                      </v-date-picker>
+                    </v-locale-provider>
+                  </v-row>
+                </v-container>
 
                 <div class="text-subtitle-1 text-medium-emphasis">Odaberi vrijeme</div>
                 <v-text-field

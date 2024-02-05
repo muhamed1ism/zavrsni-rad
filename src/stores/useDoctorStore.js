@@ -12,6 +12,7 @@ export const useDoctorStore = defineStore("doctor", {
             id: "",
             firstName: "",
             lastName: "",
+            specialty: "",
             dateOfBirth: "",
             address: "",
             phoneNumber: "",
@@ -20,72 +21,68 @@ export const useDoctorStore = defineStore("doctor", {
     }),
 
     actions: {
-        async makeApiRequest(callback, errorMessage) {
+        async createDoctor(data) {
             try {
-                return await callback();
+                const res = await axios.post(`${apiUrl}/create-doctor`,
+                    data, {
+                    headers: {
+                        Authorization: "Bearer " + useAuthStore().auth.accessToken,
+                    }
+                });
+
+                if (res.status === 201) {
+                    await this.getDoctor();
+                    await router.push("/dashboard");
+                }
             } catch (error) {
-                console.error(`${errorMessage}: `, error);
+                console.error("Failed to create doctor: " + error);
                 throw error;
             }
         },
 
-        async createDoctor(data) {
-            const createDoctorApiCall = () =>
-                axios.post(`${apiUrl}/create-doctor`,
-                    data, {
-                        headers: {
-                            Authorization: "Bearer " + useAuthStore().auth.accessToken,
-                        }
-                    });
-            const res = await this.makeApiRequest(
-                createDoctorApiCall,
-                "Failed to create doctor");
-
-            if (res.status === 201) {
-                await this.getDoctor();
-                await router.push("/dashboard");
-            }
-        },
-
         async getDoctor() {
-            const getDoctorApiCall = () =>
-                axios.get(`${apiUrl}/get-doctor`, {
+            try {
+                const res = await axios.get(`${apiUrl}/get-doctor`, {
                     headers: {
                         Authorization: "Bearer " + useAuthStore().auth.accessToken,
                     }
                 });
-            const res = await this.makeApiRequest(
-                getDoctorApiCall,
-                "Failed to get doctor"
-            );
 
-            if (res.status === 200) {
-                this.doctor = {
-                    id: res.data.id,
-                    firstName: res.data.firstName,
-                    lastName: res.data.lastName,
-                    dateOfBirth: res.data.dateOfBirth,
-                    address: res.data.address,
-                    phoneNumber: res.data.phoneNumber,
-                };
-                useAuthStore().auth.hasProfile = true;
+                if (res.status === 200) {
+                    this.doctor = {
+                        id: res.data.id,
+                        firstName: res.data.firstName,
+                        lastName: res.data.lastName,
+                        specialty: res.data.specialty,
+                        dateOfBirth: res.data.dateOfBirth,
+                        address: res.data.address,
+                        phoneNumber: res.data.phoneNumber,
+                    };
+                    useAuthStore().auth.hasProfile = true;
+                }
+            } catch (error) {
+                if (error.response.status === 404) {
+                    await router.push("/doctor/create");
+                }
+                console.error("Failed to get doctor: " + error);
+                throw error;
             }
         },
 
         async getDoctors() {
-            const getDoctorsApiCall = () =>
-                axios.get(`${apiUrl}/get-doctors`, {
+            try {
+                const res = await axios.get(`${apiUrl}/get-doctors`, {
                     headers: {
                         Authorization: "Bearer " + useAuthStore().auth.accessToken,
                     }
                 });
-            const res = await this.makeApiRequest(
-                getDoctorsApiCall,
-                "Failed to get doctors"
-            );
 
-            if (res.status === 200) {
-                this.doctors = res.data;
+                if (res.status === 200) {
+                    this.doctors = res.data;
+                }
+            } catch (error) {
+                console.error("Failed to get doctors: " + error);
+                throw error;
             }
         },
 
@@ -95,6 +92,7 @@ export const useDoctorStore = defineStore("doctor", {
                     id: "",
                     firstName: "",
                     lastName: "",
+                    specialty: "",
                     dateOfBirth: "",
                     address: "",
                     phoneNumber: "",
@@ -106,20 +104,21 @@ export const useDoctorStore = defineStore("doctor", {
         },
 
         async updateDoctor(data) {
-            const updateDoctorApiCall = () =>
-                axios.put(`${apiUrl}/update-doctor`,
+            try {
+                const res = await axios.put(`${apiUrl}/update-doctor`,
                     data, {
                         headers: {
                             Authorization: "Bearer " + useAuthStore().auth.accessToken,
                         }
                     });
-            const res = await this.makeApiRequest(
-                updateDoctorApiCall,
-                "Failed to update doctor"
-            );
 
-            if (res.status === 200) {
-                this.doctor = data;
+                if (res.status === 200) {
+                    await this.getDoctor();
+                    await router.push("/dashboard");
+                }
+            } catch (error) {
+                console.error("Failed to update doctor: " + error);
+                throw error;
             }
         },
     },

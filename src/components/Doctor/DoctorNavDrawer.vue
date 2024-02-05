@@ -17,22 +17,23 @@ const userStore = useUserStore();
   </v-list-item>
   <v-divider></v-divider>
   <v-list-item prepend-icon="mdi-view-dashboard" link to="/dashboard" title="Početna stranica"></v-list-item>
-  <v-list-item prepend-icon="mdi-account" link to="/profile" title="Moj profil"></v-list-item>
+  <v-list-item prepend-icon="mdi-account" link to="/doctor" title="Moj profil"></v-list-item>
   <v-list-item
     prepend-icon="mdi-calendar-clock"
     link
     to="/appointments"
-    title="Lista naručenih pacijenta"
-  ></v-list-item>
+    title="Lista naručenih pacijenta"></v-list-item>
   <v-list-item
     prepend-icon="mdi-list-status"
     link
     to="/appointments/manage"
-    title="Upravljaj terminima"
-  ></v-list-item>
+    title="Upravljaj terminima"></v-list-item>
   <v-list-item
-    prepend-icon="mdi-account-group"
+    prepend-icon="mdi-account-group-outline"
       link to="/patients" title="Moji pacijenti"></v-list-item>
+    <v-list-item
+        prepend-icon="mdi-account-group"
+        link to="/doctor/all" title="Doktori"></v-list-item>
   <v-list-item
       prepend-icon="mdi-cog"
       link to="/settings" title="Postavke"></v-list-item>

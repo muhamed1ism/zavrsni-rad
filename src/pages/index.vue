@@ -1,7 +1,7 @@
 <template>
-  <div>
-    Početna stranica aplikacije
-  </div>
+  <v-container>
+    <h1>Početna stranica aplikacije, dok korisnik nije prijavljen</h1>
+  </v-container>
 </template>
 
 <script setup>

@@ -3,8 +3,10 @@
 </script>
 
 <template>
-  <h1>Contact</h1>
-  <p>This is the contact page</p>
+  <v-container>
+    <h1>Kontakt</h1>
+    <p>Ovo je stranica za kontakt</p>
+  </v-container>
 </template>
 
 <style scoped>

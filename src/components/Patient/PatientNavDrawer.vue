@@ -24,13 +24,13 @@ const patientStore = usePatientStore();
   <v-list-item
     prepend-icon="mdi-account"
     link
-    to="/profile"
+    to="/patient"
     title="Moj profil"
   ></v-list-item>
   <v-list-item
     prepend-icon="mdi-account-group"
     link
-    to="/doctors"
+    to="/doctor/all"
     title="Doktori"
   ></v-list-item>
   <v-list-item

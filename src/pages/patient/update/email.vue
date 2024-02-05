@@ -2,14 +2,18 @@
 import { useUserStore } from "@/stores/useUserStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import router from "@/router";
+import { ref } from "vue";
 
 const authStore = useAuthStore();
 const userStore = useUserStore();
-const email = userStore.user.email || "";
+const email = userStore.user.email;
 
 const form = {
-  email: `${email}`,
+  email: email,
 };
+
+const alertMessage = ref("");
+const alertVisible = ref(false);
 
 const emailRule = [
   (v) => !!v || "Email je obavezan",
@@ -18,8 +22,12 @@ const emailRule = [
 
 const submit = async () => {
   try {
-    await userStore.updateEmail(form);
+    await userStore.updateEmail(form.email);
   } catch (error) {
+    if (error.response.status === 400) {
+      alertMessage.value = "Nova email adresa ne smije biti ista kao stara";
+      alertVisible.value = true;
+    }
     console.log(error);
   }
 };
@@ -33,7 +41,7 @@ if (!authStore.auth.isAuthenticated) {
 }
 
 if (!authStore.auth.hasProfile) {
-  router.push("/profile/create");
+  router.push("/patient/create");
 }
 </script>
 
@@ -53,10 +61,18 @@ if (!authStore.auth.hasProfile) {
             v-model="form.email"
             :rules="emailRule"
           ></v-text-field>
+          <v-alert
+            v-model="alertVisible"
+            dense
+            border="top"
+            color="error"
+            class="mt-4"
+            >{{ alertMessage }}
+          </v-alert>
           <div class="d-flex pa-4 justify-space-evenly">
             <v-btn
               append-icon="mdi-check"
-              color="primary"
+              color="blue-darken-2"
               variant="tonal"
               @click="submit"
               >Promijeni email</v-btn

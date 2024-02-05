@@ -1,43 +1,33 @@
 <script setup>
 import { ref } from "vue";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { useUserStore } from "@/stores/useUserStore";
 import { usePatientStore } from "@/stores/usePatientStore";
-import { useDoctorStore } from "@/stores/useDoctorStore";
-import { useAuthStore } from "@/stores/useAuthStore";
 import router from "@/router";
 
 const authStore = useAuthStore();
+const patientStore = usePatientStore();
 const role = useUserStore().user.role;
 
-const data = async () => {
-  if (role === "patient") {
-    await usePatientStore().getPatient();
-    return usePatientStore().patient;
-  } else if (role === "doctor") {
-    await useDoctorStore().getDoctor();
-    return useDoctorStore().doctor;
-  }
-}
-
-const profile = data();
+const patient = patientStore.patient;
 
 const form = ref({
-  firstName: profile.firstName || "",
-  lastName: profile.lastName || "",
-  address: profile.address || "",
-  phoneNumber: profile.phoneNumber || "",
-  dateOfBirth: profile.dateOfBirth || null,
+  firstName: patient.firstName || "",
+  lastName: patient.lastName || "",
+  address: patient.address || "",
+  phoneNumber: patient.phoneNumber || "",
+  dateOfBirth: null,
 });
 
 const submit = async () => {
   try {
-    if (role === "patient") {
+      if (form.value.dateOfBirth === null) {
+        form.value.dateOfBirth = patient.dateOfBirth;
+      }
       const patientStore = usePatientStore();
       await patientStore.updatePatient(form.value);
-    } else if (role === "doctor") {
-      const doctorStore = useDoctorStore();
-      await doctorStore.updateDoctor(form.value);
-    }
+
+    await router.push("/patient");
   } catch (error) {
     console.log(error);
   }
@@ -47,8 +37,13 @@ if (!authStore.auth.isAuthenticated) {
   router.push("/login");
 }
 
+if(role !== "patient") {
+  console.log("Nemate pristup ovoj stranici");
+  router.push("/dashboard");
+}
+
 if (!authStore.auth.hasProfile) {
-  router.push("/profile/create");
+  router.push("/patient/create");
 }
 </script>
 
