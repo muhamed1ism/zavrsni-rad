@@ -21,8 +21,10 @@ CORS_ORIGINS = [
     'http://localhost:5003'
 ]
 cors = CORS(origins=CORS_ORIGINS)
+
 # JWT
 jwt = JWTManager()
+
 # Bcrypt
 bcrypt = Bcrypt()
 

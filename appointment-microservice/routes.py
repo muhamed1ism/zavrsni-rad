@@ -10,34 +10,34 @@ from models import db, Appointment
 # CORS
 CORS_ORIGINS = [
     'http://localhost:3000',
-    'http://localhost:5000',
-    'http://localhost:5001',
-    'http://localhost:5002'
+    'http://auth-microservice:5000',
+    'http://patient-microservice:5001',
+    'http://doctor-microservice:5002'
 ]
 cors = CORS(origins=CORS_ORIGINS)
 # JWT
 jwt = JWTManager()
 
 def get_patient(user_id):
-    patient_url = f'http://localhost:5001/get-patient/user/{user_id}'
+    patient_url = f'http://patient-microservice:5001/get-patient/user/{user_id}'
     patient_response = requests.get(patient_url, headers={'Authorization': request.headers['Authorization']})
     patient = patient_response.json()
     return patient
 
 def get_patient_by_id(patient_id):
-    patient_url = f'http://localhost:5001/get-patient/{patient_id}'
+    patient_url = f'http://patient-microservice:5001/get-patient/{patient_id}'
     patient_response = requests.get(patient_url, headers={'Authorization': request.headers['Authorization']})
     patient = patient_response.json()
     return patient
 
 def get_doctor(user_id):
-    doctor_url = f'http://localhost:5002/get-doctor/user/{user_id}'
+    doctor_url = f'http://doctor-microservice:5002/get-doctor/user/{user_id}'
     doctor_response = requests.get(doctor_url, headers={'Authorization': request.headers['Authorization']})
     doctor = doctor_response.json()
     return doctor
 
 def get_doctor_by_id(doctor_id):
-    doctor_url = f'http://localhost:5002/get-doctor/{doctor_id}'
+    doctor_url = f'http://doctor-microservice:5002/get-doctor/{doctor_id}'
     doctor_response = requests.get(doctor_url, headers={'Authorization': request.headers['Authorization']})
     doctor = doctor_response.json()
     return doctor
@@ -78,7 +78,7 @@ def get_doctor_name(doctor_id):
     return doctor_name
 
 def get_user_role():
-    user_url = 'http://localhost:5000/get-user'
+    user_url = 'http://auth-microservice:5000/get-user'
     user_response = requests.get(user_url, headers={'Authorization': request.headers['Authorization']})
     user = user_response.json()
     user_role = user['role']
