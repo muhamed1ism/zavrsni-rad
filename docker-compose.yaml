@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  frontend:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+    networks:
+      - microservices-network
+
+networks:
+  microservices-network:
+    external: true
