@@ -9,7 +9,6 @@ const userStore = useUserStore();
 const patientStore = usePatientStore();
 const role = userStore.user.role;
 
-
 const patient = patientStore.patient;
 const title = "Moji podaci";
 const items = [
@@ -33,7 +32,7 @@ const items = [
     title: "Datum rođenja",
     value: `${patient.dateOfBirth}`,
   },
-]
+];
 
 if (!authStore.auth.isAuthenticated) {
   router.push("/login");
@@ -52,26 +51,33 @@ if (!authStore.auth.hasProfile) {
           <v-card-title class="text-center text-h5">{{ title }}</v-card-title>
           <v-card-item>
             <v-sheet>
-              <v-card-text v-for="item in items" :key="item" class="v-card-text">
-                <div class="text-subtitle-1 text-medium-emphasis">{{ item.title }}</div>
+              <v-card-text
+                v-for="item in items"
+                :key="item"
+                class="v-card-text"
+              >
+                <div class="text-subtitle-1 text-medium-emphasis">
+                  {{ item.title }}
+                </div>
                 <v-text-field
-                    disabled
-                    readonly
-                    density="compact"
-                    variant="outlined"
-                >{{ item.value }}</v-text-field>
+                  disabled
+                  readonly
+                  density="compact"
+                  variant="outlined"
+                  >{{ item.value }}</v-text-field
+                >
               </v-card-text>
               <v-btn
-                  border
-                  block
-                  size="large"
-                  class="mb-8 mt-6"
-                  color="blue-darken-2"
-                  variant="tonal"
-                  append-icon="mdi-pencil"
-                  :to="`/patient/update`"
-              >Uredi</v-btn>
-
+                border
+                block
+                size="large"
+                class="mb-8 mt-6"
+                color="blue-darken-2"
+                variant="tonal"
+                append-icon="mdi-pencil"
+                :to="`/patient/update`"
+                >Uredi</v-btn
+              >
             </v-sheet>
           </v-card-item>
         </v-card>
@@ -81,7 +87,7 @@ if (!authStore.auth.hasProfile) {
 </template>
 
 <style scoped>
-.v-card-text{
+.v-card-text {
   padding: 0 !important;
 }
 </style>

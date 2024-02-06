@@ -1,14 +1,15 @@
 <script setup>
 import NavDrawer from "@/components/NavDrawer.vue";
 import { useAuthStore } from "@/stores/useAuthStore";
-import {  ref } from "vue";
+import { ref } from "vue";
 import { useTheme } from "vuetify";
+import router from "@/router";
 
 const theme = useTheme();
 const darkTheme = ref(false);
 const drawer = ref(false);
 
-const authStore = useAuthStore()
+const authStore = useAuthStore();
 
 function changeTheme() {
   darkTheme.value = !darkTheme.value;
@@ -22,9 +23,10 @@ async function logOut() {
     await authStore.revokeAccessToken();
     await authStore.revokeRefreshToken();
     await authStore.clearUserData();
-    window.location.href = "/";
+    await router.push("/");
+    window.location.reload();
   } catch (error) {
-    console.error('Error during logout: ', error);
+    console.error("Error during logout: ", error);
     throw error;
   }
 }
@@ -48,18 +50,18 @@ theme.global.name.value = darkTheme.value ? "dark" : "light";
     <v-app-bar-title>
       <div v-if="authStore.auth.isAuthenticated">
         <RouterLink
-            class="text-decoration-none text-h4 px-4 font-weight-light"
-            :class="darkTheme ? 'text-white' : 'text-black'"
-            to="/dashboard"
-        >eBolnica
+          class="text-decoration-none text-h4 px-4 font-weight-light"
+          :class="darkTheme ? 'text-white' : 'text-black'"
+          to="/dashboard"
+          >eBolnica
         </RouterLink>
       </div>
       <div v-else>
         <RouterLink
-            class="text-decoration-none text-h4 px-4 font-weight-light"
-            :class="darkTheme ? 'text-white' : 'text-black'"
-            to="/"
-        >eBolnica
+          class="text-decoration-none text-h4 px-4 font-weight-light"
+          :class="darkTheme ? 'text-white' : 'text-black'"
+          to="/"
+          >eBolnica
         </RouterLink>
       </div>
     </v-app-bar-title>
@@ -73,29 +75,29 @@ theme.global.name.value = darkTheme.value ? "dark" : "light";
     </v-btn>
     <template v-slot:append>
       <v-btn
-          to="/login"
-          variant="outlined"
-          color="blue-darken-2"
-          text="Prijavi se"
-          v-if="!authStore.auth.isAuthenticated"
+        to="/login"
+        variant="outlined"
+        color="blue-darken-2"
+        text="Prijavi se"
+        v-if="!authStore.auth.isAuthenticated"
       >
       </v-btn>
 
       <v-btn
-          @click="logOut"
-          variant="flat"
-          color="blue-darken-2"
-          text="Odjavi se"
-          v-else-if="authStore.auth.isAuthenticated"
+        @click="logOut"
+        variant="flat"
+        color="blue-darken-2"
+        text="Odjavi se"
+        v-else-if="authStore.auth.isAuthenticated"
       >
         Odjavi se
         <v-icon class="pl-4">mdi-logout</v-icon>
       </v-btn>
     </template>
   </v-app-bar>
-    <div>
-      <NavDrawer v-model="drawer"></NavDrawer>
-    </div>
+  <div>
+    <NavDrawer v-model="drawer"></NavDrawer>
+  </div>
 </template>
 
 <style scoped></style>

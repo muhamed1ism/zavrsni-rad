@@ -2,9 +2,9 @@
 import { ref } from "vue";
 import { useAuthStore } from "@/stores/useAuthStore";
 import router from "@/router";
-import {usePatientStore} from "@/stores/usePatientStore";
-import {useDoctorStore} from "@/stores/useDoctorStore";
-import {useUserStore} from "@/stores/useUserStore";
+import { usePatientStore } from "@/stores/usePatientStore";
+import { useDoctorStore } from "@/stores/useDoctorStore";
+import { useUserStore } from "@/stores/useUserStore";
 
 const form = ref({
   email: "",
@@ -38,14 +38,14 @@ const submit = async () => {
     } else if (role === "doctor") {
       await useDoctorStore().getDoctor();
     }
-    window.location.href = "/dashboard";
+    await router.push("/dashboard");
+    window.location.reload();
   } catch (error) {
     console.log(error);
     if (error.response.status === 401) {
       alertMessage.value = "Pogrešan email ili lozinka";
       alertVisible.value = true;
     }
-
   }
 };
 
@@ -66,54 +66,56 @@ if (authStore.auth.isAuthenticated) {
                 <div class="text-subtitle-1 text-medium-emphasis">Email</div>
 
                 <v-text-field
-                    density="compact"
-                    placeholder="Email adresa"
-                    prepend-inner-icon="mdi-email-outline"
-                    variant="outlined"
-                    v-model="form.email"
-                    :rules="email_rule"
+                  density="compact"
+                  placeholder="Email adresa"
+                  prepend-inner-icon="mdi-email-outline"
+                  variant="outlined"
+                  v-model="form.email"
+                  :rules="email_rule"
                 ></v-text-field>
 
                 <div
-                    class="text-subtitle-1 text-medium-emphasis d-flex align-center justify-space-between"
+                  class="text-subtitle-1 text-medium-emphasis d-flex align-center justify-space-between"
                 >
                   Lozinka
                 </div>
 
                 <v-text-field
-                    :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
-                    :type="visible ? 'text' : 'password'"
-                    density="compact"
-                    placeholder="Unesite lozinku"
-                    prepend-inner-icon="mdi-lock-outline"
-                    variant="outlined"
-                    v-model="form.password"
-                    @click:append-inner="visible = !visible"
-                    :rules="password_rule"
+                  :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
+                  :type="visible ? 'text' : 'password'"
+                  density="compact"
+                  placeholder="Unesite lozinku"
+                  prepend-inner-icon="mdi-lock-outline"
+                  variant="outlined"
+                  v-model="form.password"
+                  @click:append-inner="visible = !visible"
+                  :rules="password_rule"
                 ></v-text-field>
 
                 <v-alert
-                    v-if="alertVisible"
-                    v-model="alertVisible"
-                    density="compact"
-                    type="error">{{ alertMessage }}</v-alert>
+                  v-if="alertVisible"
+                  v-model="alertVisible"
+                  density="compact"
+                  type="error"
+                  >{{ alertMessage }}</v-alert
+                >
 
                 <v-btn
-                    border
-                    type="submit"
-                    block
-                    variant="tonal"
-                    color="blue-darken-2"
-                    size="large"
-                    class="mb-8 mt-2"
-                >Prijavi se</v-btn
+                  border
+                  type="submit"
+                  block
+                  variant="tonal"
+                  color="blue-darken-2"
+                  size="large"
+                  class="mb-8 mt-2"
+                  >Prijavi se</v-btn
                 >
 
                 <v-card-text class="text-center">
                   <a
-                      class="text-blue-darken-2 text-decoration-none"
-                      href="/register"
-                  >Napravi račun <v-icon icon="mdi-chevron-right"></v-icon>
+                    class="text-blue-darken-2 text-decoration-none"
+                    href="/register"
+                    >Napravi račun <v-icon icon="mdi-chevron-right"></v-icon>
                   </a>
                 </v-card-text>
               </v-form>

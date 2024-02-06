@@ -5,12 +5,12 @@
 </template>
 
 <script setup>
-  import { useAuthStore } from "@/stores/useAuthStore";
-  import router from "@/router";
+import { useAuthStore } from "@/stores/useAuthStore";
+import router from "@/router";
 
-  const authStore = useAuthStore();
+const authStore = useAuthStore();
 
-  if (authStore.auth.isAuthenticated) {
-    router.push("/dashboard");
-  }
+if (authStore.auth.isAuthenticated) {
+  router.push("/dashboard");
+}
 </script>

@@ -31,7 +31,8 @@ const lastNameRule = [
 
 const specialtyRule = [
   (v) => !!v || "Specijalnost je obavezna",
-  (v) => (v && v.length <= 20) || "Specijalnost mora biti manje od 20 karaktera",
+  (v) =>
+    (v && v.length <= 20) || "Specijalnost mora biti manje od 20 karaktera",
 ];
 
 const phoneNumberRule = [
@@ -50,13 +51,18 @@ const dateFormat = (date) => {
   return date.toLocaleDateString("hr-HR");
 };
 
+const convertToISO = (date) => {
+  return new Date(date).toISOString();
+};
+
 const submit = async () => {
-    try {
-      const doctorStore = useDoctorStore();
-      await doctorStore.createDoctor(form.value);
-    } catch (error) {
-      console.log(error);
-    }
+  try {
+    form.value.dateOfBirth = convertToISO(form.value.dateOfBirth);
+    const doctorStore = useDoctorStore();
+    await doctorStore.createDoctor(form.value);
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 if (!authStore.auth.isAuthenticated) {
@@ -66,7 +72,6 @@ if (!authStore.auth.isAuthenticated) {
 if (authStore.auth.hasProfile) {
   router.push("/dashboard");
 }
-
 </script>
 
 <template>
@@ -98,13 +103,15 @@ if (authStore.auth.hasProfile) {
                   :rules="lastNameRule"
                 ></v-text-field>
 
-                <div class="text-subtitle-1 text-medium-emphasis">Specijalnost</div>
+                <div class="text-subtitle-1 text-medium-emphasis">
+                  Specijalnost
+                </div>
                 <v-text-field
-                    density="compact"
-                    placeholder="Unesi specijalnost"
-                    variant="outlined"
-                    v-model="form.specialty"
-                    :rules="specialtyRule"
+                  density="compact"
+                  placeholder="Unesi specijalnost"
+                  variant="outlined"
+                  v-model="form.specialty"
+                  :rules="specialtyRule"
                 ></v-text-field>
 
                 <div class="text-subtitle-1 text-medium-emphasis">
@@ -134,13 +141,13 @@ if (authStore.auth.hasProfile) {
                 <v-container>
                   <v-row justify="center">
                     <VueDatePicker
-                        v-model="form.dateOfBirth"
-                        placeholder="Unesi datum rođenja"
-                        :format="dateFormat"
-                        locale="hr"
-                        auto-apply
-                        :enable-time-picker="false"
-                        :teleport="body"
+                      v-model="form.dateOfBirth"
+                      placeholder="Unesi datum rođenja"
+                      :format="dateFormat"
+                      locale="hr"
+                      auto-apply
+                      :enable-time-picker="false"
+                      :teleport="body"
                     ></VueDatePicker>
                   </v-row>
                 </v-container>
@@ -163,7 +170,8 @@ if (authStore.auth.hasProfile) {
                   color="blue-darken-2"
                   size="large"
                   class="mb-8 mt-2"
-                  >Spremi</v-btn>
+                  >Spremi</v-btn
+                >
               </v-form>
             </v-sheet>
           </v-card-item>

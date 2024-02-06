@@ -1,6 +1,6 @@
 <script setup>
 import { useUserStore } from "@/stores/useUserStore";
-import {useAuthStore} from "@/stores/useAuthStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 import router from "@/router";
 
 const authStore = useAuthStore();
@@ -35,7 +35,6 @@ if (!authStore.auth.hasProfile) {
     router.push("/doctor/create");
   }
 }
-
 </script>
 
 <template>
@@ -50,11 +49,12 @@ if (!authStore.auth.hasProfile) {
               <div class="d-flex align-center">
                 <p>{{ email }}</p>
                 <v-btn
-                    class="ml-10"
-                    color="blue-darken-2"
-                    variant="tonal"
-                    icon="mdi-pencil"
-                    @click="emailAction">
+                  class="ml-10"
+                  color="blue-darken-2"
+                  variant="tonal"
+                  icon="mdi-pencil"
+                  @click="emailAction"
+                >
                 </v-btn>
               </div>
             </div>
@@ -64,22 +64,20 @@ if (!authStore.auth.hasProfile) {
               <div class="d-flex align-center">
                 <p>**********</p>
                 <v-btn
-                    class="ml-10"
-                    color="blue-darken-2"
-                    variant="tonal"
-                    icon="mdi-pencil"
-                    @click="passwordAction">
+                  class="ml-10"
+                  color="blue-darken-2"
+                  variant="tonal"
+                  icon="mdi-pencil"
+                  @click="passwordAction"
+                >
                 </v-btn>
               </div>
             </div>
           </v-card-text>
-
         </v-card>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

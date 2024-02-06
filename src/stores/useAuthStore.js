@@ -55,7 +55,7 @@ export const useAuthStore = defineStore("auth", {
       try {
         const jwtToken = JSON.parse(atob(this.auth.accessToken.split(".")[1]));
         const expires = new Date(jwtToken.exp * 1000);
-        const timeout = expires - Date.now() - (60 * 1000);
+        const timeout = expires - Date.now() - 60 * 1000;
         this.auth.refreshTokenTimer = setTimeout(
           this.refreshAccessToken,
           timeout,
@@ -73,7 +73,10 @@ export const useAuthStore = defineStore("auth", {
 
     async refreshAccessToken() {
       try {
-        const res = await axios.post(`${apiUrl}/refresh-token`, this.auth.refreshToken);
+        const res = await axios.post(
+          `${apiUrl}/refresh-token`,
+          this.auth.refreshToken,
+        );
         if (res.status === 200) {
           this.auth.accessToken = res.data.accessToken;
         }

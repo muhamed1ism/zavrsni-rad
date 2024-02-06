@@ -1,12 +1,12 @@
 <script setup>
-  import router from "@/router";
-  import { useAuthStore } from "@/stores/useAuthStore";
+import router from "@/router";
+import { useAuthStore } from "@/stores/useAuthStore";
 
-  const authStore = useAuthStore();
+const authStore = useAuthStore();
 
-  if (!authStore.auth.hasProfile) {
-    router.push("/doctor/create");
-  }
+if (!authStore.auth.hasProfile) {
+  router.push("/doctor/create");
+}
 </script>
 
 <template>
@@ -14,6 +14,4 @@
   <p>Ovo je početna stranica doktora.</p>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>
