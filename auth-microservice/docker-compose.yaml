@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  auth-microservice:
+    build: .
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    networks:
+      - microservices-network
+
+networks:
+  microservices-network:
+    external: true

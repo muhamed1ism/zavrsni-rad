@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  auth-microservice:
+    build: ./auth-microservice
+    ports:
+      - "5000:5000"
+    env_file:
+      - auth-microservice/.env
+    volumes:
+      - .:/auth-microservice/app
+    networks:
+      - microservices-network
+  
+  patient-microservice:
+    build: ./patient-microservice
+    ports:
+      - "5001:5001"
+    env_file:
+      - patient-microservice/.env
+    volumes:
+      - .:/patient-microservice/app
+    networks:
+      - microservices-network
+  
+  doctor-microservice:
+    build: ./doctor-microservice
+    ports:
+      - "5002:5002"
+    env_file:
+      - doctor-microservice/.env
+    volumes:
+      - .:/doctor-microservice/app
+    networks:
+      - microservices-network
+  
+  appointment-microservice:
+    build: ./appointment-microservice
+    ports:
+      - "5003:5003"
+    env_file:
+      - appointment-microservice/.env
+    volumes:
+      - .:/appointment-microservice/app
+    networks:
+      - microservices-network
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/frontend/app
+    networks:
+      - microservices-network
+      
+networks:
+  microservices-network:
+    external: true

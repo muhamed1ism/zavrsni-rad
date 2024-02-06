@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from "vue";
-import { useUserStore } from "@/stores/useUserStore";
+import { useUserStore } from "frontend/src/stores/useUserStore";
 import { useDoctorStore } from "@/stores/useDoctorStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import router from "@/router";

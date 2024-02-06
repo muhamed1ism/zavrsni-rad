@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  doctor-microservice:
+    build: .
+    ports:
+      - "5002:5002"
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    networks:
+      - microservices-network
+
+networks:
+  microservices-network:
+    external: true
