@@ -1,7 +1,9 @@
 version: '3.8'
 services:
   frontend:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     volumes:
@@ -11,4 +13,4 @@ services:
 
 networks:
   microservices-network:
-    external: true
+    driver: bridge

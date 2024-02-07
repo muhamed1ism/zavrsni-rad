@@ -14,13 +14,7 @@ from flask_jwt_extended import (
 from models import User, TokenBlocklist, db
 
 # CORS
-CORS_ORIGINS = [
-    'http://localhost:3000',
-    'http://localhost:5001',
-    'http://localhost:5002',
-    'http://localhost:5003'
-]
-cors = CORS(origins=CORS_ORIGINS)
+cors = CORS()
 
 # JWT
 jwt = JWTManager()

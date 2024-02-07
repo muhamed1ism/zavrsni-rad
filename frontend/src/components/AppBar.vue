@@ -17,12 +17,13 @@ function changeTheme() {
   localStorage.setItem("darkTheme", darkTheme["value"]);
 }
 
-async function logOut() {
+if (authStore.auth.isAuthenticated) {
+  drawer.value = true;
+}
+
+const logOut = async() => {
   try {
     await authStore.logout();
-    await authStore.revokeAccessToken();
-    await authStore.revokeRefreshToken();
-    await authStore.clearUserData();
     await router.push("/");
     window.location.reload();
   } catch (error) {
@@ -30,6 +31,7 @@ async function logOut() {
     throw error;
   }
 }
+
 
 const storedTheme = localStorage.getItem("darkTheme");
 darkTheme.value = storedTheme === "true";
@@ -41,7 +43,6 @@ theme.global.name.value = darkTheme.value ? "dark" : "light";
     border
     class="px-4"
     :elevation="0"
-    scroll-behavior="collapse elevate"
   >
     <template v-slot:prepend>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
@@ -74,24 +75,22 @@ theme.global.name.value = darkTheme.value ? "dark" : "light";
       ></v-icon>
     </v-btn>
     <template v-slot:append>
+      <RouterLink
+          v-if="!authStore.auth.isAuthenticated"
+          to="login">
+        <v-btn
+            variant="outlined"
+            color="blue-darken-2"
+            text="Prijavi se">
+        </v-btn>
+      </RouterLink>
       <v-btn
-        to="/login"
-        variant="outlined"
-        color="blue-darken-2"
-        text="Prijavi se"
-        v-if="!authStore.auth.isAuthenticated"
-      >
-      </v-btn>
-
-      <v-btn
-        @click="logOut"
-        variant="flat"
-        color="blue-darken-2"
-        text="Odjavi se"
-        v-else-if="authStore.auth.isAuthenticated"
-      >
-        Odjavi se
-        <v-icon class="pl-4">mdi-logout</v-icon>
+          append-icon="mdi-logout"
+          @click="logOut"
+          variant="flat"
+          color="blue-darken-3"
+          text="Odjavi se"
+          v-else-if="authStore.auth.isAuthenticated">
       </v-btn>
     </template>
   </v-app-bar>

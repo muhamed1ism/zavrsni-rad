@@ -23,7 +23,8 @@ export const useDoctorStore = defineStore("doctor", {
   actions: {
     async createDoctor(data) {
       try {
-        const res = await axios.post(`${apiUrl}/create-doctor`, data, {
+        const res = await axios.post(`${apiUrl}/create-doctor`,
+            data, {
           headers: {
             Authorization: "Bearer " + useAuthStore().auth.accessToken,
           },
@@ -62,6 +63,7 @@ export const useDoctorStore = defineStore("doctor", {
       } catch (error) {
         if (error.response.status === 404) {
           await router.push("/doctor/create");
+          window.location.reload();
         }
         console.error("Failed to get doctor: " + error);
         throw error;

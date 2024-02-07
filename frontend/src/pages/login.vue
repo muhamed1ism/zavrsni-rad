@@ -96,9 +96,9 @@ if (authStore.auth.isAuthenticated) {
                   v-if="alertVisible"
                   v-model="alertVisible"
                   density="compact"
-                  type="error"
-                  >{{ alertMessage }}</v-alert
-                >
+                  type="error">
+                  {{ alertMessage }}
+                </v-alert>
 
                 <v-btn
                   border
@@ -108,10 +108,13 @@ if (authStore.auth.isAuthenticated) {
                   color="blue-darken-2"
                   size="large"
                   class="mb-8 mt-2"
-                  >Prijavi se</v-btn
-                >
+                  >Prijavi se</v-btn>
 
                 <v-card-text class="text-center">
+                  <RouterLink
+                    class="text-blue-darken-2"
+                    append-icon="mdi-chevron-right"
+                    to="/register"></RouterLink>
                   <a
                     class="text-blue-darken-2 text-decoration-none"
                     href="/register"

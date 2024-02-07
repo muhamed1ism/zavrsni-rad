@@ -114,5 +114,25 @@ export const useAppointmentStore = defineStore("appointment", {
         throw error;
       }
     },
+
+    async restoreAppointment(appointmentId) {
+      try {
+        const res = await axios.put(
+          `${apiUrl}/appointment/restore/${appointmentId}`,
+          appointmentId,
+          {
+            headers: {
+              Authorization: "Bearer " + useAuthStore().auth.accessToken,
+            },
+          },
+        );
+        if (res.status === 200) {
+          await this.getAppointments();
+        }
+      } catch (error) {
+        console.error("Error setting appointment status: ", error);
+        throw error;
+      }
+    }
   },
 });

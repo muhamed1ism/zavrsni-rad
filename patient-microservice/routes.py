@@ -8,19 +8,15 @@ from flask_jwt_extended import jwt_required, get_jwt_identity, JWTManager
 from models import Patient, db
 
 # CORS
-CORS_ORIGINS = [
-    'http://localhost:3000',
-    'http://localhost:5000',
-    'http://localhost:5002',
-    'http://localhost:5003'
-]
-cors = CORS(origins=CORS_ORIGINS)
+cors = CORS()
 # JWT
 jwt = JWTManager()
 
+auth_url = 'http://auth:5000'
+
 
 def get_user_role():
-    user_url = 'http://localhost:5000/get-user'
+    user_url = f'{auth_url}/get-user'
     user_response = requests.get(user_url, headers={'Authorization': request.headers['Authorization']})
     user = user_response.json()
     user_role = user['role']

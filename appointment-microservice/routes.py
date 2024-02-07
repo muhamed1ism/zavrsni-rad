@@ -8,36 +8,35 @@ from flask_jwt_extended import jwt_required, get_jwt_identity, JWTManager
 from models import db, Appointment
 
 # CORS
-CORS_ORIGINS = [
-    'http://localhost:3000',
-    'http://auth-microservice:5000',
-    'http://patient-microservice:5001',
-    'http://doctor-microservice:5002'
-]
-cors = CORS(origins=CORS_ORIGINS)
+cors = CORS()
 # JWT
 jwt = JWTManager()
 
+auth_url = 'http://auth:5000'
+patient_url = 'http://patient:5001'
+doctor_url = 'http://doctor:5002'
+
+
 def get_patient(user_id):
-    patient_url = f'http://patient-microservice:5001/get-patient/user/{user_id}'
+    patient_url = f'http://patient:5001/get-patient/user/{user_id}'
     patient_response = requests.get(patient_url, headers={'Authorization': request.headers['Authorization']})
     patient = patient_response.json()
     return patient
 
 def get_patient_by_id(patient_id):
-    patient_url = f'http://patient-microservice:5001/get-patient/{patient_id}'
+    patient_url = f'http://patient:5001/get-patient/{patient_id}'
     patient_response = requests.get(patient_url, headers={'Authorization': request.headers['Authorization']})
     patient = patient_response.json()
     return patient
 
 def get_doctor(user_id):
-    doctor_url = f'http://doctor-microservice:5002/get-doctor/user/{user_id}'
+    doctor_url = f'http://doctor:5002/get-doctor/user/{user_id}'
     doctor_response = requests.get(doctor_url, headers={'Authorization': request.headers['Authorization']})
     doctor = doctor_response.json()
     return doctor
 
 def get_doctor_by_id(doctor_id):
-    doctor_url = f'http://doctor-microservice:5002/get-doctor/{doctor_id}'
+    doctor_url = f'http://doctor:5002/get-doctor/{doctor_id}'
     doctor_response = requests.get(doctor_url, headers={'Authorization': request.headers['Authorization']})
     doctor = doctor_response.json()
     return doctor
@@ -78,7 +77,7 @@ def get_doctor_name(doctor_id):
     return doctor_name
 
 def get_user_role():
-    user_url = 'http://auth-microservice:5000/get-user'
+    user_url = f'{auth_url}/get-user'
     user_response = requests.get(user_url, headers={'Authorization': request.headers['Authorization']})
     user = user_response.json()
     user_role = user['role']
@@ -94,6 +93,7 @@ def app_routes(app):
     app_route_approve_appointment(app)
     app_route_reject_appointment(app)
     app_route_cancel_appointment(app)
+    app_route_restore_appointment(app)
 
 # -------------------------------------------------------------------------------------------------------------------- #
 
@@ -310,7 +310,7 @@ def app_route_delete_appointment(app):
         return jsonify(msg='Appointment deleted successfully.'), 200
 
 
-# Set appointment status to approved route using appointment id
+# Set appointment status to approved using appointment id
 def app_route_approve_appointment(app):
 
     @app.route('/appointment/approve/<int:appointment_id>', methods=['PUT'])
@@ -341,7 +341,7 @@ def app_route_approve_appointment(app):
         return jsonify(msg='Appointment approved successfully.'), 200
 
 
-# Set appointment status to rejected route using appointment id
+# Set appointment status to rejected using appointment id
 def app_route_reject_appointment(app):
     @app.route('/appointment/reject/<int:appointment_id>', methods=['PUT'])
     @jwt_required()
@@ -371,7 +371,7 @@ def app_route_reject_appointment(app):
         return jsonify(msg='Appointment rejected successfully.'), 200
 
 
-# Set appointment status to canceled route using appointment id
+# Set appointment status to canceled using appointment id
 def app_route_cancel_appointment(app):
 
     @app.route('/appointment/cancel/<int:appointment_id>', methods=['PUT'])
@@ -400,3 +400,33 @@ def app_route_cancel_appointment(app):
             db.session.close()
 
         return jsonify(msg='Appointment canceled successfully.'), 200
+
+# Set appointment back to pending status using appointment id
+def app_route_restore_appointment(app):
+
+    @app.route('/appointment/restore/<int:appointment_id>', methods=['PUT'])
+    @jwt_required()
+    def restore_appointment(appointment_id):
+        user_role = get_user_role()
+
+        if user_role != 'patient':
+            return jsonify(error='You do not have permission to restore appointments.'), 403
+
+        appointment = db.session.query(Appointment).filter(Appointment.id == appointment_id).first()
+
+        if not appointment:
+            return jsonify(msg='Appointment not found.'), 404
+
+        appointment.status = 'na čekanju'
+
+        try:
+            db.session.commit()
+
+        except sqlalchemy.exc.SQLAlchemyError as e:
+            db.session.rollback()
+            return jsonify(error=f'An error occurred while restoring the appointment. {str(e)}'), 500
+
+        finally:
+            db.session.close()
+
+        return jsonify(msg='Appointment restored successfully.'), 200

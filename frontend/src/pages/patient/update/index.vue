@@ -8,6 +8,7 @@ import router from "@/router";
 const authStore = useAuthStore();
 const patientStore = usePatientStore();
 const role = useUserStore().user.role;
+const isDark = localStorage.getItem("darkTheme") === "true";
 const body = document.querySelector("body");
 
 const patient = patientStore.patient;
@@ -111,6 +112,7 @@ if (!authStore.auth.hasProfile) {
                       auto-apply
                       :enable-time-picker="false"
                       :teleport="body"
+                      :dark="isDark"
                     ></VueDatePicker>
                   </v-row>
                 </v-container>

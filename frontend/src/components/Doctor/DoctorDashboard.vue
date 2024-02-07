@@ -10,8 +10,10 @@ if (!authStore.auth.hasProfile) {
 </script>
 
 <template>
-  <h1>Početna stranica doktora</h1>
-  <p>Ovo je početna stranica doktora.</p>
+  <v-container>
+    <h1>Početna stranica doktora</h1>
+    <p>Ovo je početna stranica doktora.</p>
+  </v-container>
 </template>
 
 <style scoped></style>

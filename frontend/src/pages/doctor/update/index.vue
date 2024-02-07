@@ -1,13 +1,14 @@
 <script setup>
 import { ref } from "vue";
-import { useUserStore } from "frontend/src/stores/useUserStore";
 import { useDoctorStore } from "@/stores/useDoctorStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import router from "@/router";
+import {useUserStore} from "@/stores/useUserStore";
 
 const authStore = useAuthStore();
 const doctorStore = useDoctorStore();
 const role = useUserStore().user.role;
+const isDark = localStorage.getItem("darkTheme") === "true";
 const body = document.querySelector("body");
 
 const doctor = doctorStore.doctor;
@@ -121,6 +122,7 @@ if (!authStore.auth.hasProfile) {
                       auto-apply
                       :enable-time-picker="false"
                       :teleport="body"
+                      :dark="isDark"
                     ></VueDatePicker>
                   </v-row>
                 </v-container>

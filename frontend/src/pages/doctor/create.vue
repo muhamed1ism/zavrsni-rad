@@ -8,6 +8,7 @@ import router from "@/router";
 const userStore = useUserStore();
 const authStore = useAuthStore();
 const role = userStore.user.role;
+const isDark = localStorage.getItem("darkTheme") === "true";
 const body = document.querySelector("body");
 
 const form = ref({
@@ -148,6 +149,7 @@ if (authStore.auth.hasProfile) {
                       auto-apply
                       :enable-time-picker="false"
                       :teleport="body"
+                      :dark="isDark"
                     ></VueDatePicker>
                   </v-row>
                 </v-container>

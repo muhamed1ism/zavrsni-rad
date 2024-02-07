@@ -17,6 +17,7 @@ const authStore = useAuthStore();
 const doctorStore = useDoctorStore();
 const appointmentStore = useAppointmentStore();
 const role = userStore.user.role;
+const isDark = localStorage.getItem("darkTheme") === "true";
 const body = document.querySelector("body");
 
 doctorStore.getDoctors();
@@ -88,6 +89,7 @@ if (role !== "patient") {
                   disable-year-select
                   :enable-time-picker="false"
                   :teleport="body"
+                  :dark="isDark"
                 ></VueDatePicker>
 
                 <div class="text-subtitle-1 text-medium-emphasis">
@@ -101,6 +103,7 @@ if (role !== "patient") {
                   hide-input-icon
                   :teleport="body"
                   time-picker
+                  :dark="isDark"
                 ></VueDatePicker>
 
                 <v-btn

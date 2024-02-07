@@ -1,8 +1,10 @@
 version: "3.8"
 
 services:
-  doctor-microservice:
-    build: .
+  doctor:
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "5002:5002"
     env_file:

@@ -19,7 +19,7 @@ if (!authStore.auth.hasProfile) {
 
 doctorStore.getDoctors();
 
-const headers = [
+const doctors = [
   { title: "ID", text: "ID", value: "id", align: "start" },
   { title: "Ime", text: "Ime", value: "name", align: "center" },
   {
@@ -35,7 +35,7 @@ const headers = [
   <v-container>
     <h1 class="mb-4 mt-2 mx-2">Doktori</h1>
     <v-data-table
-      :headers="headers"
+      :headers="doctors"
       :items="doctorStore.doctors"
       :items-per-page="10"
     >

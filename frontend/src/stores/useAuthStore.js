@@ -16,6 +16,7 @@ export const useAuthStore = defineStore("auth", {
       refreshToken: "",
       refreshTokenTimer: null,
     }),
+    response: "",
   }),
 
   actions: {
@@ -130,14 +131,12 @@ export const useAuthStore = defineStore("auth", {
     },
 
     async logout() {
-      try {
+        await this.revokeAccessToken();
+        await this.revokeRefreshToken();
+        await this.clearUserData();
         await this.stopRefreshTokenTimer();
         this.auth.hasProfile = false;
         this.auth.isAuthenticated = false;
-      } catch (error) {
-        console.error("Logout error: ", error);
-        throw error;
-      }
     },
   },
 });

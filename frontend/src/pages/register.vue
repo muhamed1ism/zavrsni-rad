@@ -13,6 +13,8 @@ const form = ref({
   role: "patient",
 });
 
+const alertVisible = ref(false);
+const alertMessage = ref("");
 const visible = ref(false);
 
 const emailRule = [
@@ -47,6 +49,13 @@ const submit = async () => {
     await router.push("/dashboard");
   } catch (error) {
     console.log(error);
+    if (error.response.status === 409) {
+      alertMessage.value = (
+          "Korisnik sa ovom email adresom već postoji " +
+          "ili niste unijeli ispravno podatke"
+      );
+      alertVisible.value = true;
+    }
   }
 };
 
@@ -123,6 +132,14 @@ if (authStore.auth.isAuthenticated) {
                   </v-radio-group>
                 </v-container>
 
+                <v-alert
+                  v-if="alertVisible"
+                  v-model="alertVisible"
+                  density="compact"
+                  type="error">
+                  {{ alertMessage }}
+                </v-alert>
+
                 <v-btn
                   border
                   type="submit"
@@ -131,8 +148,7 @@ if (authStore.auth.isAuthenticated) {
                   color="blue-darken-2"
                   size="large"
                   class="mb-8 mt-2"
-                  >Registriraj se</v-btn
-                >
+                  >Registriraj se</v-btn>
               </v-form>
             </v-sheet>
           </v-card-item>

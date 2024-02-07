@@ -1,8 +1,22 @@
 version: '3.8'
 
 services:
-  auth-microservice:
-    build: ./auth-microservice
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/frontend/app
+    networks:
+      - microservices-network
+
+  auth:
+    build:
+      context: ./auth-microservice
+      dockerfile: Dockerfile
     ports:
       - "5000:5000"
     env_file:
@@ -12,8 +26,10 @@ services:
     networks:
       - microservices-network
   
-  patient-microservice:
-    build: ./patient-microservice
+  patient:
+    build:
+      context: ./patient-microservice
+      dockerfile: Dockerfile
     ports:
       - "5001:5001"
     env_file:
@@ -23,8 +39,10 @@ services:
     networks:
       - microservices-network
   
-  doctor-microservice:
-    build: ./doctor-microservice
+  doctor:
+    build:
+      context: ./doctor-microservice
+      dockerfile: Dockerfile
     ports:
       - "5002:5002"
     env_file:
@@ -34,8 +52,10 @@ services:
     networks:
       - microservices-network
   
-  appointment-microservice:
-    build: ./appointment-microservice
+  appointment:
+    build:
+      context: ./appointment-microservice
+      dockerfile: Dockerfile
     ports:
       - "5003:5003"
     env_file:
@@ -44,16 +64,7 @@ services:
       - .:/appointment-microservice/app
     networks:
       - microservices-network
-
-  frontend:
-    build: ./frontend
-    ports:
-      - "3000:3000"
-    volumes:
-      - .:/frontend/app
-    networks:
-      - microservices-network
       
 networks:
   microservices-network:
-    external: true
+    driver: bridge

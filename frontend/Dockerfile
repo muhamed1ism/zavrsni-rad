@@ -1,13 +1,8 @@
-FROM node:lts-slim
-
+FROM node:latest
 WORKDIR /app
-
-COPY package.json yarn.lock ./
-
+COPY package.json /app
+COPY yarn.lock /app
 RUN yarn install
-
-COPY . .
-
+COPY . /app
 EXPOSE 3000
-
-CMD ["yarn", "dev", "--host"]
+CMD yarn dev --host

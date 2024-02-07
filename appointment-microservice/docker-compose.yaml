@@ -1,8 +1,10 @@
 version: "3.8"
 
 services:
-  appointment-microservice:
-    build: .
+  appointment:
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "5003:5003"
     env_file:

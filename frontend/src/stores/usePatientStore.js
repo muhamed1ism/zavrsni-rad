@@ -60,6 +60,7 @@ export const usePatientStore = defineStore("patient", {
       } catch (error) {
         if (error.response.status === 404) {
           await router.push("/patient/create");
+          window.location.reload();
         }
         console.error("Failed to get patient: ", error);
         throw error;
@@ -67,19 +68,14 @@ export const usePatientStore = defineStore("patient", {
     },
 
     async getPatients() {
-      try {
-        const res = await axios.get(`${appointmentApiUrl}/get-patients`, {
+        const res = await axios.get(`${appointmentApiUrl}/get-doctors-patients`, {
           headers: {
             Authorization: "Bearer " + useAuthStore().auth.accessToken,
           },
         });
-        if (res.status === 200) {
+        if (res.status === 200 && res.data.length > 0) {
           this.patients = res.data;
         }
-      } catch (error) {
-        console.error("Failed to get patients: ", error);
-        throw error;
-      }
     },
 
     async clearPatient() {
