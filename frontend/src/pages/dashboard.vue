@@ -1,6 +1,6 @@
 <script setup>
-import PatientDashboard from "@/components/Patient/PatientDashboard.vue";
-import DoctorDashboard from "@/components/Doctor/DoctorDashboard.vue";
+import PatientDashboard from "@/components/PatientDashboard.vue";
+import DoctorDashboard from "@/components/DoctorDashboard.vue";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useUserStore } from "@/stores/useUserStore";
 import router from "@/router";

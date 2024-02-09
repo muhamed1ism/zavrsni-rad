@@ -11,6 +11,8 @@ const drawer = ref(false);
 
 const authStore = useAuthStore();
 
+const titleLink = authStore.auth.isAuthenticated ? "/dashboard" : "/";
+
 function changeTheme() {
   darkTheme.value = !darkTheme.value;
   theme.global.name.value = darkTheme.value ? "dark" : "light";
@@ -49,22 +51,10 @@ theme.global.name.value = darkTheme.value ? "dark" : "light";
     </template>
 
     <v-app-bar-title>
-      <div v-if="authStore.auth.isAuthenticated">
         <RouterLink
           class="text-decoration-none text-h4 px-4 font-weight-light"
           :class="darkTheme ? 'text-white' : 'text-black'"
-          to="/dashboard"
-          >eBolnica
-        </RouterLink>
-      </div>
-      <div v-else>
-        <RouterLink
-          class="text-decoration-none text-h4 px-4 font-weight-light"
-          :class="darkTheme ? 'text-white' : 'text-black'"
-          to="/"
-          >eBolnica
-        </RouterLink>
-      </div>
+          :to="titleLink" text="eBolnica"/>
     </v-app-bar-title>
 
     <v-spacer></v-spacer>
@@ -81,8 +71,7 @@ theme.global.name.value = darkTheme.value ? "dark" : "light";
         <v-btn
             variant="outlined"
             color="blue-darken-2"
-            text="Prijavi se">
-        </v-btn>
+            text="Prijavi se"/>
       </RouterLink>
       <v-btn
           append-icon="mdi-logout"
@@ -94,9 +83,8 @@ theme.global.name.value = darkTheme.value ? "dark" : "light";
       </v-btn>
     </template>
   </v-app-bar>
-  <div>
-    <NavDrawer v-model="drawer"></NavDrawer>
-  </div>
+
+  <NavDrawer v-model="drawer"></NavDrawer>
 </template>
 
 <style scoped></style>
