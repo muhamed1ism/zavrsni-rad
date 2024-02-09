@@ -17,8 +17,11 @@ const authStore = useAuthStore();
 const doctorStore = useDoctorStore();
 const appointmentStore = useAppointmentStore();
 const role = userStore.user.role;
+
 const isDark = localStorage.getItem("darkTheme") === "true";
 const body = document.querySelector("body");
+
+const backgroundImage = "../../background.png";
 
 doctorStore.getDoctors();
 
@@ -54,7 +57,8 @@ if (role !== "patient") {
 </script>
 
 <template>
-  <v-container class="fluid fill-height">
+  <v-img :src="backgroundImage" cover height="100%" class="gray-filter">
+    <v-container class="fluid fill-height">
     <v-row class="justify-center align-center mb-16">
       <v-col cols="12" sm="8" md="6" lg="4">
         <v-card border variant="flat" class="pa-4 mx-auto">
@@ -123,6 +127,11 @@ if (role !== "patient") {
       </v-col>
     </v-row>
   </v-container>
+  </v-img>
 </template>
 
-<style scoped></style>
+<style scoped>
+.gray-filter {
+  background-color: rgba(18, 18, 18, 0.1) !important;
+}
+</style>

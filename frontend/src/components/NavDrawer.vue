@@ -3,7 +3,6 @@ import {useUserStore} from "@/stores/useUserStore";
 import {useAuthStore} from "@/stores/useAuthStore";
 import {usePatientStore} from "@/stores/usePatientStore";
 import {useDoctorStore} from "@/stores/useDoctorStore";
-import {ref} from "vue";
 
 const authStore = useAuthStore();
 const userStore = useUserStore();

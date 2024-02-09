@@ -5,6 +5,9 @@ import router from "@/router";
 
 const authStore = useAuthStore();
 const userStore = useUserStore();
+
+const backgroundImage = "../../background.png";
+
 const email = userStore.user.email;
 const role = userStore.user.role;
 
@@ -38,6 +41,7 @@ if (!authStore.auth.hasProfile) {
 </script>
 
 <template>
+  <v-img :src="backgroundImage" cover height="100%" class="gray-filter">
   <v-container class="fluid fill-height">
     <v-row class="justify-center align-center mb-16">
       <v-col cols="12" sm="8" md="6" lg="4">
@@ -78,6 +82,11 @@ if (!authStore.auth.hasProfile) {
       </v-col>
     </v-row>
   </v-container>
+  </v-img>
 </template>
 
-<style scoped></style>
+<style scoped>
+.gray-filter {
+  background-color: rgba(18, 18, 18, 0.1) !important;
+}
+</style>

@@ -107,11 +107,6 @@ const router = createRouter({
           path: '/create',
           name: 'Zakaži pregled',
           component: () => import('../pages/appointments/create.vue')
-        },
-        {
-          path: '/manage',
-          name: 'Upravljanje terminima',
-          component: () => import('../pages/appointments/manage/index.vue')
         }
       ]
     },

@@ -9,6 +9,8 @@ const userStore = useUserStore();
 const doctorStore = useDoctorStore();
 const role = userStore.user.role;
 
+const backgroundImage = "../../background.png";
+
 const user = doctorStore.doctor;
 const title = "Moji podaci";
 const items = [
@@ -48,7 +50,8 @@ if (!authStore.auth.hasProfile) {
 </script>
 
 <template>
-  <v-container class="fluid fill-height">
+  <v-img :src="backgroundImage" cover height="100%" class="gray-filter">
+    <v-container class="fluid fill-height">
     <v-row class="justify-center align-center mb-16">
       <v-col cols="12" sm="8" md="6" lg="4">
         <v-card border variant="flat" class="pa-4 mx-auto">
@@ -88,10 +91,14 @@ if (!authStore.auth.hasProfile) {
       </v-col>
     </v-row>
   </v-container>
+  </v-img>
 </template>
 
 <style scoped>
 .v-card-text {
   padding: 0 !important;
+}
+.gray-filter {
+  background-color: rgba(18, 18, 18, 0.1) !important;
 }
 </style>

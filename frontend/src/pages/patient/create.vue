@@ -11,6 +11,8 @@ const role = userStore.user.role;
 const isDark = localStorage.getItem("darkTheme") === "true";
 const body = document.querySelector("body");
 
+const backgroundImage = "../../background.png";
+
 const form = ref({
   firstName: "",
   lastName: "",
@@ -65,6 +67,7 @@ if (!authStore.auth.isAuthenticated) {
 </script>
 
 <template>
+  <v-img :src="backgroundImage" cover height="100%" class="gray-filter">
   <v-container class="fluid fill-height">
     <v-row class="justify-center align-center mb-16">
       <v-col cols="12" sm="8" md="6" lg="4">
@@ -159,4 +162,11 @@ if (!authStore.auth.isAuthenticated) {
       </v-col>
     </v-row>
   </v-container>
+  </v-img>
 </template>
+
+<style scoped>
+.gray-filter {
+  background-color: rgba(18, 18, 18, 0.1) !important;
+}
+</style>
