@@ -1,8 +1,12 @@
 <script setup>
 import router from "@/router";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { usePatientStore } from "@/stores/usePatientStore";
+import { useAppointmentStore } from "@/stores/useAppointmentStore";
 
 const authStore = useAuthStore();
+const patientStore = usePatientStore();
+const appointmentStore = useAppointmentStore();
 
 const cards = [
   {
@@ -23,6 +27,20 @@ const cards = [
     icon: "mdi-close",
     value: 0,
   }
+]
+
+const patients = [
+  { title: "ID", text: "ID", value: "id", align: "start" },
+  { title: "Ime", text: "Ime", value: "name" },
+  { title: "Datum rođenja", text: "Datum rođenja", value: "dateOfBirth" },
+  { title: "Broj telefona", text: "Broj telefona", value: "phoneNumber", align: "end" },
+]
+
+const appointments = [
+  { title: "ID", text: "ID", value: "id", align: "start" },
+  { title: "Pacijent", text: "Pacijent", value: "patientName" },
+  { title: "Datum narudžbe", text: "Datum narudžbe", value: "date" },
+  { title: "Vrijeme narudžbe", text: "Vrijeme narudžbe", value: "time", align: "end" },
 ]
 
 if (!authStore.auth.hasProfile) {
@@ -51,13 +69,17 @@ if (!authStore.auth.hasProfile) {
     <v-row>
       <v-col cols="12" sm="6" lg="6">
         <h1>Pacijenti</h1>
-        <v-data-table>
-        </v-data-table>
+        <v-data-table
+            :headers="patients"
+            :items="patientStore.patients"
+            :items-per-page="5"/>
       </v-col>
       <v-col>
         <h1>Narudžbe</h1>
-        <v-data-table>
-        </v-data-table>
+        <v-data-table
+            :headers="appointments"
+            :items="appointmentStore.appointments"
+            :items-per-page="5"/>
       </v-col>
     </v-row>
   </v-container>

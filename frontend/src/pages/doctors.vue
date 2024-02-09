@@ -37,9 +37,7 @@ const doctors = [
     <v-data-table
       :headers="doctors"
       :items="doctorStore.doctors"
-      :items-per-page="10"
-    >
-    </v-data-table>
+      :items-per-page="10"/>
   </v-container>
 </template>
 
