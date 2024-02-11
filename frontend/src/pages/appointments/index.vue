@@ -46,7 +46,7 @@ const doctorHeaders = [
           to="/appointments/create"
           color="blue-darken-2"
           variant="tonal"
-          class=""
+
           >Novi termin
         </v-btn>
       </v-col>

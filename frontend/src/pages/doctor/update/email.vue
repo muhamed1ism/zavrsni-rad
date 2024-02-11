@@ -48,7 +48,7 @@ if (!authStore.auth.hasProfile) {
 </script>
 
 <template>
-  <v-img :src="backgroundImage" cover height="100%" class="gray-filter">
+  <v-img :src="backgroundImage" cover height="100%">
   <v-container class="fluid fill-height">
     <v-row class="justify-center align-center mb-16">
       <v-col cols="12" sm="8" md="6" lg="4">
@@ -97,7 +97,5 @@ if (!authStore.auth.hasProfile) {
 </template>
 
 <style scoped>
-.gray-filter {
-  background-color: rgba(18, 18, 18, 0.1) !important;
-}
+
 </style>
