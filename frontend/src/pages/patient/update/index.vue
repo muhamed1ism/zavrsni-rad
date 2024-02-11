@@ -27,14 +27,8 @@ const dateFormat = (date) => {
   return date.toLocaleDateString("hr-HR");
 };
 
-const convertToISO = (date) => {
-  return new Date(date).toISOString();
-};
-
 const submit = async () => {
   try {
-    form.value.dateOfBirth = convertToISO(form.value.dateOfBirth);
-    const patientStore = usePatientStore();
     await patientStore.updatePatient(form.value);
     await router.push("/patient");
   } catch (error) {

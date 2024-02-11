@@ -43,46 +43,63 @@ const doctorHeaders = [
       <h1>Moji termini pregleda</h1>
       <v-col class="d-flex justify-end">
         <v-btn
-            to="/appointments/create"
-            color="blue-darken-2"
-            variant="tonal"
-            class="">Novi termin
+          to="/appointments/create"
+          color="blue-darken-2"
+          variant="tonal"
+          class=""
+          >Novi termin
         </v-btn>
       </v-col>
     </v-row>
 
-    <v-data-table
-      :headers="patientHeaders"
-      :items="appointmentStore.appointments"
-      :items-per-page="10"
-    >
-      <template v-slot:item.actions="{ item }">
-        <v-btn
-          v-if="item.id !== null && item.status === 'na čekanju'"
-          prepend-icon="mdi-close"
-          variant="tonal"
-          color="error"
-          width="100"
-          @click="appointmentStore.cancelAppointment(item.id)">
-          Otkaži</v-btn>
-        <v-btn
-          v-else-if="item.id !== null && item.status === 'otkazan'"
-          prepend-icon="mdi-check"
-          variant="tonal"
-          color="success"
-          width="100"
-          @click="appointmentStore.restoreAppointment(item.id)">
-          Vrati</v-btn>
-      </template>
-    </v-data-table>
+    <v-card border elevation="0">
+      <v-data-table
+        :headers="patientHeaders"
+        :items="appointmentStore.appointments"
+        :items-per-page="10"
+      >
+        <template v-slot:item.date="{ item }">
+          {{ item.date ? new Date(item.date).toLocaleDateString("hr-HR") : '' }}
+        </template>
+        <template v-slot:item.actions="{ item }">
+          <v-btn
+            v-if="item.id !== null && item.status === 'na čekanju'"
+            prepend-icon="mdi-close"
+            variant="tonal"
+            color="error"
+            width="100"
+            @click="appointmentStore.cancelAppointment(item.id)"
+          >
+            Otkaži</v-btn
+          >
+          <v-btn
+            v-else-if="item.id !== null && item.status === 'otkazan'"
+            prepend-icon="mdi-check"
+            variant="tonal"
+            color="success"
+            width="100"
+            @click="appointmentStore.restoreAppointment(item.id)"
+          >
+            Vrati</v-btn
+          >
+        </template>
+      </v-data-table>
+    </v-card>
   </v-container>
+
   <v-container v-else-if="role === 'doctor'">
     <h1 class="mb-4 mt-2 mx-2">Termini pacijenata</h1>
-    <v-data-table
-      :headers="doctorHeaders"
-      :items="appointmentStore.appointments"
-      :items-per-page="10"
-    ></v-data-table>
+    <v-card border elevation="0">
+      <v-data-table
+        :headers="doctorHeaders"
+        :items="appointmentStore.appointments"
+        :items-per-page="10"
+      >
+        <template v-slot:item.date="{ item }">
+          {{ item.date ? new Date(item.date).toLocaleDateString("hr-HR") : '' }}
+        </template>
+      </v-data-table>
+    </v-card>
   </v-container>
 </template>
 

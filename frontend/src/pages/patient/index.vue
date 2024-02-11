@@ -12,8 +12,10 @@ const role = userStore.user.role;
 const backgroundImage = "../../background.png";
 
 const patient = patientStore.patient;
+const patientDateOfBirth = new Date(patient.dateOfBirth).toLocaleDateString("hr-HR");
+
 const title = "Moji podaci";
-const items = [
+const patientData = [
   {
     title: "Ime",
     value: `${patient.firstName}`,
@@ -32,7 +34,7 @@ const items = [
   },
   {
     title: "Datum rođenja",
-    value: `${patient.dateOfBirth}`,
+    value: `${patientDateOfBirth}`,
   },
 ];
 
@@ -55,7 +57,7 @@ if (!authStore.auth.hasProfile) {
           <v-card-item>
             <v-sheet>
               <v-card-text
-                v-for="item in items"
+                v-for="item in patientData"
                 :key="item"
                 class="v-card-text"
               >

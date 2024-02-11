@@ -106,6 +106,7 @@ export const useDoctorStore = defineStore("doctor", {
 
     async updateDoctor(data) {
       try {
+        data.dateOfBirth = new Date(data.dateOfBirth).toISOString();
         const res = await axios.put(`${apiUrl}/update-doctor`, data, {
           headers: {
             Authorization: "Bearer " + useAuthStore().auth.accessToken,
@@ -114,7 +115,6 @@ export const useDoctorStore = defineStore("doctor", {
 
         if (res.status === 200) {
           await this.getDoctor();
-          await router.push("/dashboard");
         }
       } catch (error) {
         console.error("Failed to update doctor: " + error);

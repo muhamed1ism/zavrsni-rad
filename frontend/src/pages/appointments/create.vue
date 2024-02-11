@@ -29,13 +29,8 @@ const dateFormat = (date) => {
   return date.toLocaleDateString("hr-HR");
 };
 
-const convertToISO = (date) => {
-  return new Date(date).toISOString();
-};
-
 const submit = async () => {
   try {
-    form.value.date = convertToISO(form.value.date);
     await appointmentStore.createAppointment(form.value);
   } catch (error) {
     console.log(error);

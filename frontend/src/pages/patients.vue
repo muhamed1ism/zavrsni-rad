@@ -25,22 +25,28 @@ if (role !== "doctor") {
 patientStore.getPatients();
 
 const patientHeaders = [
-  { title: "ID", text: "ID", value: "id", align: "start" },
-  { title: "Ime", text: "Ime", value: "name" },
-  { title: "Adresa", text: "Adresa", value: "address" },
-  { title: "Datum rođenja", text: "Datum rođenja", value: "dateOfBirth" },
-  { title: "Broj telefona", text: "Broj telefona", value: "phoneNumber" },
+  { title: "ID", value: "id", align: "start" },
+  { title: "Ime", value: "name" },
+  { title: "Adresa", value: "address" },
+  { title: "Datum rođenja", value: "dateOfBirth" },
+  { title: "Broj telefona", value: "phoneNumber" },
 ];
 </script>
 
 <template>
   <v-container>
     <h1 class="mb-4 mt-2 mx-2">Moji pacijenti</h1>
-    <v-data-table
-      :headers="patientHeaders"
-      :items="patientStore.patients"
-      :items-per-page="10"
-    ></v-data-table>
+    <v-card border elevation="0">
+      <v-data-table
+        :headers="patientHeaders"
+        :items="patientStore.patients"
+        :items-per-page="10"
+      >
+        <template v-slot:item.dateOfBirth="{ item }">
+          {{ item.dateOfBirth ? new Date(item.dateOfBirth).toLocaleDateString("hr-HR") : '' }}
+        </template>
+      </v-data-table>
+    </v-card>
   </v-container>
 </template>
 

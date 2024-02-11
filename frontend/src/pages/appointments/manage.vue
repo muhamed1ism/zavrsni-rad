@@ -38,6 +38,10 @@ if (role !== "doctor") {
   router.push("/dashboard");
 }
 
+const formatDate = (date) => {
+  return new Date(date).toLocaleDateString("hr-HR");
+};
+
 appointmentStore.getAppointments();
 </script>
 
@@ -50,7 +54,7 @@ appointmentStore.getAppointments();
         :key="appointment.id"
       >
         <v-col sm="4" md="3" lg="3" v-if="appointment.id !== null">
-          <v-card border variant="tonal">
+          <v-card border elevation="0">
             <v-card-item>
               <v-card-title>
                 <h2 class="text-high-emphasis mb-4 mt-2 mx-2">
@@ -58,7 +62,7 @@ appointmentStore.getAppointments();
                 </h2>
               </v-card-title>
               <v-card-text>
-                <p>Datum: {{ appointment.date }}</p>
+                <p>Datum: {{ formatDate(appointment.date) }}</p>
                 <p>Vrijeme: {{ appointment.time }}</p>
                 <p>Status: {{ appointment.status }}</p>
               </v-card-text>

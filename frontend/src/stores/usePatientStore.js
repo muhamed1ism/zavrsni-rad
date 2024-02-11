@@ -13,7 +13,7 @@ export const usePatientStore = defineStore("patient", {
       id: null,
       firstName: "",
       lastName: "",
-      dateOfBirth: "",
+      dateOfBirth: null,
       address: "",
       phoneNumber: "",
     }),
@@ -68,14 +68,14 @@ export const usePatientStore = defineStore("patient", {
     },
 
     async getPatients() {
-        const res = await axios.get(`${appointmentApiUrl}/get-doctors-patients`, {
-          headers: {
-            Authorization: "Bearer " + useAuthStore().auth.accessToken,
-          },
-        });
-        if (res.status === 200 && res.data.length > 0) {
-          this.patients = res.data;
-        }
+      const res = await axios.get(`${appointmentApiUrl}/get-doctors-patients`, {
+        headers: {
+          Authorization: "Bearer " + useAuthStore().auth.accessToken,
+        },
+      });
+      if (res.status === 200 && res.data.length > 0) {
+        this.patients = res.data;
+      }
     },
 
     async clearPatient() {
@@ -84,7 +84,7 @@ export const usePatientStore = defineStore("patient", {
           id: "",
           firstName: "",
           lastName: "",
-          dateOfBirth: "",
+          dateOfBirth: null,
           address: "",
           phoneNumber: "",
         };
@@ -96,13 +96,14 @@ export const usePatientStore = defineStore("patient", {
 
     async updatePatient(data) {
       try {
+        data.dateOfBirth = new Date(data.dateOfBirth).toISOString();
         const res = await axios.put(`${apiUrl}/update-patient`, data, {
           headers: {
             Authorization: "Bearer " + useAuthStore().auth.accessToken,
           },
         });
         if (res.status === 200) {
-          this.patient = data;
+          await this.getPatient();
         }
       } catch (error) {
         console.error("Failed to update patient: ", error);

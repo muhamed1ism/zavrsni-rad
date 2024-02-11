@@ -3,44 +3,52 @@ import router from "@/router";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { usePatientStore } from "@/stores/usePatientStore";
 import { useAppointmentStore } from "@/stores/useAppointmentStore";
+import {computed} from "vue";
 
 const authStore = useAuthStore();
 const patientStore = usePatientStore();
 const appointmentStore = useAppointmentStore();
 
-const cards = [
+appointmentStore.countApprovedAppointments();
+appointmentStore.countPendingAppointments();
+appointmentStore.countRejectedAppointments();
+patientStore.getPatients();
+appointmentStore.getApprovedAppointments();
+
+
+const cardHeaders = computed(() => [
   {
     title: "Odobrene narudžbe",
     style: "background-color: mediumseagreen",
     icon: "mdi-check",
-    value: 0,
+    value: appointmentStore.approvedAppointments,
   },
   {
     title: "Narudžbe na čekanju",
     style: "background-color: darkgray",
     icon: "mdi-clock",
-    value: 0,
+    value: appointmentStore.pendingAppointments,
   },
   {
     title: "Odbijene narudžbe",
     style: "background-color: indianred",
     icon: "mdi-close",
-    value: 0,
+    value: appointmentStore.rejectedAppointments,
   }
+])
+
+const patientHeaders = [
+  { title: "ID", value: "id", align: "start" },
+  { title: "Ime", value: "name" },
+  { title: "Datum rođenja", value: "dateOfBirth" },
+  { title: "Broj telefona", value: "phoneNumber"},
 ]
 
-const patients = [
-  { title: "ID", text: "ID", value: "id", align: "start" },
-  { title: "Ime", text: "Ime", value: "name" },
-  { title: "Datum rođenja", text: "Datum rođenja", value: "dateOfBirth" },
-  { title: "Broj telefona", text: "Broj telefona", value: "phoneNumber", align: "end" },
-]
-
-const appointments = [
-  { title: "ID", text: "ID", value: "id", align: "start" },
-  { title: "Pacijent", text: "Pacijent", value: "patientName" },
-  { title: "Datum narudžbe", text: "Datum narudžbe", value: "date" },
-  { title: "Vrijeme narudžbe", text: "Vrijeme narudžbe", value: "time", align: "end" },
+const appointmentHeaders = [
+  { title: "ID", value: "id", align: "start" },
+  { title: "Pacijent", value: "patientName" },
+  { title: "Datum narudžbe", value: "date" },
+  { title: "Vrijeme narudžbe", value: "time"},
 ]
 
 if (!authStore.auth.hasProfile) {
@@ -52,11 +60,11 @@ if (!authStore.auth.hasProfile) {
   <v-container>
     <h1 class="mb-4 mt-2 mx-2">Nadzorna ploča doktora</h1>
     <v-row>
-      <v-col cols="12" sm="6" lg="4" v-for="card in cards" :key="cards">
-        <v-card>
+      <v-col cols="12" sm="6" lg="4" v-for="card in cardHeaders" :key="card.title">
+        <v-card border elevation="0">
           <v-row class="py-3">
             <v-col cols="4" class="d-flex justify-center align-center" :style="card.style">
-              <v-icon>{{ card.icon }}</v-icon>
+              <v-icon color="white">{{ card.icon }}</v-icon>
             </v-col>
             <v-col class="text-center">
               <v-card-title>{{ card.title }}</v-card-title>
@@ -69,17 +77,32 @@ if (!authStore.auth.hasProfile) {
     <v-row>
       <v-col cols="12" sm="6" lg="6">
         <h1>Pacijenti</h1>
-        <v-data-table
-            :headers="patients"
-            :items="patientStore.patients"
-            :items-per-page="5"/>
+        <v-card
+          border elevation="0">
+          <v-data-table
+              :headers="patientHeaders"
+              :items="patientStore.patients"
+              :items-per-page="5">
+            <template v-slot:item.dateOfBirth="{ item }">
+              {{ item.dateOfBirth ? new Date(item.dateOfBirth).toLocaleDateString("hr-HR") : '' }}
+            </template>
+          </v-data-table>
+        </v-card>
+
       </v-col>
       <v-col>
         <h1>Narudžbe</h1>
-        <v-data-table
-            :headers="appointments"
-            :items="appointmentStore.appointments"
-            :items-per-page="5"/>
+        <v-card
+          border elevation="0">
+          <v-data-table
+              :headers="appointmentHeaders"
+              :items="appointmentStore.appointments"
+              :items-per-page="5">
+            <template v-slot:item.date="{ item }">
+              {{ item.date ? new Date(item.date).toLocaleDateString("hr-HR") : '' }}
+            </template>
+          </v-data-table>
+        </v-card>
       </v-col>
     </v-row>
   </v-container>

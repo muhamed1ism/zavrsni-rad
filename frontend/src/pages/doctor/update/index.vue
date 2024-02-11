@@ -10,6 +10,7 @@ const doctorStore = useDoctorStore();
 const role = useUserStore().user.role;
 const isDark = localStorage.getItem("darkTheme") === "true";
 const body = document.querySelector("body");
+
 const backgroundImage = "../../background.png";
 
 const doctor = doctorStore.doctor;
@@ -27,13 +28,8 @@ const dateFormat = (date) => {
   return date.toLocaleDateString("hr-HR");
 };
 
-const convertToISO = (date) => {
-  return new Date(date).toISOString();
-};
-
 const submit = async () => {
   try {
-    form.value.dateOfBirth = convertToISO(form.value.dateOfBirth);
     await doctorStore.updateDoctor(form.value);
     await router.push("/doctor");
   } catch (error) {

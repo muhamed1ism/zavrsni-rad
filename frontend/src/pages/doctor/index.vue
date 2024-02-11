@@ -11,32 +11,34 @@ const role = userStore.user.role;
 
 const backgroundImage = "../../background.png";
 
-const user = doctorStore.doctor;
+const doctor = doctorStore.doctor;
+const doctorDateOfBirth = new Date(doctor.dateOfBirth).toLocaleDateString("hr-HR");
+
 const title = "Moji podaci";
 const items = [
   {
     title: "Ime",
-    value: `${user.firstName}`,
+    value: `${doctor.firstName}`,
   },
   {
     title: "Prezime",
-    value: `${user.lastName}`,
+    value: `${doctor.lastName}`,
   },
   {
     title: "Specijalnost",
-    value: `${user.specialty}`,
+    value: `${doctor.specialty}`,
   },
   {
     title: "Adresa",
-    value: `${user.address}`,
+    value: `${doctor.address}`,
   },
   {
     title: "Broj telefona",
-    value: `${user.phoneNumber}`,
+    value: `${doctor.phoneNumber}`,
   },
   {
     title: "Datum rođenja",
-    value: `${user.dateOfBirth}`,
+    value: `${doctorDateOfBirth}`,
   },
 ];
 
