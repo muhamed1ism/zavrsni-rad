@@ -35,6 +35,12 @@ const patientHeaders = [
 
 <template>
   <v-container>
+    <v-btn
+        @click="router.go(-1)"
+        size="large"
+        class="mt-2 mx-2">
+      <v-icon>mdi-arrow-left</v-icon>
+    </v-btn>
     <h1 class="mb-6 mt-4 mx-2 font-weight-medium">Moji pacijenti</h1>
     <v-card border elevation="0" class="mx-6">
       <v-data-table
@@ -47,19 +53,11 @@ const patientHeaders = [
         </template>
       </v-data-table>
     </v-card>
-    <v-row class="mx-6 mt-4 d-flex justify-space-between">
-      <v-btn
-          to="/dashboard"
-          prepend-icon="mdi-arrow-left"
-          variant="flat"
-          elevation="0"
-          text="Nazad na početnu"
-          size="large"
-          border
-      />
+    <v-row class="mx-6 mt-4" justify="end">
       <v-btn
           to="/doctors"
           prepend-icon="mdi-account-group"
+          append-icon="mdi-arrow-right"
           variant="flat"
           elevation="0"
           text="Svi doktori"

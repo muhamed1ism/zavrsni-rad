@@ -16,7 +16,6 @@ export const useAuthStore = defineStore("auth", {
       refreshToken: "",
       refreshTokenTimer: null,
     }),
-    response: "",
   }),
 
   actions: {

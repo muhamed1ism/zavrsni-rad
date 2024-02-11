@@ -66,7 +66,7 @@ if (!authStore.auth.hasProfile) {
     <v-btn
         @click="router.go(-1)"
         size="large"
-        class="mt-4 mx-4">
+        class="mt-6 mx-6">
       <v-icon>mdi-arrow-left</v-icon>
     </v-btn>
   <v-container class="fluid fill-height">

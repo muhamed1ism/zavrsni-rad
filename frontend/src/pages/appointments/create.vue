@@ -56,7 +56,7 @@ if (role !== "patient") {
     <v-btn
         @click="router.go(-1)"
         size="large"
-        class="mt-4 mx-4">
+        class="mt-6 mx-6">
       <v-icon>mdi-arrow-left</v-icon>
     </v-btn>
     <v-container class="fluid fill-height">
@@ -95,6 +95,8 @@ if (role !== "patient") {
                   :enable-time-picker="false"
                   :teleport="body"
                   :dark="isDark"
+                  :min-date="new Date()"
+                  :disabled-week-days="[6, 0]"
                 ></VueDatePicker>
 
                 <div class="text-subtitle-1 text-medium-emphasis">

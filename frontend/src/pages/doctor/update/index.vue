@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import {computed, ref} from "vue";
 import { useDoctorStore } from "@/stores/useDoctorStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import router from "@/router";
@@ -22,6 +22,12 @@ const form = ref({
   address: doctor.address || "",
   phoneNumber: doctor.phoneNumber || "",
   dateOfBirth: doctor.dateOfBirth || null,
+});
+
+const maxDate = computed(() => {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() - 18);
+  return date;
 });
 
 const dateFormat = (date) => {
@@ -56,7 +62,7 @@ if (!authStore.auth.hasProfile) {
     <v-btn
         @click="router.go(-1)"
         size="large"
-        class="mt-4 mx-4">
+        class="mt-6 mx-6">
       <v-icon>mdi-arrow-left</v-icon>
     </v-btn>
   <v-container class="fluid fill-height">
@@ -127,6 +133,7 @@ if (!authStore.auth.hasProfile) {
                       :enable-time-picker="false"
                       :teleport="body"
                       :dark="isDark"
+                      :max-date="maxDate"
                     ></VueDatePicker>
                   </v-row>
                 </v-container>

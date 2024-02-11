@@ -131,8 +131,8 @@ if (!authStore.auth.hasProfile) {
       </v-col>
     </v-row>
 
-    <v-row class="mx-6 mt-12 d-flex justify-center justify-space-around">
-      <v-col class="v-col-auto" v-for="button in buttons" :key="button.title">
+    <v-row class="ml-4 mt-12 d-flex justify-center justify-space-around">
+      <v-col v-for="button in buttons" :key="button.title">
         <v-btn
           :prepend-icon="button.icon" stacked
           :to="button.to"
@@ -143,8 +143,7 @@ if (!authStore.auth.hasProfile) {
           elevation="0"
           border
           class="font-weight-regular"
-        >
-        </v-btn>
+        />
       </v-col>
     </v-row>
   </v-container>

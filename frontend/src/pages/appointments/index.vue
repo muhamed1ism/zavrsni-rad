@@ -39,7 +39,13 @@ const doctorHeaders = [
 
 <template>
   <v-container v-if="role === 'patient'">
-    <h1 class="mb-6 mt-4 mx-2 font-weight-medium">Moji termini pregleda</h1>
+    <v-btn
+        @click="router.go(-1)"
+        size="large"
+        class="mt-2 mx-2">
+      <v-icon>mdi-arrow-left</v-icon>
+    </v-btn>
+    <h1 class="mb-6 mt-4 mx-2 font-weight-medium">Moji naručeni termini</h1>
     <v-card class="mx-6" border elevation="0">
       <v-data-table
         :headers="patientHeaders"
@@ -73,19 +79,11 @@ const doctorHeaders = [
         </template>
       </v-data-table>
     </v-card>
-    <v-row class="mx-6 mt-4 d-flex justify-space-between">
-      <v-btn
-          to="/dashboard"
-          prepend-icon="mdi-arrow-left"
-          variant="flat"
-          elevation="0"
-          text="Nazad na početnu"
-          size="large"
-          border
-      />
+    <v-row class="mx-6 mt-4" justify="end">
       <v-btn
           to="/appointments/create"
           prepend-icon="mdi-calendar-plus"
+          append-icon="mdi-arrow-right"
           variant="flat"
           elevation="0"
           text="Zakaži termin"
@@ -96,6 +94,12 @@ const doctorHeaders = [
   </v-container>
 
   <v-container v-else-if="role === 'doctor'">
+    <v-btn
+        @click="router.go(-1)"
+        size="large"
+        class="mt-2 mx-2">
+      <v-icon>mdi-arrow-left</v-icon>
+    </v-btn>
     <h1 class="mb-6 mt-4 mx-2 font-weight-medium">Termini pacijenata</h1>
     <v-card class="mx-6" border elevation="0">
       <v-data-table
@@ -108,19 +112,11 @@ const doctorHeaders = [
         </template>
       </v-data-table>
     </v-card>
-    <v-row class="mx-6 mt-4 d-flex justify-space-between">
-        <v-btn
-            to="/dashboard"
-            prepend-icon="mdi-arrow-left"
-            variant="flat"
-            elevation="0"
-            text="Nazad na početnu"
-            size="large"
-            border
-        />
+    <v-row class="mx-6 mt-4" justify="end">
         <v-btn
             to="/appointments/manage"
             prepend-icon="mdi-calendar-edit"
+            append-icon="mdi-arrow-right"
             variant="flat"
             elevation="0"
             text="Upravljanje terminima"

@@ -180,21 +180,17 @@ export const useAppointmentStore = defineStore("appointment", {
         throw error;
       }
     },
-
+    
     async getApprovedAppointments() {
       try {
-        const res = await axios.get(`${apiUrl}/appointment/get-approved`, {
-          headers: {
-            Authorization: "Bearer " + useAuthStore().auth.accessToken,
-          },
-        });
-        if (res.status === 200 && res.data.length > 0) {
-          this.appointments = res.data;
-        }
+        await this.getAppointments();
+        this.appointments = this.appointments.filter(
+          (appointment) => appointment.status === "odobren",
+        );
       } catch (error) {
-        console.error("Error getting approved appointments: ", error);
+        console.error("Error getting patient's approved appointments: ", error);
         throw error;
       }
-    },
+    }
   },
 });

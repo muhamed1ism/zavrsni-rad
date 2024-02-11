@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import {computed, ref} from "vue";
 import { usePatientStore } from "@/stores/usePatientStore";
 import { useUserStore } from "@/stores/useUserStore";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -42,6 +42,12 @@ const phoneNumberRule = [
     return true;
   },
 ];
+
+const maxDate = computed(() => {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() - 13);
+  return date;
+});
 
 const dateFormat = (date) => {
   return date.toLocaleDateString("hr-HR");
@@ -131,6 +137,7 @@ if (!authStore.auth.isAuthenticated) {
                       :enable-time-picker="false"
                       :teleport="body"
                       :dark="isDark"
+                      :max-date="maxDate"
                     ></VueDatePicker>
                   </v-row>
                 </v-container>

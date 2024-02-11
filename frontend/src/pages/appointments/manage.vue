@@ -47,6 +47,12 @@ appointmentStore.getAppointments();
 
 <template>
   <v-container>
+    <v-btn
+        @click="router.go(-1)"
+        size="large"
+        class="mt-2 mx-2">
+      <v-icon>mdi-arrow-left</v-icon>
+    </v-btn>
     <h1 class="mt-4 mx-2 mb-6 font-weight-medium">Upravljenje narudžbama pacijenata</h1>
     <v-row class="mx-6">
       <template
@@ -105,10 +111,11 @@ appointmentStore.getAppointments();
         </v-col>
       </template>
     </v-row>
-    <v-row class="mx-9 mt-4 d-flex justify-space-between">
+    <v-row class="mx-9 mt-4" justify="end">
       <RouterLink to="/appointments">
         <v-btn
             prepend-icon="mdi-calendar-clock"
+            append-icon="mdi-arrow-right"
             variant="flat"
             elevation="0"
             text="Naručeni termini"
@@ -116,16 +123,6 @@ appointmentStore.getAppointments();
             border
         />
       </RouterLink>
-
-      <v-btn
-          to="/patients"
-          prepend-icon="mdi-account-multiple"
-          variant="flat"
-          elevation="0"
-          text="Moji pacijenti"
-          size="large"
-          border
-      />
     </v-row>
   </v-container>
 </template>

@@ -441,6 +441,7 @@ def app_route_restore_appointment(app):
 
 # Get number of approved appointments
 def app_route_count_approved_appointments(app):
+
     @app.route('/appointment/count-approved', methods=['GET'])
     @jwt_required()
     def count_approved_appointments():
@@ -454,6 +455,7 @@ def app_route_count_approved_appointments(app):
 
 # Get number of rejected appointments
 def app_route_count_rejected_appointments(app):
+
     @app.route('/appointment/count-rejected', methods=['GET'])
     @jwt_required()
     def count_rejected_appointments():
@@ -467,6 +469,7 @@ def app_route_count_rejected_appointments(app):
 
 # Get number of pending appointments
 def app_route_count_pending_appointments(app):
+
     @app.route('/appointment/count-pending', methods=['GET'])
     @jwt_required()
     def count_pending_appointments():
@@ -477,32 +480,3 @@ def app_route_count_pending_appointments(app):
         doctor_id = get_doctor_id(user_id)
         appointments = db.session.query(Appointment).filter(Appointment.doctor_id == doctor_id, Appointment.status == 'na čekanju').count()
         return jsonify(appointments), 200
-
-# Get approved appointments
-def app_route_get_approved_appointments(app):
-    @app.route('/appointment/get-approved', methods=['GET'])
-    @jwt_required()
-    def get_approved_appointments():
-        user_role = get_user_role()
-        user_id = get_jwt_identity()
-        if user_role != 'doctor':
-            return jsonify(error='You do not have permission to get appointments.'), 403
-        doctor_id = get_doctor_id(user_id)
-        appointments = db.session.query(Appointment).filter(
-            Appointment.doctor_id == doctor_id, Appointment.status == 'odobren').all()
-        if not appointments:
-            return jsonify(msg='No appointments found.')
-        appointments_list = []
-        for appointment in appointments:
-            time = appointment.time.strftime('%H:%M:%S')
-            appointments_list.append({
-                'id': appointment.id,
-                'patientId': appointment.patient_id,
-                'patientName': appointment.patient_name,
-                'doctorId': appointment.doctor_id,
-                'doctorName': appointment.doctor_name,
-                'date': appointment.date,
-                'time': time,
-                'status': appointment.status
-            })
-        return jsonify(appointments_list), 200
