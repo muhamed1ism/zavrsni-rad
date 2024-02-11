@@ -25,7 +25,7 @@ const patientHeaders = [
   { title: "Datum", text: "Datum", value: "date" },
   { title: "Vrijeme", text: "Vrijeme", value: "time" },
   { title: "Status", text: "Status", value: "status" },
-  { title: "Akcije", text: "Akcije", value: "actions", sortable: false },
+  { title: "Akcije", text: "Akcije", value: "actions", sortable: false , align: "center" },
 ];
 
 const doctorHeaders = [
@@ -39,20 +39,8 @@ const doctorHeaders = [
 
 <template>
   <v-container v-if="role === 'patient'">
-    <v-row class="mb-4 mt-2 mx-2">
-      <h1>Moji termini pregleda</h1>
-      <v-col class="d-flex justify-end">
-        <v-btn
-          to="/appointments/create"
-          color="blue-darken-2"
-          variant="tonal"
-
-          >Novi termin
-        </v-btn>
-      </v-col>
-    </v-row>
-
-    <v-card border elevation="0">
+    <h1 class="mb-6 mt-4 mx-2 font-weight-medium">Moji termini pregleda</h1>
+    <v-card class="mx-6" border elevation="0">
       <v-data-table
         :headers="patientHeaders"
         :items="appointmentStore.appointments"
@@ -85,11 +73,31 @@ const doctorHeaders = [
         </template>
       </v-data-table>
     </v-card>
+    <v-row class="mx-6 mt-4 d-flex justify-space-between">
+      <v-btn
+          to="/dashboard"
+          prepend-icon="mdi-arrow-left"
+          variant="flat"
+          elevation="0"
+          text="Nazad na početnu"
+          size="large"
+          border
+      />
+      <v-btn
+          to="/appointments/create"
+          prepend-icon="mdi-calendar-plus"
+          variant="flat"
+          elevation="0"
+          text="Zakaži termin"
+          size="large"
+          border
+      />
+    </v-row>
   </v-container>
 
   <v-container v-else-if="role === 'doctor'">
-    <h1 class="mb-4 mt-2 mx-2">Termini pacijenata</h1>
-    <v-card border elevation="0">
+    <h1 class="mb-6 mt-4 mx-2 font-weight-medium">Termini pacijenata</h1>
+    <v-card class="mx-6" border elevation="0">
       <v-data-table
         :headers="doctorHeaders"
         :items="appointmentStore.appointments"
@@ -100,6 +108,26 @@ const doctorHeaders = [
         </template>
       </v-data-table>
     </v-card>
+    <v-row class="mx-6 mt-4 d-flex justify-space-between">
+        <v-btn
+            to="/dashboard"
+            prepend-icon="mdi-arrow-left"
+            variant="flat"
+            elevation="0"
+            text="Nazad na početnu"
+            size="large"
+            border
+        />
+        <v-btn
+            to="/appointments/manage"
+            prepend-icon="mdi-calendar-edit"
+            variant="flat"
+            elevation="0"
+            text="Upravljanje terminima"
+            size="large"
+            border
+        />
+    </v-row>
   </v-container>
 </template>
 

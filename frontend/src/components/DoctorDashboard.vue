@@ -18,19 +18,19 @@ appointmentStore.getApprovedAppointments();
 
 const cardHeaders = computed(() => [
   {
-    title: "Odobrene narudžbe",
+    title: "Odobren",
     style: "background-color: mediumseagreen",
     icon: "mdi-check",
     value: appointmentStore.approvedAppointments,
   },
   {
-    title: "Narudžbe na čekanju",
+    title: "Na čekanju",
     style: "background-color: darkgray",
     icon: "mdi-clock",
     value: appointmentStore.pendingAppointments,
   },
   {
-    title: "Odbijene narudžbe",
+    title: "Odbijen",
     style: "background-color: indianred",
     icon: "mdi-close",
     value: appointmentStore.rejectedAppointments,
@@ -51,6 +51,29 @@ const appointmentHeaders = [
   { title: "Vrijeme narudžbe", value: "time"},
 ]
 
+const buttons = [
+  {
+    title: "Naručeni termini",
+    icon: "mdi-calendar-clock",
+    to: "/appointments",
+  },
+  {
+    title: "Upravljanje narudžbama",
+    icon: "mdi-calendar-edit",
+    to: "/appointments/manage",
+  },
+  {
+    title: "Moji pacijenti",
+    icon: "mdi-account-multiple",
+    to: "/patients",
+  },
+  {
+    title: "Svi doktori",
+    icon: "mdi-account-group",
+    to: "/doctors",
+  }
+]
+
 if (!authStore.auth.hasProfile) {
   router.push("/doctor/create");
 }
@@ -58,15 +81,16 @@ if (!authStore.auth.hasProfile) {
 
 <template>
   <v-container>
-    <h1 class="mb-4 mt-2 mx-2">Nadzorna ploča doktora</h1>
-    <v-row>
-      <v-col cols="12" sm="6" lg="4" v-for="card in cardHeaders" :key="card.title">
+    <h1 class="mb-6 mt-4 mx-2 font-weight-medium">Nadzorna ploča doktora</h1>
+    <h2 class="mx-6 mb-4 font-weight-regular">Broj naručenih termina</h2>
+    <v-row class="mx-4">
+      <v-col cols="12" sm="6" md="4" lg="4" v-for="card in cardHeaders" :key="card.title">
         <v-card border elevation="0">
-          <v-row class="py-3">
-            <v-col cols="4" class="d-flex justify-center align-center" :style="card.style">
+          <v-row>
+            <v-col cols="3" md="4" class="d-flex justify-center align-center" :style="card.style">
               <v-icon color="white">{{ card.icon }}</v-icon>
             </v-col>
-            <v-col class="text-center">
+            <v-col cols="9" md="8" class="text-center">
               <v-card-title>{{ card.title }}</v-card-title>
               <v-card-item>{{ card.value }}</v-card-item>
             </v-col>
@@ -74,9 +98,10 @@ if (!authStore.auth.hasProfile) {
         </v-card>
       </v-col>
     </v-row>
-    <v-row>
-      <v-col cols="12" sm="6" lg="6">
-        <h1>Pacijenti</h1>
+
+    <v-row class="mx-4">
+      <v-col cols="12" sm="6">
+        <h2 class="mb-4 font-weight-regular">Pacijenti</h2>
         <v-card
           border elevation="0">
           <v-data-table
@@ -88,10 +113,10 @@ if (!authStore.auth.hasProfile) {
             </template>
           </v-data-table>
         </v-card>
-
       </v-col>
-      <v-col>
-        <h1>Narudžbe</h1>
+
+      <v-col cols="12" sm="6">
+        <h2 class="mb-4 font-weight-regular">Naručeni termini</h2>
         <v-card
           border elevation="0">
           <v-data-table
@@ -103,6 +128,23 @@ if (!authStore.auth.hasProfile) {
             </template>
           </v-data-table>
         </v-card>
+      </v-col>
+    </v-row>
+
+    <v-row class="mx-6 mt-12 d-flex justify-center justify-space-around">
+      <v-col class="v-col-auto" v-for="button in buttons" :key="button.title">
+        <v-btn
+          :prepend-icon="button.icon" stacked
+          :to="button.to"
+          :text="button.title"
+          size="x-large"
+          width="350"
+          variant="flat"
+          elevation="0"
+          border
+          class="font-weight-regular"
+        >
+        </v-btn>
       </v-col>
     </v-row>
   </v-container>

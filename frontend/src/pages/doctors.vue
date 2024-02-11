@@ -31,14 +31,45 @@ if (!authStore.auth.hasProfile) {
 
 <template>
   <v-container>
-    <h1 class="mb-4 mt-2 mx-2">Doktori</h1>
-    <v-card border elevation="0">
+    <h1 class="mb-6 mt-4 mx-2 font-weight-medium">Doktori</h1>
+    <v-card border elevation="0" class="mx-6">
       <v-data-table
         :headers="doctorHeaders"
         :items="doctorStore.doctors"
         :items-per-page="10"
       />
     </v-card>
+    <v-row class="mx-6 mt-4 d-flex justify-space-between">
+        <v-btn
+          to="/dashboard"
+          prepend-icon="mdi-arrow-left"
+          variant="flat"
+          elevation="0"
+          text="Nazad na početnu"
+          size="large"
+          border
+        />
+      <v-btn
+          v-if="role === 'doctor'"
+          to="/patients"
+          prepend-icon="mdi-account-group"
+          variant="flat"
+          elevation="0"
+          text="Moji pacijenti"
+          size="large"
+          border
+      />
+      <v-btn
+          v-if="role === 'patient'"
+          to="/appointments"
+          prepend-icon="mdi-calendar-clock"
+          variant="flat"
+          elevation="0"
+          text="Moji termini"
+          size="large"
+          border
+      />
+    </v-row>
   </v-container>
 </template>
 

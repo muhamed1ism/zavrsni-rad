@@ -273,6 +273,8 @@ def app_route_get_doctors_patients(app):
 
             patients_list = []
             for appointment in appointments:
+                if any(d['id'] == appointment.patient_id for d in patients_list):
+                    continue
                 date_of_birth = get_patient_date_of_birth(appointment.patient_id)
                 address = get_patient_address(appointment.patient_id)
                 phone_number = get_patient_phone_number(appointment.patient_id)

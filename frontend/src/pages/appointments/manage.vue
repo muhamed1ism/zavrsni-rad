@@ -47,8 +47,8 @@ appointmentStore.getAppointments();
 
 <template>
   <v-container>
-    <h1 class="my-4">Upravljenje narudžbama pacijenata</h1>
-    <v-row>
+    <h1 class="mt-4 mx-2 mb-6 font-weight-medium">Upravljenje narudžbama pacijenata</h1>
+    <v-row class="mx-6">
       <template
         v-for="appointment in appointmentStore.appointments"
         :key="appointment.id"
@@ -56,15 +56,25 @@ appointmentStore.getAppointments();
         <v-col sm="4" md="3" lg="3" v-if="appointment.id !== null">
           <v-card border elevation="0">
             <v-card-item>
-              <v-card-title>
-                <h2 class="text-high-emphasis mb-4 mt-2 mx-2">
+              <v-card-title class="mb-6 mt-2 mx-2">
+                <h4 class="font-weight-medium">
                   Pacijent: {{ appointment.patientName }}
-                </h2>
+                </h4>
               </v-card-title>
-              <v-card-text>
-                <p>Datum: {{ formatDate(appointment.date) }}</p>
-                <p>Vrijeme: {{ appointment.time }}</p>
-                <p>Status: {{ appointment.status }}</p>
+              <v-card-text class="mx-2">
+                <v-row class="mb-2">
+                  <h4 class="font-weight-medium">Datum:</h4>
+                  <p class="ml-4">{{ formatDate(appointment.date) }}</p>
+                </v-row>
+                <v-row class="mb-2">
+                  <h4 class="font-weight-medium">Vrijeme:</h4>
+                  <p class="ml-3">{{ appointment.time }}</p>
+                </v-row>
+                <v-row class="mb-1">
+                  <h4 class="font-weight-medium">Status:</h4>
+                  <p class="ml-5">{{ appointment.status }}</p>
+                </v-row>
+
               </v-card-text>
               <v-card-actions
                 v-if="appointment.status !== 'otkazan'"
@@ -94,6 +104,28 @@ appointmentStore.getAppointments();
           </v-card>
         </v-col>
       </template>
+    </v-row>
+    <v-row class="mx-9 mt-4 d-flex justify-space-between">
+      <RouterLink to="/appointments">
+        <v-btn
+            prepend-icon="mdi-calendar-clock"
+            variant="flat"
+            elevation="0"
+            text="Naručeni termini"
+            size="large"
+            border
+        />
+      </RouterLink>
+
+      <v-btn
+          to="/patients"
+          prepend-icon="mdi-account-multiple"
+          variant="flat"
+          elevation="0"
+          text="Moji pacijenti"
+          size="large"
+          border
+      />
     </v-row>
   </v-container>
 </template>

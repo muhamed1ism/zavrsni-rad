@@ -49,6 +49,12 @@ if (!authStore.auth.hasProfile) {
 
 <template>
   <v-img :src="backgroundImage" cover height="100%">
+    <v-btn
+        @click="router.go(-1)"
+        size="large"
+        class="mt-4 mx-4">
+      <v-icon>mdi-arrow-left</v-icon>
+    </v-btn>
     <v-container class="fluid fill-height">
     <v-row class="justify-center align-center mb-16">
       <v-col cols="12" sm="8" md="6" lg="4">

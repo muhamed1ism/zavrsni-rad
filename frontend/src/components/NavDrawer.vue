@@ -75,7 +75,7 @@ if (role === "patient") {
     to: "/doctor",
   });
   navItems.splice(2, 0, {
-    title: "Termini",
+    title: "Naručeni termini",
     icon: "mdi-calendar-clock",
     to: "/appointments",
   });
@@ -85,12 +85,12 @@ if (role === "patient") {
     to: "/appointments/manage",
   })
   navItems.splice(4, 0, {
-    title: "Pacijenti",
-    icon: "mdi-account-group",
+    title: "Moji pacijenti",
+    icon: "mdi-account-multiple",
     to: "/patients",
   });
   navItems.splice(5, 0, {
-    title: "Doktori",
+    title: "Svi doktori",
     icon: "mdi-account-group",
     to: "/doctors",
   });
@@ -103,7 +103,7 @@ if (role === "patient") {
 </script>
 
 <template>
-  <v-navigation-drawer width="300" location="left" permanent>
+  <v-navigation-drawer width="300" location="left" sm="temporary" md="permanent">
     <v-list color="blue-darken-2" nav>
       <v-list-item
           v-if="authStore.auth.isAuthenticated"

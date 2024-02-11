@@ -1,3 +1,24 @@
+<script setup>
+import router from "@/router";
+import {useAuthStore} from "@/stores/useAuthStore";
+import {useUserStore} from "@/stores/useUserStore";
+
+const image = "../../doctor.png"
+const authStore = useAuthStore();
+const userStore = useUserStore();
+const role = userStore.user.role;
+
+if (authStore.auth.isAuthenticated) {
+  if (authStore.auth.hasProfile) {
+    router.push("/dashboard");
+  } else if (role === "doctor") {
+    router.push("/doctor/create");
+  } else {
+    router.push("/patient/create");
+  }
+}
+</script>
+
 <template>
     <v-container class="text-center font-weight-light pt-16">
       <v-row class="justify-center align-center">
@@ -26,7 +47,3 @@
       </v-row>
     </v-container>
 </template>
-
-<script setup>
-const image = "../../doctor.png"
-</script>
