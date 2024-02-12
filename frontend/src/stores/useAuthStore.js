@@ -14,7 +14,6 @@ export const useAuthStore = defineStore("auth", {
       isAuthenticated: false,
       accessToken: "",
       refreshToken: "",
-      refreshTokenTimer: null,
     }),
   }),
 
