@@ -38,6 +38,10 @@ export const useAppointmentStore = defineStore("appointment", {
           await router.push("/appointments");
         }
       } catch (error) {
+        if (error.response.status === 401) {
+          await useAuthStore().refreshAccessToken();
+          await this.createAppointment(data);
+        }
         console.error("Error creating appointment: ", error);
         throw error;
       }
@@ -54,6 +58,10 @@ export const useAppointmentStore = defineStore("appointment", {
           this.appointments = res.data;
         }
       } catch (error) {
+        if (error.response.status === 401) {
+          await useAuthStore().refreshAccessToken();
+          window.location.reload();
+        }
         console.error("Error getting appointments: ", error);
         throw error;
       }
@@ -74,6 +82,10 @@ export const useAppointmentStore = defineStore("appointment", {
           await this.getAppointments();
         }
       } catch (error) {
+        if (error.response.status === 401) {
+          await useAuthStore().refreshAccessToken();
+          await this.approveAppointment(appointmentId);
+        }
         console.error("Error setting appointment status: ", error);
         throw error;
       }
@@ -94,6 +106,10 @@ export const useAppointmentStore = defineStore("appointment", {
           await this.getAppointments();
         }
       } catch (error) {
+        if (error.response.status === 401) {
+          await useAuthStore().refreshAccessToken();
+          await this.rejectAppointment(appointmentId);
+        }
         console.error("Error setting appointment status: ", error);
         throw error;
       }
@@ -114,6 +130,10 @@ export const useAppointmentStore = defineStore("appointment", {
           await this.getAppointments();
         }
       } catch (error) {
+        if (error.response.status === 401) {
+          await useAuthStore().refreshAccessToken();
+          await this.cancelAppointment(appointmentId);
+        }
         console.error("Error setting appointment status: ", error);
         throw error;
       }
@@ -134,6 +154,10 @@ export const useAppointmentStore = defineStore("appointment", {
           await this.getAppointments();
         }
       } catch (error) {
+        if (error.response.status === 401) {
+          await useAuthStore().refreshAccessToken();
+          await this.restoreAppointment(appointmentId);
+        }
         console.error("Error setting appointment status: ", error);
         throw error;
       }

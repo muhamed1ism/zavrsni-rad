@@ -34,6 +34,10 @@ export const usePatientStore = defineStore("patient", {
           window.location.reload();
         }
       } catch (error) {
+        if (error.response.status === 401) {
+          await useAuthStore().refreshAccessToken();
+          await this.createPatient(data);
+        }
         console.error("Failed to create patient: ", error);
         throw error;
       }
@@ -59,8 +63,7 @@ export const usePatientStore = defineStore("patient", {
         }
       } catch (error) {
         if (error.response.status === 404) {
-          await router.push("/patient/create");
-          window.location.reload();
+          useAuthStore().auth.hasProfile = false;
         }
         console.error("Failed to get patient: ", error);
         throw error;
@@ -75,6 +78,10 @@ export const usePatientStore = defineStore("patient", {
       });
       if (res.status === 200 && res.data.length > 0) {
         this.patients = res.data;
+      }
+      if (res.status === 401) {
+        await useAuthStore().refreshAccessToken();
+        window.location.reload();
       }
     },
 
@@ -106,6 +113,10 @@ export const usePatientStore = defineStore("patient", {
           await this.getPatient();
         }
       } catch (error) {
+        if (error.response.status === 401) {
+            await useAuthStore().refreshAccessToken();
+            await this.updatePatient(data);
+        }
         console.error("Failed to update patient: ", error);
         throw error;
       }

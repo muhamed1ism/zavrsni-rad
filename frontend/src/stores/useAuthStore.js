@@ -43,7 +43,6 @@ export const useAuthStore = defineStore("auth", {
             accessToken: res.data.accessToken,
             refreshToken: res.data.refreshToken,
           };
-          await this.startRefreshTokenTimer();
         }
       } catch (error) {
         console.error("Login error: ", error);
@@ -51,36 +50,23 @@ export const useAuthStore = defineStore("auth", {
       }
     },
 
-    async startRefreshTokenTimer() {
-      try {
-        const jwtToken = JSON.parse(atob(this.auth.accessToken.split(".")[1]));
-        const expires = new Date(jwtToken.exp * 1000);
-        const timeout = expires - Date.now() - 60 * 1000;
-        this.auth.refreshTokenTimer = setTimeout(
-          this.refreshAccessToken,
-          timeout,
-        );
-      } catch (error) {
-        console.error("Refresh token timer error: ", error);
-        throw error;
-      }
-    },
-
-    async stopRefreshTokenTimer() {
-      clearTimeout(this.auth.refreshTokenTimer);
-      this.auth.refreshTokenTimer = null;
-    },
-
     async refreshAccessToken() {
       try {
-        const res = await axios.post(
-          `${apiUrl}/refresh-token`,
-          this.auth.refreshToken,
-        );
+        const res = await axios.post(`${apiUrl}/refresh-token`, null,{
+          headers: {
+            Authorization: `Bearer ${this.auth.refreshToken}`,
+          }
+        });
         if (res.status === 200) {
           this.auth.accessToken = res.data.accessToken;
         }
       } catch (error) {
+        if (error.response.status === 401) {
+          await this.clearUserData();
+          this.auth.hasProfile = false;
+          this.auth.isAuthenticated = false;
+          window.location.href = "/login";
+        }
         console.error("Refresh access token error: ", error);
         throw error;
       }
@@ -130,12 +116,22 @@ export const useAuthStore = defineStore("auth", {
     },
 
     async logout() {
+      try {
         await this.revokeAccessToken();
         await this.revokeRefreshToken();
         await this.clearUserData();
-        await this.stopRefreshTokenTimer();
         this.auth.hasProfile = false;
         this.auth.isAuthenticated = false;
+      } catch (error) {
+        if (error.response.status === 401) {
+          await this.refreshAccessToken();
+          await this.logout();
+          window.location.href = "/login";
+        }
+        console.error("Logout error: ", error);
+        throw error;
+      }
+
     },
   },
 });

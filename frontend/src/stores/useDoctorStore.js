@@ -35,6 +35,10 @@ export const useDoctorStore = defineStore("doctor", {
           window.location.reload();
         }
       } catch (error) {
+        if (error.response.status === 401) {
+          await useAuthStore().refreshAccessToken();
+          await this.createDoctor(data);
+        }
         console.error("Failed to create doctor: " + error);
         throw error;
       }
@@ -82,6 +86,10 @@ export const useDoctorStore = defineStore("doctor", {
           this.doctors = res.data;
         }
       } catch (error) {
+        if (error.response.status === 401) {
+          await useAuthStore().refreshAccessToken();
+          window.location.reload();
+        }
         console.error("Failed to get doctors: " + error);
         throw error;
       }
@@ -117,6 +125,10 @@ export const useDoctorStore = defineStore("doctor", {
           await this.getDoctor();
         }
       } catch (error) {
+        if (error.response.status === 401) {
+          await useAuthStore().refreshAccessToken();
+          await this.updateDoctor(data);
+        }
         console.error("Failed to update doctor: " + error);
         throw error;
       }

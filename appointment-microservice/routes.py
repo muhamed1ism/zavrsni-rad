@@ -97,7 +97,6 @@ def app_routes(app):
     app_route_count_approved_appointments(app)
     app_route_count_rejected_appointments(app)
     app_route_count_pending_appointments(app)
-    app_route_get_approved_appointments(app)
 
 # -------------------------------------------------------------------------------------------------------------------- #
 
