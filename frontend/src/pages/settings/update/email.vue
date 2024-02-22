@@ -40,10 +40,8 @@ const cancel = () => {
 
 if (!authStore.auth.isAuthenticated) {
   router.push("/login");
-}
-
-if (!authStore.auth.hasProfile) {
-  router.push("/doctor/create");
+} else if (!authStore.auth.hasProfile) {
+  router.push("/dashboard");
 }
 </script>
 
@@ -70,15 +68,13 @@ if (!authStore.auth.hasProfile) {
             v-model="form.email"
             :rules="emailRule"
           ></v-text-field>
-
           <v-alert
-            v-if="alertVisible"
             v-model="alertVisible"
             density="compact"
+            variant="tonal"
             type="error"
             >{{ alertMessage }}
           </v-alert>
-
           <div class="d-flex pa-4 justify-space-evenly">
             <v-btn
               append-icon="mdi-check"

@@ -142,9 +142,9 @@ if (authStore.auth.isAuthenticated) {
                 </v-container>
 
                 <v-alert
-                  v-if="alertVisible"
                   v-model="alertVisible"
                   density="compact"
+                    variant="tonal"
                   type="error">
                   {{ alertMessage }}
                 </v-alert>

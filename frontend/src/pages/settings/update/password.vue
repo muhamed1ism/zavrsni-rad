@@ -54,10 +54,8 @@ const cancel = () => {
 
 if (!authStore.auth.isAuthenticated) {
   router.push("/login");
-}
-
-if (!authStore.auth.hasProfile) {
-  router.push("/patient/create");
+} else if (!authStore.auth.hasProfile) {
+  router.push("/dashboard");
 }
 </script>
 
@@ -117,9 +115,9 @@ if (!authStore.auth.hasProfile) {
           ></v-text-field>
 
           <v-alert
-            v-if="alertVisible"
             v-model="alertVisible"
             density="compact"
+            variant="tonal"
             type="error"
             >{{ alertMessage }}</v-alert
           >

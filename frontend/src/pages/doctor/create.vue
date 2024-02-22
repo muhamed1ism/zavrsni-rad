@@ -76,11 +76,12 @@ const submit = async () => {
 
 if (!authStore.auth.isAuthenticated) {
   router.push("/login");
-}
-
-if (authStore.auth.hasProfile) {
+} else if (authStore.auth.hasProfile) {
+  router.push("/doctor");
+} else if (role !== "doctor") {
   router.push("/dashboard");
 }
+
 </script>
 
 <template>
