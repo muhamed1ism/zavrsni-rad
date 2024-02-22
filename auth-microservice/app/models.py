@@ -1,10 +1,8 @@
 from flask_jwt_extended import get_current_user
-from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-
 from sqlalchemy import func
 
-db = SQLAlchemy()
+from app.extensions import db
 
 
 class User(db.Model):
@@ -36,3 +34,4 @@ class TokenBlocklist(db.Model):
 
     def __repr__(self):
         return f'<TokenBlocklist jti={self.jti} type={self.type}>'
+

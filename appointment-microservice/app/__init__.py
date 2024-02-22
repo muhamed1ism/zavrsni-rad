@@ -1,7 +1,8 @@
 from flask import Flask
 
 from app.models import db
-from app.routes import app_routes, cors, jwt
+from app.extensions import jwt, cors, bp
+from app import routes
 
 
 def create_app(test_config=None):
@@ -14,14 +15,14 @@ def create_app(test_config=None):
     else:
         app.config.from_mapping(test_config)
 
-    # Routes
-    app_routes(app)
-
     # CORS
     cors.init_app(app)
 
     # JWT
     jwt.init_app(app)
+
+    # Blueprint
+    app.register_blueprint(bp)
 
     # Database
     db.init_app(app)

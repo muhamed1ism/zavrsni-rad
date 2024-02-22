@@ -2,15 +2,11 @@ import datetime
 import requests
 import sqlalchemy
 from flask import request, jsonify, abort
-from flask_cors import CORS
-from flask_jwt_extended import jwt_required, get_jwt_identity, JWTManager
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
-from app.models import db, Doctor
+from app.extensions import db, bp
+from app.models import Doctor
 
-# CORS
-cors = CORS()
-# JWT
-jwt = JWTManager()
 
 auth_api = 'http://auth:5000'
 
@@ -23,14 +19,14 @@ def get_user_role():
     return user_role
 
 
-def data_create_check(data):
+def validate_create_data(data):
     mandatory_fields = ['firstName', 'lastName', 'specialty', 'dateOfBirth']
     missing_fields = [field for field in mandatory_fields if field not in data or data[field] == ""]
     if missing_fields:
         abort(400, description=f'Missing fields: {", ".join(missing_fields)}')
 
 
-def data_update_check(data, doctor, user_id):
+def validate_update_data(data, doctor, user_id):
     if data is None:
         abort(400, description='No data provided.')
     if not doctor:
@@ -52,194 +48,175 @@ def data_update_check(data, doctor, user_id):
         doctor.date_of_birth = date_of_birth
 
 
-def app_routes(app):
-    app_route_home(app)
-    app_route_create_doctor(app)
-    app_route_update_doctor(app)
-    app_route_delete_doctor(app)
-    app_route_get_doctor(app)
-    app_route_get_all_doctors(app)
-    app_route_get_doctor_by_id(app)
-    app_route_get_doctor_by_user_id(app)
-
-
 # -------------------------------------------------------------------------------------------------------------------- #
 
 
 # Home
-def app_route_home(app):
-    @app.route('/', methods=['GET'])
-    def home():
-        return jsonify(msg='Doctor service is up and running.'), 200
+@bp.route('/', methods=['GET'])
+def home():
+    return jsonify(msg='Doctor service is up and running.'), 200
 
 
 # Create a doctor profile
-def app_route_create_doctor(app):
-    @app.route('/create-doctor', methods=['POST'])
-    @jwt_required()
-    def create_doctor():
-        data = request.get_json()
-        user_id = get_jwt_identity()
+@bp.route('/create-doctor', methods=['POST'])
+@jwt_required()
+def create_doctor():
+    data = request.get_json()
+    user_id = get_jwt_identity()
 
-        data_create_check(data)
+    validate_create_data(data)
 
-        user_role = get_user_role()
+    user_role = get_user_role()
 
-        if user_role != 'doctor':
-            abort(403, description='User is not a doctor.')
+    if user_role != 'doctor':
+        abort(403, description='User is not a doctor.')
 
-        date_of_birth = datetime.datetime.strptime(data['dateOfBirth'], '%Y-%m-%dT%H:%M:%S.%fZ')
+    date_of_birth = datetime.datetime.strptime(data['dateOfBirth'], '%Y-%m-%dT%H:%M:%S.%fZ')
 
-        new_doctor = Doctor(
-            user_id=user_id,
-            first_name=data['firstName'],
-            last_name=data['lastName'],
-            specialty=data['specialty'],
-            date_of_birth=date_of_birth,
-            address=data.get('address', None),
-            phone_number=data.get('phoneNumber', None)
-        )
+    new_doctor = Doctor(
+        user_id=user_id,
+        first_name=data['firstName'],
+        last_name=data['lastName'],
+        specialty=data['specialty'],
+        date_of_birth=date_of_birth,
+        address=data.get('address', None),
+        phone_number=data.get('phoneNumber', None)
+    )
 
-        try:
-            db.session.add(new_doctor)
-            db.session.commit()
+    try:
+        db.session.add(new_doctor)
+        db.session.commit()
 
-        except sqlalchemy.exc.SQLAlchemyError as e:
-            db.session.rollback()
-            abort(500, description=f'An error occurred while creating the profile. {str(e)}')
+    except sqlalchemy.exc.SQLAlchemyError as e:
+        db.session.rollback()
+        abort(500, description=f'An error occurred while creating the profile. {str(e)}')
 
-        finally:
-            db.session.close()
+    finally:
+        db.session.close()
 
-        return jsonify(msg='Profile created successfully.'), 201
+    return jsonify(msg='Profile created successfully.'), 201
 
 
 # Update doctor information
-def app_route_update_doctor(app):
-    @app.route('/update-doctor', methods=['PUT'])
-    @jwt_required()
-    def update_doctor():
-        user_id = get_jwt_identity()
-        doctor = db.session.query(Doctor).filter(Doctor.user_id == user_id).first()
-        data = request.get_json()
+@bp.route('/update-doctor', methods=['PUT'])
+@jwt_required()
+def update_doctor():
+    user_id = get_jwt_identity()
+    doctor = db.session.query(Doctor).filter(Doctor.user_id == user_id).first()
+    data = request.get_json()
 
-        data_update_check(data, doctor, user_id)
+    validate_update_data(data, doctor, user_id)
 
-        try:
-            db.session.commit()
+    try:
+        db.session.commit()
 
-        except sqlalchemy.exc.SQLAlchemyError as e:
-            db.session.rollback()
-            abort(500, description=f'An error occurred while updating the profile. {str(e)}')
+    except sqlalchemy.exc.SQLAlchemyError as e:
+        db.session.rollback()
+        abort(500, description=f'An error occurred while updating the profile. {str(e)}')
 
-        finally:
-            db.session.close()
+    finally:
+        db.session.close()
 
-        return jsonify(msg='Doctor profile updated successfully!'), 200
+    return jsonify(msg='Doctor profile updated successfully!'), 200
 
 
 # Delete a doctor profile
-def app_route_delete_doctor(app):
-    @app.route('/delete-doctor', methods=['DELETE'])
-    @jwt_required()
-    def delete_profile():
-        user_id = get_jwt_identity()
-        doctor = db.session.query(Doctor).filter(Doctor.user_id == user_id).first()
+@bp.route('/delete-doctor', methods=['DELETE'])
+@jwt_required()
+def delete_profile():
+    user_id = get_jwt_identity()
+    doctor = db.session.query(Doctor).filter(Doctor.user_id == user_id).first()
 
-        if not doctor:
-            abort(404, description='Doctor not found.')
+    if not doctor:
+        abort(404, description='Doctor not found.')
 
-        if user_id != doctor.user_id:
-            abort(403, description='User does not match token.')
+    if user_id != doctor.user_id:
+        abort(403, description='User does not match token.')
 
-        try:
-            db.session.delete(doctor)
-            db.session.commit()
+    try:
+        db.session.delete(doctor)
+        db.session.commit()
 
-        except sqlalchemy.exc.SQLAlchemyError as e:
-            db.session.rollback()
-            abort(500, description=f'An error occurred while deleting the profile. {str(e)}')
+    except sqlalchemy.exc.SQLAlchemyError as e:
+        db.session.rollback()
+        abort(500, description=f'An error occurred while deleting the profile. {str(e)}')
 
-        finally:
-            db.session.close()
+    finally:
+        db.session.close()
 
-        return jsonify(msg='Doctor profile deleted successfully!'), 200
+    return jsonify(msg='Doctor profile deleted successfully!'), 200
 
 
 # Get the current doctor's profile
-def app_route_get_doctor(app):
-    @app.route('/get-doctor', methods=['GET'])
-    @jwt_required()
-    def get_doctor():
-        user_id = get_jwt_identity()
-        doctor = db.session.query(Doctor).filter(Doctor.user_id == user_id).first()
+@bp.route('/get-doctor', methods=['GET'])
+@jwt_required()
+def get_doctor():
+    user_id = get_jwt_identity()
+    doctor = db.session.query(Doctor).filter(Doctor.user_id == user_id).first()
 
-        if not doctor:
-            abort(404, description='Doctor not found.')
+    if not doctor:
+        abort(404, description='Doctor not found.')
 
-        return jsonify({
-            'id': doctor.id,
-            'userId': doctor.user_id,
-            'firstName': doctor.first_name,
-            'lastName': doctor.last_name,
-            'specialty': doctor.specialty,
-            'dateOfBirth': doctor.date_of_birth,
-            'address': doctor.address,
-            'phoneNumber': doctor.phone_number
-        }), 200
+    return jsonify({
+        'id': doctor.id,
+        'userId': doctor.user_id,
+        'firstName': doctor.first_name,
+        'lastName': doctor.last_name,
+        'specialty': doctor.specialty,
+        'dateOfBirth': doctor.date_of_birth,
+        'address': doctor.address,
+        'phoneNumber': doctor.phone_number
+    }), 200
 
 
 # Get doctor information by user ID
-def app_route_get_doctor_by_user_id(app):
-    @app.route('/get-doctor/user/<int:user_id>', methods=['GET'])
-    @jwt_required()
-    def get_doctor_by_user_id(user_id):
-        doctor = db.session.query(Doctor).filter(Doctor.user_id == user_id).first()
+@bp.route('/get-doctor/user/<int:user_id>', methods=['GET'])
+@jwt_required()
+def get_doctor_by_user_id(user_id):
+    doctor = db.session.query(Doctor).filter(Doctor.user_id == user_id).first()
 
-        if not doctor:
-            abort(404, description='Doctor not found.')
+    if not doctor:
+        abort(404, description='Doctor not found.')
 
-        return jsonify({
-            'id': doctor.id,
-            'firstName': doctor.first_name,
-            'lastName': doctor.last_name,
-            'specialty': doctor.specialty,
-        }), 200
+    return jsonify({
+        'id': doctor.id,
+        'firstName': doctor.first_name,
+        'lastName': doctor.last_name,
+        'specialty': doctor.specialty,
+    }), 200
 
 
 # Get doctor information by doctor ID
-def app_route_get_doctor_by_id(app):
-    @app.route('/get-doctor/<int:doctor_id>', methods=['GET'])
-    def get_doctor_by_id(doctor_id):
-        doctor = db.session.query(Doctor).filter(Doctor.id == doctor_id).first()
+@bp.route('/get-doctor/<int:doctor_id>', methods=['GET'])
+def get_doctor_by_id(doctor_id):
+    doctor = db.session.query(Doctor).filter(Doctor.id == doctor_id).first()
 
-        if not doctor:
-            abort(404, description='Doctor not found.')
+    if not doctor:
+        abort(404, description='Doctor not found.')
 
-        return jsonify({
-            'id': doctor.id,
-            'firstName': doctor.first_name,
-            'lastName': doctor.last_name,
-            'specialty': doctor.specialty,
-        }), 200
+    return jsonify({
+        'id': doctor.id,
+        'firstName': doctor.first_name,
+        'lastName': doctor.last_name,
+        'specialty': doctor.specialty,
+    }), 200
 
 
 # Get all doctors
-def app_route_get_all_doctors(app):
-    @app.route('/get-doctors', methods=['GET'])
-    @jwt_required()
-    def get_all_doctors():
-        doctors = db.session.query(Doctor).all()
+@bp.route('/get-doctors', methods=['GET'])
+@jwt_required()
+def get_all_doctors():
+    doctors = db.session.query(Doctor).all()
 
-        if not doctors:
-            abort(404, description='No doctors found.')
+    if not doctors:
+        abort(404, description='No doctors found.')
 
-        doctors_list = []
-        for doctor in doctors:
-            doctors_list.append({
-                'id': doctor.id,
-                'name': f'{doctor.first_name} {doctor.last_name}',
-                'specialty': doctor.specialty,
-            })
+    doctors_list = []
+    for doctor in doctors:
+        doctors_list.append({
+            'id': doctor.id,
+            'name': f'{doctor.first_name} {doctor.last_name}',
+            'specialty': doctor.specialty,
+        })
 
-        return jsonify(doctors_list), 200
+    return jsonify(doctors_list), 200
