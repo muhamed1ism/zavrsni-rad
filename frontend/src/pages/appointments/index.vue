@@ -55,6 +55,9 @@ const doctorHeaders = [
         <template v-slot:item.date="{ item }">
           {{ item.date ? new Date(item.date).toLocaleDateString("hr-HR") : '' }}
         </template>
+        <template v-slot:no-data>
+          <p>Nema naručenih termina</p>
+        </template>
         <template v-slot:item.actions="{ item }">
           <v-btn
             v-if="item.id !== null && item.status === 'na čekanju'"
@@ -109,6 +112,9 @@ const doctorHeaders = [
       >
         <template v-slot:item.date="{ item }">
           {{ item.date ? new Date(item.date).toLocaleDateString("hr-HR") : '' }}
+        </template>
+        <template v-slot:no-data>
+          <p>Nema naručenih termina</p>
         </template>
       </v-data-table>
     </v-card>

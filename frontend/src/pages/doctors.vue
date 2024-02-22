@@ -43,7 +43,11 @@ if (!authStore.auth.hasProfile) {
         :headers="doctorHeaders"
         :items="doctorStore.doctors"
         :items-per-page="10"
-      />
+      >
+        <template v-slot:no-data>
+          <p>Nema doktora</p>
+        </template>
+      </v-data-table>
     </v-card>
     <v-row class="mx-6 mt-4" justify="end">
       <v-btn

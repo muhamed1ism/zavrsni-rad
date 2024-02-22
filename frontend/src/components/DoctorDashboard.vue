@@ -18,7 +18,7 @@ appointmentStore.getApprovedAppointments();
 
 const cardHeaders = computed(() => [
   {
-    title: "Odobren",
+    title: "Odobreni",
     style: "background-color: mediumseagreen",
     icon: "mdi-check",
     value: appointmentStore.approvedAppointments,
@@ -30,7 +30,7 @@ const cardHeaders = computed(() => [
     value: appointmentStore.pendingAppointments,
   },
   {
-    title: "Odbijen",
+    title: "Odbijeni",
     style: "background-color: indianred",
     icon: "mdi-close",
     value: appointmentStore.rejectedAppointments,
@@ -111,6 +111,9 @@ if (!authStore.auth.hasProfile) {
             <template v-slot:item.dateOfBirth="{ item }">
               {{ item.dateOfBirth ? new Date(item.dateOfBirth).toLocaleDateString("hr-HR") : '' }}
             </template>
+            <template v-slot:no-data>
+              <p>Nema naručenih pacijenata</p>
+            </template>
           </v-data-table>
         </v-card>
       </v-col>
@@ -125,6 +128,9 @@ if (!authStore.auth.hasProfile) {
               :items-per-page="5">
             <template v-slot:item.date="{ item }">
               {{ item.date ? new Date(item.date).toLocaleDateString("hr-HR") : '' }}
+            </template>
+            <template v-slot:no-data>
+              <p>Nema naručenih termina</p>
             </template>
           </v-data-table>
         </v-card>

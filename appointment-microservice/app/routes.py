@@ -1,87 +1,99 @@
 import datetime
 import requests
 import sqlalchemy
-from flask import request, jsonify
+from flask import request, jsonify, abort
 from flask_cors import CORS
 from flask_jwt_extended import jwt_required, get_jwt_identity, JWTManager
 
-from models import db, Appointment
+from app.models import db, Appointment
 
 # CORS
 cors = CORS()
 # JWT
 jwt = JWTManager()
 
-auth_url = 'http://auth:5000'
-patient_url = 'http://patient:5001'
-doctor_url = 'http://doctor:5002'
+auth_api = 'http://auth:5000'
+patient_api = 'http://patient:5001'
+doctor_api = 'http://doctor:5002'
 
 
 def get_patient(user_id):
-    patient_url = f'http://patient:5001/get-patient/user/{user_id}'
+    patient_url = f'{patient_api}/get-patient/user/{user_id}'
     patient_response = requests.get(patient_url, headers={'Authorization': request.headers['Authorization']})
     patient = patient_response.json()
     return patient
+
 
 def get_patient_by_id(patient_id):
-    patient_url = f'http://patient:5001/get-patient/{patient_id}'
+    patient_url = f'{patient_api}/get-patient/{patient_id}'
     patient_response = requests.get(patient_url, headers={'Authorization': request.headers['Authorization']})
     patient = patient_response.json()
     return patient
 
+
 def get_doctor(user_id):
-    doctor_url = f'http://doctor:5002/get-doctor/user/{user_id}'
+    doctor_url = f'{doctor_api}/get-doctor/user/{user_id}'
     doctor_response = requests.get(doctor_url, headers={'Authorization': request.headers['Authorization']})
     doctor = doctor_response.json()
     return doctor
 
+
 def get_doctor_by_id(doctor_id):
-    doctor_url = f'http://doctor:5002/get-doctor/{doctor_id}'
+    doctor_url = f'http://{doctor_api}/get-doctor/{doctor_id}'
     doctor_response = requests.get(doctor_url, headers={'Authorization': request.headers['Authorization']})
     doctor = doctor_response.json()
     return doctor
+
 
 def get_patient_id(user_id):
     patient = get_patient(user_id)
     patient_id = patient['id']
     return patient_id
 
+
 def get_patient_name(user_id):
     patient = get_patient(user_id)
     patient_name = patient['firstName'] + ' ' + patient['lastName']
     return patient_name
+
 
 def get_patient_address(patient_id):
     patient = get_patient_by_id(patient_id)
     address = patient['address']
     return address
 
+
 def get_patient_date_of_birth(patient_id):
     patient = get_patient_by_id(patient_id)
     date_of_birth = patient['dateOfBirth']
     return date_of_birth
+
 
 def get_patient_phone_number(patient_id):
     patient = get_patient_by_id(patient_id)
     phone_number = patient['phoneNumber']
     return phone_number
 
+
 def get_doctor_id(user_id):
     doctor = get_doctor(user_id)
     doctor_id = doctor['id']
     return doctor_id
+
 
 def get_doctor_name(doctor_id):
     doctor = get_doctor_by_id(doctor_id)
     doctor_name = doctor['firstName'] + ' ' + doctor['lastName']
     return doctor_name
 
+
 def get_user_role():
-    user_url = f'{auth_url}/get-user'
+    user_url = f'{auth_api}/get-user'
     user_response = requests.get(user_url, headers={'Authorization': request.headers['Authorization']})
     user = user_response.json()
     user_role = user['role']
     return user_role
+
 
 def app_routes(app):
     app_route_home(app)
@@ -98,12 +110,12 @@ def app_routes(app):
     app_route_count_rejected_appointments(app)
     app_route_count_pending_appointments(app)
 
+
 # -------------------------------------------------------------------------------------------------------------------- #
 
 
 # Home
 def app_route_home(app):
-
     @app.route('/', methods=['GET'])
     def home():
         return jsonify(msg='Appointment service is up and running.'), 200
@@ -111,20 +123,19 @@ def app_route_home(app):
 
 # Create appointment
 def app_route_create_appointment(app):
-
     @app.route('/create-appointment', methods=['POST'])
     @jwt_required()
     def create_appointment():
         data = request.get_json()
 
         if 'doctorId' not in data or data['doctorId'] == '':
-            return jsonify(error='Doctor ID is required.'), 400
+            abort(400, description='Doctor ID is required.')
 
         if 'date' not in data or data['date'] == '':
-            return jsonify(error='Date is required.'), 400
+            abort(400, description='Date is required.')
 
         if 'time' not in data or data['time'] == '':
-            return jsonify(error='Time is required.'), 400
+            abort(400, description='Time is required.')
 
         # getting patient id and patient name of current user
         user_id = get_jwt_identity()
@@ -157,7 +168,7 @@ def app_route_create_appointment(app):
 
         except sqlalchemy.exc.SQLAlchemyError as e:
             db.session.rollback()
-            return jsonify(error=f'An error occurred while creating the appointment. {str(e)}'), 500
+            abort(500, description=f'An error occurred while creating the appointment. {str(e)}')
 
         finally:
             db.session.close()
@@ -167,14 +178,13 @@ def app_route_create_appointment(app):
 
 # Get appointment by appointment ID
 def app_route_get_appointment_by_id(app):
-
     @app.route('/get-appointment/<int:appointment_id>', methods=['GET'])
     @jwt_required()
     def get_appointment_by_id(appointment_id):
         appointment = db.session.query(Appointment).filter(Appointment.id == appointment_id).first()
 
         if not appointment:
-            return jsonify(msg='Appointment not found.'), 404
+            abort(404, description='Appointment not found.')
 
         user_role = get_user_role()
 
@@ -183,17 +193,17 @@ def app_route_get_appointment_by_id(app):
             patient_id = get_patient_id(user_id)
 
             if appointment.patient_id != patient_id:
-                return jsonify(error='You do not have permission to view this appointment.'), 403
+                abort(403, description='You do not have permission to view this appointment.')
 
         elif user_role == 'doctor':
             user_id = get_jwt_identity()
-            doctor_id = get_doctor_by_user_id(user_id)
+            doctor_id = get_doctor(user_id)
 
             if appointment.doctor_id != doctor_id:
-                return jsonify(error='You do not have permission to view this appointment.'), 403
+                abort(403, description='You do not have permission to view this appointment.')
 
         elif user_role != 'admin':
-            return jsonify(error='You do not have permission to view this appointment.'), 403
+            abort(403, description='You do not have permission to view this appointment.')
 
         time = appointment.time.strftime('%H:%M:%S')
 
@@ -209,10 +219,8 @@ def app_route_get_appointment_by_id(app):
         }), 200
 
 
-
 # Get all user appointments based on user role
 def app_route_get_all_appointments(app):
-
     @app.route('/get-all-appointments', methods=['GET'])
     @jwt_required()
     def get_all_appointments():
@@ -232,7 +240,7 @@ def app_route_get_all_appointments(app):
             appointments = db.session.query(Appointment).all()
 
         else:
-            return jsonify(error='You do not have permission to view appointments.'), 403
+            abort(403, description='You do not have permission to view appointments.')
 
         if not appointments:
             return jsonify(msg='No appointments found.')
@@ -256,60 +264,57 @@ def app_route_get_all_appointments(app):
 
 # Get doctor's patients from appointments where doctor id is equal to the doctor id of the current user
 def app_route_get_doctors_patients(app):
+    @app.route('/get-doctors-patients', methods=['GET'])
+    @jwt_required()
+    def get_doctors_patients():
+        user_id = get_jwt_identity()
+        doctor_id = get_doctor_id(user_id)
+        appointments = db.session.query(Appointment).filter(
+            Appointment.doctor_id == doctor_id, Appointment.status == 'odobren'
+        ).all()
 
-        @app.route('/get-doctors-patients', methods=['GET'])
-        @jwt_required()
-        def get_doctors_patients():
-            user_id = get_jwt_identity()
-            doctor_id = get_doctor_id(user_id)
-            appointments = db.session.query(Appointment).filter(
-                Appointment.doctor_id == doctor_id, Appointment.status == 'odobren'
-            ).all()
+        if not appointments:
+            return jsonify(msg='No patients found.')
 
+        patients_list = []
+        for appointment in appointments:
+            if any(d['id'] == appointment.patient_id for d in patients_list):
+                continue
+            date_of_birth = get_patient_date_of_birth(appointment.patient_id)
+            address = get_patient_address(appointment.patient_id)
+            phone_number = get_patient_phone_number(appointment.patient_id)
+            patients_list.append({
+                'id': appointment.patient_id,
+                'name': appointment.patient_name,
+                'dateOfBirth': date_of_birth,
+                'address': address,
+                'phoneNumber': phone_number
+            })
 
-            if not appointments:
-                return jsonify(msg='No patients found.')
-
-            patients_list = []
-            for appointment in appointments:
-                if any(d['id'] == appointment.patient_id for d in patients_list):
-                    continue
-                date_of_birth = get_patient_date_of_birth(appointment.patient_id)
-                address = get_patient_address(appointment.patient_id)
-                phone_number = get_patient_phone_number(appointment.patient_id)
-                patients_list.append({
-                    'id': appointment.patient_id,
-                    'name': appointment.patient_name,
-                    'dateOfBirth': date_of_birth,
-                    'address': address,
-                    'phoneNumber': phone_number
-                })
-
-            return jsonify(patients_list), 200
+        return jsonify(patients_list), 200
 
 
 # Delete appointment by appointment ID if user is admin
 def app_route_delete_appointment(app):
-
     @app.route('/delete-appointment/<appointment_id>', methods=['DELETE'])
     @jwt_required()
     def delete_appointment(appointment_id):
         user_role = get_user_role()
 
         if user_role != 'admin':
-            return jsonify(error='You do not have permission to delete appointments.'), 403
+            abort(403, description='You do not have permission to delete appointments.')
 
         appointment = db.session.query(Appointment).filter(Appointment.id == appointment_id).first()
 
         if not appointment:
-            return jsonify(msg='Appointment not found.'), 404
+            abort(404, description='Appointment not found.')
         try:
             db.session.delete(appointment)
             db.session.commit()
 
         except sqlalchemy.exc.SQLAlchemyError as e:
             db.session.rollback()
-            return jsonify(error=f'An error occurred while deleting the appointment. {str(e)}'), 500
+            abort(500, description=f'An error occurred while deleting the appointment. {str(e)}')
 
         finally:
             db.session.close()
@@ -319,19 +324,18 @@ def app_route_delete_appointment(app):
 
 # Set appointment status to approved using appointment id
 def app_route_approve_appointment(app):
-
     @app.route('/appointment/approve/<int:appointment_id>', methods=['PUT'])
     @jwt_required()
     def approve_appointment(appointment_id):
         user_role = get_user_role()
 
         if user_role != 'doctor':
-            return jsonify(error='You do not have permission to approve appointments.'), 403
+            abort(403, description='You do not have permission to approve appointments.')
 
         appointment = db.session.query(Appointment).filter(Appointment.id == appointment_id).first()
 
         if not appointment:
-            return jsonify(msg='Appointment not found.'), 404
+            abort(404, description='Appointment not found.')
 
         appointment.status = 'odobren'
 
@@ -340,7 +344,7 @@ def app_route_approve_appointment(app):
 
         except sqlalchemy.exc.SQLAlchemyError as e:
             db.session.rollback()
-            return jsonify(error=f'An error occurred while approving the appointment. {str(e)}'), 500
+            abort(500, description=f'An error occurred while approving the appointment. {str(e)}')
 
         finally:
             db.session.close()
@@ -356,12 +360,12 @@ def app_route_reject_appointment(app):
         user_role = get_user_role()
 
         if user_role != 'doctor':
-            return jsonify(error='You do not have permission to approve appointments.'), 403
+            abort(403, description='You do not have permission to reject appointments.')
 
         appointment = db.session.query(Appointment).filter(Appointment.id == appointment_id).first()
 
         if not appointment:
-            return jsonify(msg='Appointment not found.'), 404
+            abort(404, description='Appointment not found.')
 
         appointment.status = 'odbijen'
 
@@ -370,7 +374,7 @@ def app_route_reject_appointment(app):
 
         except sqlalchemy.exc.SQLAlchemyError as e:
             db.session.rollback()
-            return jsonify(error=f'An error occurred while rejecting the appointment. {str(e)}'), 500
+            abort(500, description=f'An error occurred while rejecting the appointment. {str(e)}')
 
         finally:
             db.session.close()
@@ -380,19 +384,18 @@ def app_route_reject_appointment(app):
 
 # Set appointment status to canceled using appointment id
 def app_route_cancel_appointment(app):
-
     @app.route('/appointment/cancel/<int:appointment_id>', methods=['PUT'])
     @jwt_required()
     def cancel_appointment(appointment_id):
         user_role = get_user_role()
 
         if user_role != 'patient':
-            return jsonify(error='You do not have permission to cancel appointments.'), 403
+            abort(403, description='You do not have permission to cancel appointments.')
 
         appointment = db.session.query(Appointment).filter(Appointment.id == appointment_id).first()
 
         if not appointment:
-            return jsonify(msg='Appointment not found.'), 404
+            abort(404, description='Appointment not found.')
 
         appointment.status = 'otkazan'
 
@@ -401,28 +404,28 @@ def app_route_cancel_appointment(app):
 
         except sqlalchemy.exc.SQLAlchemyError as e:
             db.session.rollback()
-            return jsonify(error=f'An error occurred while canceling the appointment. {str(e)}'), 500
+            abort(500, description=f'An error occurred while canceling the appointment. {str(e)}')
 
         finally:
             db.session.close()
 
         return jsonify(msg='Appointment canceled successfully.'), 200
 
+
 # Set appointment back to pending status using appointment id
 def app_route_restore_appointment(app):
-
     @app.route('/appointment/restore/<int:appointment_id>', methods=['PUT'])
     @jwt_required()
     def restore_appointment(appointment_id):
         user_role = get_user_role()
 
         if user_role != 'patient':
-            return jsonify(error='You do not have permission to restore appointments.'), 403
+            abort(403, description='You do not have permission to restore appointments.')
 
         appointment = db.session.query(Appointment).filter(Appointment.id == appointment_id).first()
 
         if not appointment:
-            return jsonify(msg='Appointment not found.'), 404
+            abort(404, description='Appointment not found.')
 
         appointment.status = 'na čekanju'
 
@@ -431,51 +434,54 @@ def app_route_restore_appointment(app):
 
         except sqlalchemy.exc.SQLAlchemyError as e:
             db.session.rollback()
-            return jsonify(error=f'An error occurred while restoring the appointment. {str(e)}'), 500
+            abort(500, description=f'An error occurred while restoring the appointment. {str(e)}')
 
         finally:
             db.session.close()
 
         return jsonify(msg='Appointment restored successfully.'), 200
 
+
 # Get number of approved appointments
 def app_route_count_approved_appointments(app):
-
     @app.route('/appointment/count-approved', methods=['GET'])
     @jwt_required()
     def count_approved_appointments():
         user_role = get_user_role()
         user_id = get_jwt_identity()
         if user_role != 'doctor':
-            return jsonify(error='You do not have permission to count appointments.'), 403
+            abort(403, description='You do not have permission to count appointments.')
         doctor_id = get_doctor_id(user_id)
-        appointments = db.session.query(Appointment).filter(Appointment.doctor_id == doctor_id, Appointment.status == 'odobren').count()
+        appointments = db.session.query(Appointment).filter(Appointment.doctor_id == doctor_id,
+                                                            Appointment.status == 'odobren').count()
         return jsonify(appointments), 200
+
 
 # Get number of rejected appointments
 def app_route_count_rejected_appointments(app):
-
     @app.route('/appointment/count-rejected', methods=['GET'])
     @jwt_required()
     def count_rejected_appointments():
         user_role = get_user_role()
         user_id = get_jwt_identity()
         if user_role != 'doctor':
-            return jsonify(error='You do not have permission to count appointments.'), 403
+            abort(403, description='You do not have permission to count appointments.')
         doctor_id = get_doctor_id(user_id)
-        appointments = db.session.query(Appointment).filter(Appointment.doctor_id == doctor_id, Appointment.status == 'odbijen').count()
+        appointments = db.session.query(Appointment).filter(Appointment.doctor_id == doctor_id,
+                                                            Appointment.status == 'odbijen').count()
         return jsonify(appointments), 200
+
 
 # Get number of pending appointments
 def app_route_count_pending_appointments(app):
-
     @app.route('/appointment/count-pending', methods=['GET'])
     @jwt_required()
     def count_pending_appointments():
         user_role = get_user_role()
         user_id = get_jwt_identity()
         if user_role != 'doctor':
-            return jsonify(error='You do not have permission to count appointments.'), 403
+            abort(403, description='You do not have permission to count appointments.')
         doctor_id = get_doctor_id(user_id)
-        appointments = db.session.query(Appointment).filter(Appointment.doctor_id == doctor_id, Appointment.status == 'na čekanju').count()
+        appointments = db.session.query(Appointment).filter(Appointment.doctor_id == doctor_id,
+                                                            Appointment.status == 'na čekanju').count()
         return jsonify(appointments), 200

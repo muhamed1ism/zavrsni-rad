@@ -1,13 +1,14 @@
 # test config
-import os
 from datetime import timedelta
-from dotenv import load_dotenv
 
 
+TESTING = True
+
+# DATABASE
 SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
-if load_dotenv('.test.env'):
-    JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
 
+# JWT
+JWT_SECRET_KEY = 'b0e8a53a216be2ec1308128e'
 JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
 JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)

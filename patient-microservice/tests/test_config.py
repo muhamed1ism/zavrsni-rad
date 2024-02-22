@@ -1,5 +1,10 @@
 # test config
 
+TESTING = True
+
+# DATABASE
 SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
-JWT_SECRET_KEY = 'test_secret'
+
+# JWT
+JWT_SECRET_KEY = 'b0e8a53a216be2ec1308128e'

@@ -51,6 +51,9 @@ const patientHeaders = [
         <template v-slot:item.dateOfBirth="{ item }">
           {{ item.dateOfBirth ? new Date(item.dateOfBirth).toLocaleDateString("hr-HR") : '' }}
         </template>
+        <template v-slot:no-data>
+          <p>Nema naručenih pacijenata</p>
+        </template>
       </v-data-table>
     </v-card>
     <v-row class="mx-6 mt-4" justify="end">

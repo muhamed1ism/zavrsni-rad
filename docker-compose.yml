@@ -19,8 +19,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5000:5000"
-    env_file:
-      - auth-microservice/.env
     volumes:
       - .:/auth-microservice/app
     networks:
@@ -32,8 +30,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5001:5001"
-    env_file:
-      - patient-microservice/.env
     volumes:
       - .:/patient-microservice/app
     networks:
@@ -45,8 +41,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5002:5002"
-    env_file:
-      - doctor-microservice/.env
     volumes:
       - .:/doctor-microservice/app
     networks:
@@ -58,8 +52,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5003:5003"
-    env_file:
-      - appointment-microservice/.env
     volumes:
       - .:/appointment-microservice/app
     networks:

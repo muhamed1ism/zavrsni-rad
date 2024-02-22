@@ -11,7 +11,7 @@ from flask_jwt_extended import (
     jwt_required, JWTManager
 )
 
-from models import User, TokenBlocklist, db
+from app.models import db, User, TokenBlocklist
 
 # CORS
 cors = CORS()
@@ -25,7 +25,7 @@ bcrypt = Bcrypt()
 
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data):
-    identity = jwt_data["sub"]
+    identity = jwt_data['sub']
     return User.query.filter_by(id=identity).first()
 
 
@@ -33,7 +33,7 @@ def user_lookup_callback(_jwt_header, jwt_data):
 # noinspection PyUnusedLocal
 @jwt.token_in_blocklist_loader
 def check_if_token_is_revoked(jwt_header, jwt_payload: dict) -> bool:
-    jti = jwt_payload["jti"]
+    jti = jwt_payload['jti']
     token = db.session.query(TokenBlocklist.id).filter_by(jti=jti).scalar()
 
     return token is not None
@@ -66,22 +66,21 @@ def app_route_home(app):
 
 # Register user
 def app_route_register(app):
-
     @app.route('/register', methods=['POST'])
     def register():
         data = request.get_json()
 
         if data is None:
-            return jsonify(error='No data provided.'), 400
+            abort(400, description='No data provided.')
 
         if data['email'] == '' or 'email' not in data or data['email'].isspace():
-            return jsonify(error='Email is required.'), 400
+            abort(400, description='Email is required.')
 
         if data['password'] == '' or 'password' not in data or data['password'].isspace():
-            return jsonify(error='Password is required.'), 400
+            abort(400, description='Password is required.')
 
         if data['passwordConfirm'] == '' or 'passwordConfirm' not in data or data['passwordConfirm'].isspace():
-            return jsonify(error='Password confirmation is required.'), 400
+            abort(400, description='Password confirmation is required.')
 
         email = data['email']
         password = data['password']
@@ -89,12 +88,12 @@ def app_route_register(app):
         role = data['role']
 
         if not compare_digest(password, password_confirm):
-            return jsonify(error='Passwords do not match.'), 400
+            abort(400, description='Passwords do not match.')
 
         existing_email = db.session.query(User).filter_by(email=email).first()
 
         if existing_email:
-            return jsonify(error='Email already taken. Please choose another.'), 409
+            abort(409, description='Email already taken. Please choose another.')
 
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
@@ -109,7 +108,7 @@ def app_route_register(app):
             db.session.commit()
 
         except Exception as e:
-            return jsonify(error=f'An unexpected error occurred: {str(e)}'), 500
+            abort(500, description=f'An unexpected error occurred: {str(e)}')
 
         finally:
             db.session.close()
@@ -119,19 +118,18 @@ def app_route_register(app):
 
 # Login user
 def app_route_login(app):
-
     @app.route('/login', methods=['POST'])
     def login():
         data = request.get_json()
 
         if data is None:
-            return jsonify(error='No data provided.'), 400
+            abort(400, description='No data provided.')
 
         if data['email'] == '' or 'email' not in data or data['email'].isspace():
-            return jsonify(error='Email is required.'), 400
+            abort(400, description='Email is required.')
 
         if data['password'] == '' or 'password' not in data or data['password'].isspace():
-            return jsonify(error='Password is required.'), 400
+            abort(400, description='Password is required.')
 
         email = data['email']
         password = data['password']
@@ -144,14 +142,12 @@ def app_route_login(app):
 
             return jsonify(accessToken=access_token, refreshToken=refresh_token), 200
         else:
-            return jsonify(error='Invalid credentials.'), 401
+            abort(401, description='Invalid credentials.')
 
 
 # Logout user
 def app_route_logout(app):
-
     @app.route('/logout', methods=['DELETE'])
-
     @jwt_required(verify_type=False)
     def logout():
         token = get_jwt()
@@ -178,7 +174,6 @@ def app_route_logout(app):
 
 # Refresh token
 def app_route_refresh_token(app):
-
     @app.route('/refresh-token', methods=['POST'])
     @jwt_required(refresh=True)
     def refresh_token():
@@ -189,7 +184,6 @@ def app_route_refresh_token(app):
 
 # Revoke access token
 def app_route_revoke_refresh_token(app):
-
     @app.route('/revoke-refresh-token', methods=['POST'])
     @jwt_required()
     def revoke_refresh_token():
@@ -202,7 +196,7 @@ def app_route_revoke_refresh_token(app):
             db.session.commit()
 
         except Exception as e:
-            return jsonify(error=f'An unexpected error occurred: {str(e)}'), 500
+            abort(500, description=f'An unexpected error occurred: {str(e)}')
 
         finally:
             db.session.close()
@@ -212,7 +206,6 @@ def app_route_revoke_refresh_token(app):
 
 # Token status
 def app_route_token_status(app):
-
     @app.route('/token-status', methods=['GET'])
     @jwt_required()
     def token_status():
@@ -224,7 +217,6 @@ def app_route_token_status(app):
 
 # Exchange refresh token
 def app_route_exchange_refresh_token(app):
-
     @app.route('/exchange-refresh', methods=['POST'])
     @jwt_required(refresh=True)
     def exchange_refresh_token():
@@ -237,7 +229,6 @@ def app_route_exchange_refresh_token(app):
 
 # Get user route
 def app_route_get_user(app):
-
     @app.route('/get-user', methods=['GET'])
     @jwt_required()
     def get_user():
@@ -245,7 +236,7 @@ def app_route_get_user(app):
         user = db.session.query(User).filter_by(id=user_id).first()
 
         if not user:
-            return jsonify(error='User not found.'), 404
+            abort(404, description='User not found.')
 
         return jsonify({
             'id': user.id,
@@ -258,7 +249,6 @@ def app_route_get_user(app):
 
 # Update email
 def app_route_update_email(app):
-
     @app.route('/update-email', methods=['PUT'])
     @jwt_required()
     def update_email():
@@ -267,21 +257,21 @@ def app_route_update_email(app):
         user = db.session.query(User).get(user_id)
 
         if not user:
-            return jsonify(error='User not found.'), 404
+            abort(404, description='User not found.')
 
         if data is None:
-            return jsonify(error='No data provided.'), 400
+            abort(400, description='No data provided.')
 
         if not data['email'] or 'email' not in data or data['email'].isspace():
-            return jsonify(error='Email is required.'), 400
+            abort(400, description='Email is required.')
 
         if data['email'] == user.email:
-            return jsonify(error='Email is the same as the current email.'), 400
+            abort(400, description='Email is the same as the current email.')
 
         existing_email = db.session.query(User).filter_by(email=data['email']).first()
 
         if existing_email:
-            return jsonify(error='Email already taken. Please choose another.'), 409
+            abort(409, description='Email already taken. Please choose another.')
 
         user.email = data['email']
 
@@ -289,7 +279,7 @@ def app_route_update_email(app):
             db.session.commit()
 
         except Exception as e:
-            return jsonify(error=f'An unexpected error occurred: {str(e)}'), 500
+            abort(500, description=f'An unexpected error occurred: {str(e)}')
 
         finally:
             db.session.close()
@@ -299,7 +289,6 @@ def app_route_update_email(app):
 
 # Update password
 def app_route_update_password(app):
-
     @app.route('/update-password', methods=['PUT'])
     @jwt_required()
     def update_password():
@@ -308,33 +297,33 @@ def app_route_update_password(app):
         user = db.session.query(User).get(user_id)
 
         if not user:
-            return jsonify(error='User not found.'), 404
+            abort(404, description='User not found.')
 
         if data is None:
-            return jsonify(error='No data provided.'), 400
+            abort(400, description='No data provided.')
 
         if not data['currentPassword'] or 'currentPassword' not in data or data['currentPassword'].isspace():
-            return jsonify(error='Current password is required.'), 400
+            abort(400, description='Current password is required.')
 
         if not data['newPassword'] or 'newPassword' not in data or data['newPassword'].isspace():
-            return jsonify(error='New password is required.'), 400
+            abort(400, description='New password is required.')
 
         if (data['newPasswordConfirm'] == '' or 'newPasswordConfirm' not in data
                 or data['newPasswordConfirm'].isspace()):
-            return jsonify(error='New password confirmation is required.'), 400
+            abort(400, description='New password confirmation is required.')
 
         current_password = data['currentPassword']
         new_password = data['newPassword']
         new_password_confirm = data['newPasswordConfirm']
 
         if not compare_digest(new_password, new_password_confirm):
-            return jsonify(error='Passwords do not match.'), 400
+            abort(400, description='Passwords do not match.')
 
         if not bcrypt.check_password_hash(user.password_hash, current_password):
-            return jsonify(error='Current password is incorrect.'), 400
+            abort(400, description='Current password is incorrect.')
 
         if compare_digest(current_password, new_password):
-            return jsonify(error='New password cannot be the same as the current password.'), 400
+            abort(400, description='New password cannot be the same as the current password.')
 
         hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
 
@@ -344,7 +333,7 @@ def app_route_update_password(app):
             db.session.commit()
 
         except Exception as e:
-            return jsonify(error=f'An unexpected error occurred: {str(e)}'), 500
+            abort(500, description=f'An unexpected error occurred: {str(e)}')
 
         finally:
             db.session.close()
@@ -354,7 +343,6 @@ def app_route_update_password(app):
 
 # Delete user
 def app_route_delete_user(app):
-
     @app.route('/delete-user', methods=['DELETE'])
     @jwt_required()
     def delete_user():
@@ -362,17 +350,16 @@ def app_route_delete_user(app):
         user = db.session.query(User).filter_by(id=user_id).first()
 
         if not user:
-            return jsonify(error='User not found.'), 404
+            abort(404, description='User not found.')
 
         try:
             db.session.delete(user)
             db.session.commit()
 
         except Exception as e:
-            return jsonify(error=f'An unexpected error occurred: {str(e)}'), 500
+            abort(500, description=f'An unexpected error occurred: {str(e)}')
 
         finally:
             db.session.close()
 
         return jsonify(msg='User deleted successfully!'), 200
-

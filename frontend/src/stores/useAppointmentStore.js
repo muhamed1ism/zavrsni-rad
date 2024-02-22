@@ -56,6 +56,8 @@ export const useAppointmentStore = defineStore("appointment", {
         });
         if (res.status === 200 && res.data.length > 0) {
           this.appointments = res.data;
+        } else {
+          this.appointments = [];
         }
       } catch (error) {
         if (error.response.status === 401) {

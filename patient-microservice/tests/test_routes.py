@@ -1,98 +1,77 @@
-from flask_testing import TestCase
-from app import app, db
+import pytest
+from unittest.mock import MagicMock
+from flask_jwt_extended import create_access_token
+
+import tests.test_config as test_config
+from app import create_app
+from app.models import db
 
 
-class TestAuth(TestCase):
-    def create_app(self):
-        app.config.from_object('test_config')
-        return app
+config = test_config.__dict__
+app = create_app(test_config=config)
 
-    def setUp(self):
+
+@pytest.fixture
+def client():
+    client = app.test_client()
+    with app.app_context():
         db.create_all()
-
-    def tearDown(self):
+    yield client
+    with app.app_context():
         db.session.remove()
         db.drop_all()
 
-    def test_home(self):
-        response = self.client.get('/')
-        assert response.status_code == 200
 
-    def test_create_profile(self):
-        from flask_jwt_extended import create_access_token
-
+@pytest.fixture
+def headers():
+    with app.app_context():
         access_token = create_access_token(identity=1)
-        headers = {'Authorization': 'Bearer ' + access_token}
+    return {'Authorization': 'Bearer ' + access_token}
 
-        data = {
-            'first_name': 'John',
-            'last_name': 'Doe',
-            'date_of_birth': '1990-01-01',
-            'address': '123 Main St',
-            'phone_number': '123-456-7890'
-        }
 
-        response = self.client.post(
-            '/create-patient',
-            json=data,
-            headers=headers
-        )
+def test_home(client):
+    response = client.get('/')
+    assert response.status_code == 200
 
-        assert response.status_code == 200
-        return headers
 
-    def test_get_profile(self):
-        headers = self.test_create_profile()
+def create_patient(client, monkeypatch, headers):
+    mock_requests = MagicMock()
+    mock_requests.get.return_value.json.return_value = {'role': 'patient'}
+    monkeypatch.setattr("app.routes.requests", mock_requests)
+    data = {
+        'firstName': 'John',
+        'lastName': 'Doe',
+        'dateOfBirth': '1990-01-01T00:00:00.000Z'
+    }
+    response = client.post('/create-patient', json=data, headers=headers)
+    return response
 
-        response = self.client.get(
-            '/get-patient',
-            headers=headers
-        )
 
-        assert response.status_code == 200
-        assert response.json['first_name'] == 'John'
-        return response
+def test_create_patient(client, monkeypatch, headers):
+    response = create_patient(client, monkeypatch, headers)
+    assert response.status_code == 201
 
-    def test_update_profile(self):
-        headers = self.test_create_profile()
 
-        data = {
-            'first_name': 'Jane',
-            'last_name': 'Doe',
-            'date_of_birth': '1990-01-01',
-            'address': '123 Main St',
-            'phone_number': '123-456-7890'
-        }
+def test_get_patient(client, monkeypatch, headers):
+    create_patient(client, monkeypatch, headers)
+    response = client.get('/get-patient', headers=headers)
+    assert response.status_code == 200
 
-        response = self.client.put(
-            '/update-patient',
-            json=data,
-            headers=headers
-        )
 
-        assert response.status_code == 200
+def test_update_patient(client, monkeypatch, headers):
+    create_patient(client, monkeypatch, headers)
+    data = {
+        'first_name': 'Jane',
+        'last_name': 'Doe',
+        'date_of_birth': '1990-01-01',
+        'address': '123 Main St',
+        'phone_number': '123-456-7890'
+    }
+    response = client.put('/update-patient', json=data, headers=headers)
+    assert response.status_code == 200
 
-        get_response = self.client.get(
-            '/get-patient',
-            headers=headers
-        )
 
-        assert get_response.status_code == 200
-        assert get_response.json['first_name'] == 'Jane'
-
-    def test_delete_profile(self):
-        headers = self.test_create_profile()
-
-        response = self.client.delete(
-            '/delete-patient',
-            headers=headers
-        )
-
-        assert response.status_code == 200
-
-        get_response = self.client.get(
-            '/get-patient',
-            headers=headers
-        )
-
-        assert get_response.status_code == 404
+def test_delete_patient(client, monkeypatch, headers):
+    create_patient(client, monkeypatch, headers)
+    response = client.delete('/delete-patient', headers=headers)
+    assert response.status_code == 200

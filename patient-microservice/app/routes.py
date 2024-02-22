@@ -1,22 +1,22 @@
 import datetime
 import requests
 import sqlalchemy
-from flask import request, jsonify
+from flask import request, jsonify, abort
 from flask_cors import CORS
 from flask_jwt_extended import jwt_required, get_jwt_identity, JWTManager
 
-from models import Patient, db
+from app.models import db, Patient
 
 # CORS
 cors = CORS()
 # JWT
 jwt = JWTManager()
 
-auth_url = 'http://auth:5000'
+auth_api = 'http://auth:5000'
 
 
 def get_user_role():
-    user_url = f'{auth_url}/get-user'
+    user_url = f'{auth_api}/get-user'
     user_response = requests.get(user_url, headers={'Authorization': request.headers['Authorization']})
     user = user_response.json()
     user_role = user['role']
@@ -25,22 +25,22 @@ def get_user_role():
 
 def create_data_check(data):
     if 'firstName' not in data or data['firstName'] == '':
-        return jsonify(error='First name is required.'), 400
+        abort(400, description='First name is required.')
     if 'lastName' not in data or data['lastName'] == '':
-        return jsonify(error='Last name is required.'), 400
+        abort(400, description='Last name is required.')
     if 'dateOfBirth' not in data or data['dateOfBirth'] == '':
-        return jsonify(error='Date of birth is required.'), 400
+        abort(400, description='Date of birth is required.')
 
     return None
 
 
 def update_data_check(data, patient, user_id):
     if data is None:
-        return jsonify(error='No data provided.'), 400
+        abort(400, description='No data provided.')
     if not patient:
-        return jsonify(error='Patient not found.'), 404
+        abort(404, description='Patient not found.')
     if user_id != patient.user_id:
-        return jsonify(error='User does not match token.'), 403
+        abort(403, description='User does not match token.')
     if 'firstName' in data and data['firstName'] != '':
         patient.first_name = data['firstName']
     if 'lastName' in data and data['lastName'] != '':
@@ -65,12 +65,12 @@ def app_routes(app):
     app_route_get_patient_by_id(app)
     app_route_get_patient_by_user_id(app)
 
+
 # -------------------------------------------------------------------------------------------------------------------- #
 
 
 # Home
 def app_route_home(app):
-
     @app.route('/', methods=['GET'])
     def home():
         return jsonify(msg='Patient service is up and running.'), 200
@@ -78,7 +78,6 @@ def app_route_home(app):
 
 # Create a patient profile
 def app_route_create_patient(app):
-
     @app.route('/create-patient', methods=['POST'])
     @jwt_required()
     def create_patient():
@@ -90,7 +89,7 @@ def app_route_create_patient(app):
         user_role = get_user_role()
 
         if user_role != 'patient':
-            return jsonify(error='User is not a patient.'), 403
+            abort(403, description='User is not a patient.')
 
         date_of_birth = datetime.datetime.strptime(data['dateOfBirth'], '%Y-%m-%dT%H:%M:%S.%fZ')
 
@@ -109,7 +108,7 @@ def app_route_create_patient(app):
 
         except sqlalchemy.exc.SQLAlchemyError as e:
             db.session.rollback()
-            return jsonify(error=f'An error occurred while creating the profile. {str(e)}'), 500
+            abort(500, description=f'An error occurred while creating the profile. {str(e)}')
 
         finally:
             db.session.close()
@@ -119,7 +118,6 @@ def app_route_create_patient(app):
 
 # Update patient information
 def app_route_update_patient(app):
-
     @app.route('/update-patient', methods=['PUT'])
     @jwt_required()
     def update_patient():
@@ -134,7 +132,7 @@ def app_route_update_patient(app):
 
         except sqlalchemy.exc.SQLAlchemyError as e:
             db.session.rollback()
-            return jsonify(error=f'An error occurred while updating the profile. {str(e)}'), 500
+            abort(500, description=f'An error occurred while updating the profile. {str(e)}')
 
         finally:
             db.session.close()
@@ -144,7 +142,6 @@ def app_route_update_patient(app):
 
 # Delete a patient profile
 def app_route_delete_patient(app):
-
     @app.route('/delete-patient', methods=['DELETE'])
     @jwt_required()
     def delete_patient():
@@ -152,10 +149,10 @@ def app_route_delete_patient(app):
         patient = db.session.query(Patient).filter(Patient.user_id == user_id).first()
 
         if not patient:
-            return jsonify(error='Patient not found.'), 404
+            abort(404, description='Patient not found.')
 
         if user_id != patient.user_id:
-            return jsonify(error='User does not match token.'), 403
+            abort(403, description='User does not match token.')
 
         try:
             db.session.delete(patient)
@@ -163,7 +160,7 @@ def app_route_delete_patient(app):
 
         except sqlalchemy.exc.SQLAlchemyError as e:
             db.session.rollback()
-            return jsonify(error=f'An error occurred while deleting the profile. {str(e)}'), 500
+            abort(500, description=f'An error occurred while deleting the profile. {str(e)}')
 
         finally:
             db.session.close()
@@ -173,7 +170,6 @@ def app_route_delete_patient(app):
 
 # Get the current patient's profile
 def app_route_get_patient(app):
-
     @app.route('/get-patient', methods=['GET'])
     @jwt_required()
     def get_patient():
@@ -181,7 +177,7 @@ def app_route_get_patient(app):
         patient = db.session.query(Patient).filter(Patient.user_id == user_id).first()
 
         if not patient:
-            return jsonify(msg='Patient not found.'), 404
+            abort(404, description='Patient not found.')
 
         patient_data = {
             'id': patient.id,
@@ -198,14 +194,13 @@ def app_route_get_patient(app):
 
 # Get patient information by patient ID
 def app_route_get_patient_by_id(app):
-
     @app.route('/get-patient/<int:patient_id>', methods=['GET'])
     @jwt_required()
     def get_patient_by_id(patient_id):
         patient = db.session.query(Patient).filter(Patient.id == patient_id).first()
 
         if not patient:
-            return jsonify(msg='Patient not found.'), 404
+            abort(404, description='Patient not found.')
 
         patient_data = {
             'id': patient.id,
@@ -222,14 +217,13 @@ def app_route_get_patient_by_id(app):
 
 # Get patient information by user ID
 def app_route_get_patient_by_user_id(app):
-
     @app.route('/get-patient/user/<int:user_id>', methods=['GET'])
     @jwt_required()
     def get_patient_by_user_id(user_id):
         patient = db.session.query(Patient).filter(Patient.user_id == user_id).first()
 
         if not patient:
-            return jsonify(msg='Patient not found.'), 404
+            abort(404, description='Patient not found.')
 
         patient_data = {
             'id': patient.id,

@@ -81,6 +81,9 @@ if (!authStore.auth.isAuthenticated) {
         <template v-slot:item.date="{ item }">
           {{ item.date ? new Date(item.date).toLocaleDateString("hr-HR") : '' }}
         </template>
+        <template v-slot:no-data>
+          <p>Nema zakazanih termina</p>
+        </template>
       </v-data-table>
     </v-card>
   </v-container>
