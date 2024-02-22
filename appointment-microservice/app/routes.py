@@ -39,7 +39,7 @@ def get_doctor(user_id):
 
 
 def get_doctor_by_id(doctor_id):
-    doctor_url = f'http://{doctor_api}/get-doctor/{doctor_id}'
+    doctor_url = f'{doctor_api}/get-doctor/{doctor_id}'
     doctor_response = requests.get(doctor_url, headers={'Authorization': request.headers['Authorization']})
     doctor = doctor_response.json()
     return doctor

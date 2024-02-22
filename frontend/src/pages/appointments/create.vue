@@ -45,14 +45,7 @@ const submit = async () => {
 
 if (!authStore.auth.isAuthenticated) {
   router.push("/login");
-}
-
-if (!authStore.auth.hasProfile) {
-  router.push("/doctor/create");
-}
-
-if (role !== "patient") {
-  console.log("Nemate pristup ovoj stranici");
+} else if (!authStore.auth.hasProfile || role !== "patient") {
   router.push("/dashboard");
 }
 </script>

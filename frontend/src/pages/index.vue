@@ -9,13 +9,7 @@ const userStore = useUserStore();
 const role = userStore.user.role;
 
 if (authStore.auth.isAuthenticated) {
-  if (authStore.auth.hasProfile) {
-    router.push("/dashboard");
-  } else if (role === "doctor") {
-    router.push("/doctor/create");
-  } else {
-    router.push("/patient/create");
-  }
+  router.push("/dashboard");
 }
 </script>
 

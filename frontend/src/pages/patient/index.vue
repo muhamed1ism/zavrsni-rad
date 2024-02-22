@@ -40,11 +40,12 @@ const patientData = [
 
 if (!authStore.auth.isAuthenticated) {
   router.push("/login");
+} else if (!authStore.auth.hasProfile) {
+  router.push("/patient/create");
+} else if (role !== 'patient') {
+  router.push("/dashboard");
 }
 
-if (!authStore.auth.hasProfile) {
-  router.push("/patient/create");
-}
 </script>
 
 <template>

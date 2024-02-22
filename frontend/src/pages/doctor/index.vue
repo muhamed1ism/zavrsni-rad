@@ -44,11 +44,12 @@ const items = [
 
 if (!authStore.auth.isAuthenticated) {
   router.push("/login");
+} else if (!authStore.auth.hasProfile) {
+  router.push("/doctor/create");
+} else if (role !== "doctor") {
+  router.push("/dashboard");
 }
 
-if (!authStore.auth.hasProfile) {
-  router.push("/doctor/create");
-}
 </script>
 
 <template>

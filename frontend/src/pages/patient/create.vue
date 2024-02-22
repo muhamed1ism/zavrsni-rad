@@ -69,7 +69,12 @@ const submit = async () => {
 
 if (!authStore.auth.isAuthenticated) {
   router.push("/login");
+} else if (authStore.auth.hasProfile) {
+  router.push("/patient");
+} else if (role !== "patient") {
+  router.push("/dashboard");
 }
+
 </script>
 
 <template>

@@ -25,24 +25,17 @@ const reject = async (id) => {
   }
 };
 
-if (!authStore.auth.isAuthenticated) {
-  router.push("/login");
-}
-
-if (!authStore.auth.hasProfile) {
-  router.push("/doctor/create");
-}
-
-if (role !== "doctor") {
-  console.log("Nemate pristup ovoj stranici");
-  router.push("/dashboard");
-}
-
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString("hr-HR");
 };
 
 appointmentStore.getAppointments();
+
+if (!authStore.auth.isAuthenticated) {
+  router.push("/login");
+} else if (!authStore.auth.hasProfile || role !== "doctor") {
+  router.push("/dashboard");
+}
 </script>
 
 <template>

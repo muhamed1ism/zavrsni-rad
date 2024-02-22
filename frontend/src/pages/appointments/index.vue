@@ -11,10 +11,8 @@ const role = userStore.user.role;
 
 if (!authStore.auth.isAuthenticated) {
   router.push("/login");
-}
-
-if (!authStore.auth.hasProfile) {
-  router.push("/doctor/create");
+} else if (!authStore.auth.hasProfile) {
+  router.push("/dashboard");
 }
 
 appointmentStore.getAppointments();

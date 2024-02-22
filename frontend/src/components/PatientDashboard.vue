@@ -43,9 +43,7 @@ const patientHeaders = [
 ];
 
 
-if (!authStore.auth.isAuthenticated) {
-  router.push("/login");
-} else if (!authStore.auth.hasProfile) {
+if (!authStore.auth.hasProfile) {
   router.push("/patient/create");
 }
 </script>

@@ -11,14 +11,7 @@ const role = userStore.user.role;
 
 if (!authStore.auth.isAuthenticated) {
   router.push("/login");
-}
-
-if (!authStore.auth.hasProfile) {
-  router.push("/doctor/create");
-}
-
-if (role !== "doctor") {
-  console.log("Nemate pristup ovoj stranici");
+} else if (!authStore.auth.hasProfile) {
   router.push("/dashboard");
 }
 

@@ -9,34 +9,11 @@ const userStore = useUserStore();
 const backgroundImage = "../../background.png";
 
 const email = userStore.user.email;
-const role = userStore.user.role;
-
-const emailAction = () => {
-  if (role === "patient") {
-    router.push("/patient/update/email");
-  } else if (role === "doctor") {
-    router.push("/doctor/update/email");
-  }
-};
-
-const passwordAction = () => {
-  if (role === "patient") {
-    router.push("/patient/update/password");
-  } else if (role === "doctor") {
-    router.push("/doctor/update/password");
-  }
-};
 
 if (!authStore.auth.isAuthenticated) {
   router.push("/login");
-}
-
-if (!authStore.auth.hasProfile) {
-  if (role === "patient") {
-    router.push("/patient/create");
-  } else if (role === "doctor") {
-    router.push("/doctor/create");
-  }
+} else if (!authStore.auth.hasProfile) {
+  router.push("/dashboard")
 }
 </script>
 
@@ -63,7 +40,7 @@ if (!authStore.auth.hasProfile) {
                   color="blue-darken-2"
                   variant="tonal"
                   icon="mdi-pencil"
-                  @click="emailAction"
+                  to="/settings/update/email"
                 >
                 </v-btn>
               </div>
@@ -78,7 +55,7 @@ if (!authStore.auth.hasProfile) {
                   color="blue-darken-2"
                   variant="tonal"
                   icon="mdi-pencil"
-                  @click="passwordAction"
+                  to="/settings/update/password"
                 >
                 </v-btn>
               </div>
