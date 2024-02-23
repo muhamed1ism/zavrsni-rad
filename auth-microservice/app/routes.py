@@ -9,7 +9,7 @@ from flask_jwt_extended import (
     jwt_required
 )
 
-from app.extensions import db, jwt, bcrypt, bp
+from app.extensions import db, jwt, argon2, bp
 from app.models import User, TokenBlocklist
 
 
@@ -68,7 +68,7 @@ def register():
     if existing_email:
         abort(409, description='Email already taken. Please choose another.')
 
-    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+    hashed_password = argon2.generate_password_hash(password)
 
     new_user = User(
         email=email,
@@ -108,7 +108,7 @@ def login():
 
     existing_user = db.session.query(User).filter_by(email=email).first()
 
-    if existing_user and bcrypt.check_password_hash(existing_user.password_hash, password):
+    if existing_user and argon2.check_password_hash(existing_user.password_hash, password):
         access_token = create_access_token(identity=existing_user.id, fresh=True)
         refresh_token = create_refresh_token(identity=existing_user.id)
 
@@ -283,13 +283,13 @@ def update_password():
     if not compare_digest(new_password, new_password_confirm):
         abort(400, description='Passwords do not match.')
 
-    if not bcrypt.check_password_hash(user.password_hash, current_password):
+    if not argon2.check_password_hash(user.password_hash, current_password):
         abort(400, description='Current password is incorrect.')
 
     if compare_digest(current_password, new_password):
         abort(400, description='New password cannot be the same as the current password.')
 
-    hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
+    hashed_password = argon2.generate_password_hash(new_password).decode('utf-8')
 
     user.password_hash = hashed_password
 

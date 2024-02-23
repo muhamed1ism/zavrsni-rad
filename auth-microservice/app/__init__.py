@@ -1,7 +1,7 @@
 from flask import Flask
 
 from app.models import db
-from app.extensions import jwt, bcrypt, cors, bp
+from app.extensions import jwt, argon2, cors, bp
 from app import routes
 
 
@@ -21,8 +21,8 @@ def create_app(test_config=None):
     # JWT
     jwt.init_app(app)
 
-    # Bcrypt
-    bcrypt.init_app(app)
+    # Argon2
+    argon2.init_app(app)
 
     # Blueprint
     app.register_blueprint(bp)

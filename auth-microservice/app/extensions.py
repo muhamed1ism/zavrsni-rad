@@ -1,7 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
-from flask_bcrypt import Bcrypt
+from flask_argon2 import Argon2
 from flask import Blueprint
 
 # SQLAlchemy
@@ -13,8 +13,8 @@ cors = CORS()
 # JWT
 jwt = JWTManager()
 
-# Bcrypt
-bcrypt = Bcrypt()
+# Argon2
+argon2 = Argon2()
 
 # Blueprint
 bp = Blueprint('routes', __name__)
