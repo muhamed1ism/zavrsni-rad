@@ -289,7 +289,7 @@ def update_password():
     if compare_digest(current_password, new_password):
         abort(400, description='New password cannot be the same as the current password.')
 
-    hashed_password = argon2.generate_password_hash(new_password).decode('utf-8')
+    hashed_password = argon2.generate_password_hash(new_password)
 
     user.password_hash = hashed_password
 

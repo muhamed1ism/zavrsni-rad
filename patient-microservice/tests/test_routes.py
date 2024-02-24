@@ -1,32 +1,4 @@
-import pytest
 from unittest.mock import MagicMock
-from flask_jwt_extended import create_access_token
-
-import tests.test_config as test_config
-from app import create_app
-from app.models import db
-
-
-config = test_config.__dict__
-app = create_app(test_config=config)
-
-
-@pytest.fixture
-def client():
-    client = app.test_client()
-    with app.app_context():
-        db.create_all()
-    yield client
-    with app.app_context():
-        db.session.remove()
-        db.drop_all()
-
-
-@pytest.fixture
-def headers():
-    with app.app_context():
-        access_token = create_access_token(identity=1)
-    return {'Authorization': 'Bearer ' + access_token}
 
 
 def test_home(client):
