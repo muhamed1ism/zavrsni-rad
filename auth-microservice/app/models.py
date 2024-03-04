@@ -34,4 +34,3 @@ class TokenBlocklist(db.Model):
 
     def __repr__(self):
         return f'<TokenBlocklist jti={self.jti} type={self.type}>'
-

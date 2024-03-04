@@ -152,27 +152,6 @@ def refresh_token():
     return jsonify(accessToken=access_token), 200
 
 
-# Revoke access token
-@bp.route('/revoke-refresh-token', methods=['POST'])
-@jwt_required()
-def revoke_refresh_token():
-    jti = get_jwt()['jti']
-    user_id = get_jwt_identity()
-    now = datetime.now()
-
-    try:
-        db.session.add(TokenBlocklist(jti=jti, type='refresh', user_id=user_id, created_at=now))
-        db.session.commit()
-
-    except Exception as e:
-        abort(500, description=f'An unexpected error occurred: {str(e)}')
-
-    finally:
-        db.session.close()
-
-    return jsonify(msg='Refresh token successfully revoked'), 200
-
-
 # Token status
 @bp.route('/token-status', methods=['GET'])
 @jwt_required()
