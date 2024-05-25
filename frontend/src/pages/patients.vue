@@ -3,19 +3,13 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { usePatientStore } from "@/stores/usePatientStore";
 import { useUserStore } from "@/stores/useUserStore";
 import router from "@/router";
+import BackButton from "@/components/BackButton.vue";
 
-const authStore = useAuthStore();
-const patientStore = usePatientStore();
-const userStore = useUserStore();
-const role = userStore.user.role;
+const { auth } = useAuthStore();
+const { patients, getPatients } = usePatientStore();
+const { user } = useUserStore();
 
-if (!authStore.auth.isAuthenticated) {
-  router.push("/login");
-} else if (!authStore.auth.hasProfile) {
-  router.push("/dashboard");
-}
-
-patientStore.getPatients();
+getPatients();
 
 const patientHeaders = [
   { title: "ID", value: "id", align: "start" },
@@ -24,41 +18,45 @@ const patientHeaders = [
   { title: "Datum rođenja", value: "dateOfBirth" },
   { title: "Broj telefona", value: "phoneNumber" },
 ];
+
+if (!auth.isAuthenticated) router.push("/error/401");
+else if (user.role !== 'doctor') router.push("/error/403");
+else if (!auth.hasProfile) router.push("/dashboard");
 </script>
 
 <template>
+  <BackButton />
   <v-container>
-    <v-btn
-        @click="router.go(-1)"
-        size="large"
-        class="mt-2 mx-2">
-      <v-icon>mdi-arrow-left</v-icon>
-    </v-btn>
-    <h1 class="mb-6 mt-4 mx-2 font-weight-medium">Moji pacijenti</h1>
-    <v-card border elevation="0" class="mx-6">
+    <h1 class="mb-4 my-4 mx-2 font-weight-medium">Moji pacijenti</h1>
+    <v-card border elevation="0">
       <v-data-table
         :headers="patientHeaders"
-        :items="patientStore.patients"
+        :items="patients"
+        items-per-page-text="Broj stavki po stranici"
         :items-per-page="10"
       >
         <template v-slot:item.dateOfBirth="{ item }">
-          {{ item.dateOfBirth ? new Date(item.dateOfBirth).toLocaleDateString("hr-HR") : '' }}
+          {{
+            item.dateOfBirth
+              ? new Date(item.dateOfBirth).toLocaleDateString("hr-HR")
+              : ""
+          }}
         </template>
         <template v-slot:no-data>
           <p>Nema naručenih pacijenata</p>
         </template>
       </v-data-table>
     </v-card>
-    <v-row class="mx-6 mt-4" justify="end">
+    <v-row class="mx-2 mt-4" justify="end">
       <v-btn
-          to="/doctors"
-          prepend-icon="mdi-account-group"
-          append-icon="mdi-arrow-right"
-          variant="flat"
-          elevation="0"
-          text="Svi doktori"
-          size="large"
-          border
+        to="/doctors"
+        prepend-icon="mdi-account-group"
+        append-icon="mdi-arrow-right"
+        variant="flat"
+        elevation="0"
+        text="Svi doktori"
+        size="large"
+        border
       />
     </v-row>
   </v-container>

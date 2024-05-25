@@ -1,8 +1,11 @@
-FROM node:latest
+FROM node:lts as build-stage
 WORKDIR /app
-COPY package.json /app
-COPY yarn.lock /app
+COPY package.json yarn.lock ./
 RUN yarn install
-COPY . /app
-EXPOSE 3000
-CMD yarn dev --host
+COPY . ./
+RUN yarn build
+
+FROM nginx:stable as production-stage
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD [ "nginx", "-g", "daemon off;"]

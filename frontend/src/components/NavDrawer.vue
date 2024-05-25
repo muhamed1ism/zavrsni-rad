@@ -1,129 +1,158 @@
 <script setup>
-import {useUserStore} from "@/stores/useUserStore";
-import {useAuthStore} from "@/stores/useAuthStore";
-import {usePatientStore} from "@/stores/usePatientStore";
-import {useDoctorStore} from "@/stores/useDoctorStore";
+import { useUserStore } from "@/stores/useUserStore";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { usePatientStore } from "@/stores/usePatientStore";
+import { useDoctorStore } from "@/stores/useDoctorStore";
+import router from "@/router";
+import ProfilePicture from "@/components/ProfilePicture.vue";
 
-const authStore = useAuthStore();
-const userStore = useUserStore();
-const role = userStore.user.role;
-const profile = role === "patient" ? usePatientStore().patient : useDoctorStore().doctor;
-profile.email = userStore.user.email;
+const { auth, logout } = useAuthStore();
+const { user } = useUserStore();
+const { patient } = usePatientStore();
+const { doctor } = useDoctorStore();
+const profile = (user.role === "patient") ? patient : doctor;
 
 const navItems = [
-  {
-    title: "O nama",
-    icon: "mdi-information",
-    to: "/about",
-  },
-  {
-    title: "Kontaktirajte nas",
-    icon: "mdi-phone",
-    to: "/contact",
-  },
+  ...auth.isAuthenticated
+    ? [
+        {
+          title: "Nadzorna ploča",
+          icon: "mdi-view-dashboard",
+          to: "/dashboard",
+        },
+        {
+          title: "Moj profil",
+          icon: "mdi-card-account-details",
+          to: "/profile",
+        },
+      ]
+    : [{ title: "Početna stranica", icon: "mdi-home", to: "/" }],
+
+  ...user.role === "patient"
+    ? [
+        {
+          title: "Moji termini",
+          icon: "mdi-calendar-clock",
+          to: "/appointments",
+        },
+        {
+          title: "Zakaži pregled",
+          icon: "mdi-calendar-plus",
+          to: "/appointments/create",
+        },
+        { title: "Doktori", icon: "mdi-account-group", to: "/doctors" },
+        {
+          title: "Upravljanje računom",
+          icon: "mdi-account-wrench",
+          to: "/account-management",
+        },
+      ]
+    : [],
+
+  ...user.role === "doctor"
+    ? [
+        {
+          title: "Svi naručeni termini",
+          icon: "mdi-calendar-clock",
+          to: "/appointments",
+        },
+        {
+          title: "Upravljanje terminima",
+          icon: "mdi-calendar-edit",
+          to: "/appointments/manage",
+        },
+        {
+          title: "Moji pacijenti",
+          icon: "mdi-account-multiple",
+          to: "/patients",
+        },
+        { title: "Svi doktori", icon: "mdi-account-group", to: "/doctors" },
+        {
+          title: "Upravljanje računom",
+          icon: "mdi-account-wrench",
+          to: "/account-management",
+        },
+      ]
+    : [],
+
+  { title: "O nama", icon: "mdi-information", to: "/about" },
+  { title: "Kontaktirajte nas", icon: "mdi-phone", to: "/contact" },
 ];
 
-if (!authStore.auth.isAuthenticated) {
-  navItems.splice(0, 0, {
-    title: "Početna stranica",
-    icon: "mdi-home",
-    to: "/",
-  });
-  navItems.splice(1, 0, {
-    title: "Prijavi se",
-    icon: "mdi-login",
-    to: "/login",
-  });
-} else {
-  navItems.splice(0, 0, {
-    title: "Početna stranica",
-    icon: "mdi-view-dashboard",
-    to: "/dashboard",
-  });
-}
-
-if (role === "patient") {
-  navItems.splice(1, 0, {
-    title: "Moj profil",
-    icon: "mdi-account",
-    to: "/patient",
-  });
-  navItems.splice(2, 0, {
-    title: "Moji termini",
-    icon: "mdi-calendar-clock",
-    to: "/appointments",
-  });
-  navItems.splice(3, 0, {
-    title: "Zakaži pregled",
-    icon: "mdi-calendar-plus",
-    to: "/appointments/create",
-  });
-  navItems.splice(4, 0, {
-    title: "Doktori",
-    icon: "mdi-account-group",
-    to: "/doctors",
-  });
-  navItems.splice(5, 0, {
-    title: "Postavke",
-    icon: "mdi-cog",
-    to: "/settings",
-  });
-} else if (role === "doctor") {
-  navItems.splice(1, 0, {
-    title: "Moj profil",
-    icon: "mdi-account",
-    to: "/doctor",
-  });
-  navItems.splice(2, 0, {
-    title: "Naručeni termini",
-    icon: "mdi-calendar-clock",
-    to: "/appointments",
-  });
-  navItems.splice(3, 0, {
-    title: "Upravljanje terminima",
-    icon: "mdi-calendar-edit",
-    to: "/appointments/manage",
-  })
-  navItems.splice(4, 0, {
-    title: "Moji pacijenti",
-    icon: "mdi-account-multiple",
-    to: "/patients",
-  });
-  navItems.splice(5, 0, {
-    title: "Svi doktori",
-    icon: "mdi-account-group",
-    to: "/doctors",
-  });
-  navItems.splice(6, 0, {
-    title: "Postavke",
-    icon: "mdi-cog",
-    to: "/settings",
-  });
-}
+const logOut = async () => {
+  try {
+    await logout();
+    await router.push("/");
+    window.location.reload();
+  } catch (error) {
+    console.error("Error during logout: ", error);
+    throw error;
+  }
+};
 </script>
 
 <template>
-  <v-navigation-drawer width="300" location="left" sm="temporary" md="permanent">
+  <v-navigation-drawer
+    width="300"
+    location="left"
+    sm="temporary"
+    md="permanent"
+  >
     <v-list color="blue-darken-2" nav>
       <v-list-item
-          v-if="authStore.auth.isAuthenticated"
-          lines="two"
-          prepend-icon="mdi-account-circle"
-          :title="profile.firstName + ' ' + profile.lastName"
-          :subtitle="profile.email"
-      ></v-list-item>
+        v-if="auth.isAuthenticated"
+        lines="two"
+        :title="profile.firstName + ' ' + profile.lastName"
+        :subtitle="user.email"
+      >
+        <template v-slot:prepend>
+          <ProfilePicture picture-size="50"/>
+        </template>
+      </v-list-item>
       <v-list-item
-          v-for="item in navItems"
-          :key="item.title"
-          :prepend-icon="item.icon"
-          :link="true"
-          :to="item.to"
-          :title="item.title"
-      ></v-list-item>
+        v-for="item in navItems"
+        :key="item.title"
+        :prepend-icon="item.icon"
+        :link="true"
+        :to="item.to"
+        exact
+        :title="item.title"
+      />
     </v-list>
+
+    <template v-slot:append>
+      <div class="pa-4">
+        <RouterLink
+          v-if="!auth.isAuthenticated"
+          to="/login"
+          class="no-underline"
+        >
+          <v-btn
+            slim
+            block
+            append-icon="mdi-login"
+            variant="outlined"
+            color="blue-darken-2"
+            text="Prijavi se"
+          />
+        </RouterLink>
+        <v-btn
+          v-else-if="auth.isAuthenticated"
+          slim
+          block
+          append-icon="mdi-logout"
+          @click="logOut"
+          variant="flat"
+          color="blue-darken-2"
+          text="Odjavi se"
+        />
+      </div>
+    </template>
   </v-navigation-drawer>
 </template>
 
 <style scoped>
-
+.no-underline {
+  text-decoration: none;
+}
 </style>

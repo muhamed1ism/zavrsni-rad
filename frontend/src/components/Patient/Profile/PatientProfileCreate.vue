@@ -1,60 +1,25 @@
 <script setup>
-import {computed, ref} from "vue";
-import { useDoctorStore } from "@/stores/useDoctorStore";
-import { useUserStore } from "@/stores/useUserStore";
-import { useAuthStore } from "@/stores/useAuthStore";
-import router from "@/router";
+import { computed, ref } from "vue";
+import { usePatientStore } from "@/stores/usePatientStore";
+import { rules } from "@/components/FormValidationRules.vue";
 
-const userStore = useUserStore();
-const authStore = useAuthStore();
-const role = userStore.user.role;
-const isDark = localStorage.getItem("darkTheme") === "true";
+const { createPatient } = usePatientStore();
 const body = document.querySelector("body");
-
-const backgroundImage = "../../background.png";
+const isDark = localStorage.getItem("theme") === "dark";
 
 const form = ref({
   firstName: "",
   lastName: "",
-  specialty: "",
   address: "",
   phoneNumber: "",
   dateOfBirth: null,
 });
 
-const firstNameRule = [
-  (v) => !!v || "Ime je obavezno",
-  (v) => (v && v.length <= 20) || "Ime mora biti manje od 20 karaktera",
-];
-
-const lastNameRule = [
-  (v) => !!v || "Prezime je obavezno",
-  (v) => (v && v.length <= 20) || "Prezime mora biti manje od 20 karaktera",
-];
-
-const specialtyRule = [
-  (v) => !!v || "Specijalnost je obavezna",
-  (v) =>
-    (v && v.length <= 20) || "Specijalnost mora biti manje od 20 karaktera",
-];
-
-const phoneNumberRule = [
-  (v) => {
-    const numberWithoutSpace = v.replace(/\s+/g, "");
-
-    const regex = /^[0-9+]+$/;
-    if (!regex.test(numberWithoutSpace) && numberWithoutSpace !== "") {
-      return "Broj telefona nije validan. Dozvoljeni su samo brojevi i znak +";
-    }
-    return true;
-  },
-];
-
 const maxDate = computed(() => {
   const date = new Date();
-  date.setFullYear(date.getFullYear() - 18);
+  date.setFullYear(date.getFullYear() - 13);
   return date;
-})
+});
 
 const dateFormat = (date) => {
   return date.toLocaleDateString("hr-HR");
@@ -67,31 +32,20 @@ const convertToISO = (date) => {
 const submit = async () => {
   try {
     form.value.dateOfBirth = convertToISO(form.value.dateOfBirth);
-    const doctorStore = useDoctorStore();
-    await doctorStore.createDoctor(form.value);
+    await createPatient(form.value);
   } catch (error) {
     console.log(error);
   }
 };
-
-if (!authStore.auth.isAuthenticated) {
-  router.push("/login");
-} else if (authStore.auth.hasProfile) {
-  router.push("/doctor");
-} else if (role !== "doctor") {
-  router.push("/dashboard");
-}
-
 </script>
 
 <template>
-  <v-img :src="backgroundImage" cover height="100%">
-  <v-container class="fluid fill-height">
+  <v-container fluid class="fill-height">
     <v-row class="justify-center align-center mb-16">
-      <v-col cols="12" sm="8" md="6" lg="4">
-        <v-card border variant="flat" class="pa-4 mx-auto">
+      <v-col cols="12" sm="8" md="6" lg="5">
+        <v-card border variant="flat" class="pa-4 my-12">
           <v-card-title class="text-center text-h5"
-            >Unesi svoje podatke</v-card-title
+            >Unesite svoje podatke</v-card-title
           >
           <v-card-item>
             <v-sheet>
@@ -99,30 +53,19 @@ if (!authStore.auth.isAuthenticated) {
                 <div class="text-subtitle-1 text-medium-emphasis">Ime</div>
                 <v-text-field
                   density="compact"
-                  placeholder="Unesi ime"
+                  placeholder="Unesite ime"
                   variant="outlined"
                   v-model="form.firstName"
-                  :rules="firstNameRule"
+                  :rules="rules.firstName"
                 ></v-text-field>
 
                 <div class="text-subtitle-1 text-medium-emphasis">Prezime</div>
                 <v-text-field
                   density="compact"
-                  placeholder="Unesi prezime"
+                  placeholder="Unesite prezime"
                   variant="outlined"
                   v-model="form.lastName"
-                  :rules="lastNameRule"
-                ></v-text-field>
-
-                <div class="text-subtitle-1 text-medium-emphasis">
-                  Specijalnost
-                </div>
-                <v-text-field
-                  density="compact"
-                  placeholder="Unesi specijalnost"
-                  variant="outlined"
-                  v-model="form.specialty"
-                  :rules="specialtyRule"
+                  :rules="rules.lastName"
                 ></v-text-field>
 
                 <div class="text-subtitle-1 text-medium-emphasis">
@@ -130,7 +73,7 @@ if (!authStore.auth.isAuthenticated) {
                 </div>
                 <v-text-field
                   density="compact"
-                  placeholder="Unesi adresu stanovanja"
+                  placeholder="Unesite adresu stanovanja"
                   variant="outlined"
                   v-model="form.address"
                 ></v-text-field>
@@ -140,10 +83,10 @@ if (!authStore.auth.isAuthenticated) {
                 </div>
                 <v-text-field
                   density="compact"
-                  placeholder="Unesi broj telefona"
+                  placeholder="Unesite broj telefona"
                   variant="outlined"
                   v-model="form.phoneNumber"
-                  :rules="phoneNumberRule"
+                  :rules="rules.phoneNumber"
                 ></v-text-field>
 
                 <div class="text-subtitle-1 text-medium-emphasis">
@@ -153,7 +96,7 @@ if (!authStore.auth.isAuthenticated) {
                   <v-row justify="center">
                     <VueDatePicker
                       v-model="form.dateOfBirth"
-                      placeholder="Unesi datum rođenja"
+                      placeholder="Unesite datum rođenja"
                       :format="dateFormat"
                       locale="hr"
                       auto-apply
@@ -192,5 +135,6 @@ if (!authStore.auth.isAuthenticated) {
       </v-col>
     </v-row>
   </v-container>
-</v-img>
 </template>
+
+<style scoped></style>

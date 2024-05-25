@@ -66,7 +66,7 @@ export const useDoctorStore = defineStore("doctor", {
         }
       } catch (error) {
         if (error.response.status === 404) {
-          await router.push("/doctor/create");
+          await router.push("/profile/create");
           window.location.reload();
         }
         console.error("Failed to get doctor: " + error);

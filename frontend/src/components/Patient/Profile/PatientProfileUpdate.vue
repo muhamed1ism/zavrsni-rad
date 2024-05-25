@@ -1,19 +1,14 @@
 <script setup>
-import {computed, ref} from "vue";
+import { computed, ref } from "vue";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { useUserStore } from "@/stores/useUserStore";
 import { usePatientStore } from "@/stores/usePatientStore";
+import { rules } from "@/components/FormValidationRules.vue";
 import router from "@/router";
 
-const authStore = useAuthStore();
-const patientStore = usePatientStore();
-const role = useUserStore().user.role;
-const isDark = localStorage.getItem("darkTheme") === "true";
+const { auth } = useAuthStore();
+const { patient, updatePatient } = usePatientStore();
 const body = document.querySelector("body");
-
-const backgroundImage = "../../background.png";
-
-const patient = patientStore.patient;
+const isDark = localStorage.getItem("theme") === "dark";
 
 const form = ref({
   firstName: patient.firstName || "",
@@ -35,83 +30,82 @@ const dateFormat = (date) => {
 
 const submit = async () => {
   try {
-    await patientStore.updatePatient(form.value);
-    await router.push("/patient");
+    await updatePatient(form.value);
+    await router.push("/profile");
   } catch (error) {
     console.log(error);
   }
 };
 
-if (!authStore.auth.isAuthenticated) {
-  router.push("/login");
-} else if (!authStore.auth.hasProfile) {
-  router.push("/patient/create");
-} else if (role !== "patient") {
-  router.push("/dashboard");
-}
-
+if (!auth.isAuthenticated) router.push("/login");
+else if (!auth.hasProfile) router.push("/profile/create");
 </script>
 
 <template>
-  <v-img :src="backgroundImage" cover height="100%">
-    <v-btn
-        @click="router.go(-1)"
-        size="large"
-        class="mt-6 mx-6">
-      <v-icon>mdi-arrow-left</v-icon>
-    </v-btn>
-  <v-container class="fluid fill-height">
+  <v-container fluid class="fill-height">
     <v-row class="justify-center align-center mb-16">
-      <v-col cols="12" sm="8" md="6" lg="4">
-        <v-card border variant="flat" class="pa-4 mx-auto">
+      <v-col cols="12" sm="8" md="6" lg="5">
+        <v-card border variant="flat" class="pa-4 my-12">
           <v-card-title class="text-center text-h5">Moji podaci</v-card-title>
           <v-card-item>
             <v-sheet>
               <v-form @submit.prevent="submit">
-                <div class="text-subtitle-1 text-medium-emphasis">Ime</div>
+                <v-label
+                  class="text-subtitle-1 text-hard-emphasis"
+                  text="Ime"
+                />
                 <v-text-field
                   density="compact"
-                  placeholder="Unesi ime"
+                  placeholder="Unesite ime"
                   variant="outlined"
                   v-model="form.firstName"
+                  :rules="rules.firstName"
                 ></v-text-field>
 
-                <div class="text-subtitle-1 text-medium-emphasis">Prezime</div>
+                <v-label
+                  class="text-subtitle-1 text-hard-emphasis"
+                  text="Prezime"
+                />
                 <v-text-field
                   density="compact"
-                  placeholder="Unesi prezime"
+                  placeholder="Unesite prezime"
                   variant="outlined"
                   v-model="form.lastName"
+                  :rules="rules.lastName"
                 ></v-text-field>
 
-                <div class="text-subtitle-1 text-medium-emphasis">
-                  Adresa stanovanja
-                </div>
+                <v-label
+                  class="text-subtitle-1 text-hard-emphasis"
+                  text="Adresa stanovanja"
+                />
                 <v-text-field
                   density="compact"
-                  placeholder="Unesi adresu stanovanja"
+                  placeholder="Unesite adresu stanovanja"
                   variant="outlined"
                   v-model="form.address"
                 ></v-text-field>
 
-                <div class="text-subtitle-1 text-medium-emphasis">
-                  Broj telefona
-                </div>
+                <v-label
+                  class="text-subtitle-1 text-hard-emphasis"
+                  text="Broj telefona"
+                />
                 <v-text-field
                   density="compact"
-                  placeholder="Unesi broj telefona"
+                  placeholder="Unesite broj telefona"
                   variant="outlined"
                   v-model="form.phoneNumber"
+                  :rules="rules.phoneNumber"
                 ></v-text-field>
 
-                <div class="text-subtitle-1 text-medium-emphasis">
-                  Datum rođenja
-                </div>
+                <v-label
+                  class="text-subtitle-1 text-hard-emphasis"
+                  text="Datum rođenja"
+                />
                 <v-container>
                   <v-row justify="center">
                     <VueDatePicker
                       v-model="form.dateOfBirth"
-                      placeholder="Unesi datum rođenja"
+                      placeholder="Unesite datum rođenja"
                       :format="dateFormat"
                       locale="hr"
                       auto-apply
@@ -150,9 +144,6 @@ if (!authStore.auth.isAuthenticated) {
       </v-col>
     </v-row>
   </v-container>
-  </v-img>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

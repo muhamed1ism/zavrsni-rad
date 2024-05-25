@@ -1,45 +1,33 @@
 <script setup>
+import router from "@/router";
 import { ref } from "vue";
 import { useAuthStore } from "@/stores/useAuthStore";
-import router from "@/router";
 import { usePatientStore } from "@/stores/usePatientStore";
 import { useDoctorStore } from "@/stores/useDoctorStore";
 import { useUserStore } from "@/stores/useUserStore";
+import { rules } from "@/components/FormValidationRules.vue";
+import BackButton from "@/components/BackButton.vue";
+import Background from "@/components/Background.vue";
+
+const { auth, login } = useAuthStore();
+const { user, getUser } = useUserStore();
+const { getPatient } = usePatientStore();
+const { getDoctor } = useDoctorStore();
 
 const form = ref({
   email: "",
   password: "",
 });
-
 const alertVisible = ref(false);
 const alertMessage = ref("");
-
-const backgroundImage = "../../background.png";
-
-const email_rule = [
-  (v) => !!v || "Email je obavezan",
-  (v) => /.+@.+/.test(v) || "Email nije validanog formata",
-];
-
-const password_rule = [
-  (v) => !!v || "Lozinka je obavezna",
-  (v) => v.length >= 8 || "Lozinka mora imati najmanje 8 karaktera",
-];
-
 const visible = ref(false);
-
-const authStore = useAuthStore();
 
 const submit = async () => {
   try {
-    await authStore.login(form.value);
-    await useUserStore().getUser();
-    const role = useUserStore().user.role;
-    if (role === "patient") {
-      await usePatientStore().getPatient();
-    } else if (role === "doctor") {
-      await useDoctorStore().getDoctor();
-    }
+    await login(form.value);
+    await getUser();
+    if (user.role === "patient") await getPatient();
+    else if (user.role === "doctor") await getDoctor();
     await router.push("/dashboard");
     window.location.reload();
   } catch (error) {
@@ -51,28 +39,24 @@ const submit = async () => {
   }
 };
 
-if (authStore.auth.isAuthenticated) {
-  router.push("/dashboard");
-}
+if (auth.isAuthenticated) router.push("/dashboard");
 </script>
 
 <template>
-  <v-img :src="backgroundImage" cover height="100%">
-    <v-btn
-        @click="router.go(-1)"
-        size="large"
-        class="mt-6 mx-6">
-      <v-icon>mdi-arrow-left</v-icon>
-    </v-btn>
-    <v-container class="fluid fill-height">
-      <v-row class="justify-center align-center mb-16">
+  <Background>
+    <BackButton position="absolute" />
+    <v-container fluid class="fill-height">
+      <v-row class="justify-center mb-16">
         <v-col cols="12" sm="8" md="6" lg="4">
-          <v-card border variant="flat" class="pa-4 mx-auto">
+          <v-card border variant="flat" class="pa-4 my-12">
             <v-card-title class="text-center text-h5">Prijava</v-card-title>
             <v-card-item>
               <v-sheet>
                 <v-form @submit.prevent="submit">
-                  <div class="text-subtitle-1 text-medium-emphasis">Email</div>
+                  <v-label
+                    class="text-subtitle-1 text-hard-emphasis"
+                    text="Email"
+                  />
 
                   <v-text-field
                     density="compact"
@@ -80,7 +64,7 @@ if (authStore.auth.isAuthenticated) {
                     prepend-inner-icon="mdi-email-outline"
                     variant="outlined"
                     v-model="form.email"
-                    :rules="email_rule"
+                    :rules="rules.email"
                   ></v-text-field>
 
                   <div
@@ -98,7 +82,7 @@ if (authStore.auth.isAuthenticated) {
                     variant="outlined"
                     v-model="form.password"
                     @click:append-inner="visible = !visible"
-                    :rules="password_rule"
+                    :rules="rules.password"
                   ></v-text-field>
 
                   <v-alert
@@ -123,15 +107,11 @@ if (authStore.auth.isAuthenticated) {
 
                   <v-card-text class="text-center">
                     <RouterLink
-                      class="text-blue-darken-2"
-                      append-icon="mdi-chevron-right"
-                      to="/register"
-                    ></RouterLink>
-                    <a
                       class="text-blue-darken-2 text-decoration-none"
-                      href="/register"
-                      >Napravi račun <v-icon icon="mdi-chevron-right"></v-icon>
-                    </a>
+                      to="/register"
+                    >
+                      Napravi račun <v-icon icon="mdi-chevron-right" />
+                    </RouterLink>
                   </v-card-text>
                 </v-form>
               </v-sheet>
@@ -140,9 +120,7 @@ if (authStore.auth.isAuthenticated) {
         </v-col>
       </v-row>
     </v-container>
-  </v-img>
+  </Background>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

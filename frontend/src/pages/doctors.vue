@@ -3,13 +3,13 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { useDoctorStore } from "@/stores/useDoctorStore";
 import { useUserStore } from "@/stores/useUserStore";
 import router from "@/router";
+import BackButton from "@/components/BackButton.vue";
 
-const authStore = useAuthStore();
-const userStore = useUserStore();
-const doctorStore = useDoctorStore();
-const role = userStore.user.role;
+const { auth } = useAuthStore();
+const { user } = useUserStore();
+const { doctors, getDoctors } = useDoctorStore();
 
-doctorStore.getDoctors();
+getDoctors();
 
 const doctorHeaders = [
   { title: "ID", value: "id", align: "start" },
@@ -20,26 +20,19 @@ const doctorHeaders = [
   },
 ];
 
-if (!authStore.auth.isAuthenticated) {
-  router.push("/login");
-} else if (!authStore.auth.hasProfile) {
-  router.push("/dashboard")
-}
+if (!auth.isAuthenticated) router.push("/error/401");
+else if (!auth.hasProfile) router.push("/profile/create");
 </script>
 
 <template>
+  <BackButton />
   <v-container>
-    <v-btn
-        @click="router.go(-1)"
-        size="large"
-        class="mt-2 mx-2">
-      <v-icon>mdi-arrow-left</v-icon>
-    </v-btn>
-    <h1 class="mb-6 mt-4 mx-2 font-weight-medium">Doktori</h1>
-    <v-card border elevation="0" class="mx-6">
+    <h1 class="mb-4 my-4 mx-2 font-weight-medium">Doktori</h1>
+    <v-card border elevation="0">
       <v-data-table
         :headers="doctorHeaders"
-        :items="doctorStore.doctors"
+        :items="doctors"
+        items-per-page-text="Broj stavki po stranici"
         :items-per-page="10"
       >
         <template v-slot:no-data>
@@ -47,28 +40,28 @@ if (!authStore.auth.isAuthenticated) {
         </template>
       </v-data-table>
     </v-card>
-    <v-row class="mx-6 mt-4" justify="end">
+    <v-row class="mx-2 mt-4" justify="end">
       <v-btn
-          v-if="role === 'doctor'"
-          to="/patients"
-          prepend-icon="mdi-account-group"
-          append-icon="mdi-arrow-right"
-          variant="flat"
-          elevation="0"
-          text="Moji pacijenti"
-          size="large"
-          border
+        v-if="user.role === 'doctor'"
+        to="/patients"
+        prepend-icon="mdi-account-group"
+        append-icon="mdi-arrow-right"
+        variant="flat"
+        elevation="0"
+        text="Moji pacijenti"
+        size="large"
+        border
       />
       <v-btn
-          v-if="role === 'patient'"
-          to="/appointments"
-          prepend-icon="mdi-calendar-clock"
-          append-icon="mdi-arrow-right"
-          variant="flat"
-          elevation="0"
-          text="Moji termini"
-          size="large"
-          border
+        v-if="user.role === 'patient'"
+        to="/appointments"
+        prepend-icon="mdi-calendar-clock"
+        append-icon="mdi-arrow-right"
+        variant="flat"
+        elevation="0"
+        text="Moji termini"
+        size="large"
+        border
       />
     </v-row>
   </v-container>

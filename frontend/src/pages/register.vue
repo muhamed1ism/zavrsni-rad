@@ -1,10 +1,18 @@
 <script setup>
+import router from "@/router";
 import { ref } from "vue";
 import { useAuthStore } from "@/stores/useAuthStore";
-import router from "@/router";
 import { useUserStore } from "@/stores/useUserStore";
 import { usePatientStore } from "@/stores/usePatientStore";
 import { useDoctorStore } from "@/stores/useDoctorStore";
+import { rules } from "@/components/FormValidationRules.vue";
+import BackButton from "@/components/BackButton.vue";
+import Background from "@/components/Background.vue";
+
+const { user, getUser } = useUserStore();
+const { auth, register } = useAuthStore();
+const { getPatient } = usePatientStore();
+const { getDoctor } = useDoctorStore();
 
 const form = ref({
   email: "",
@@ -17,37 +25,12 @@ const alertVisible = ref(false);
 const alertMessage = ref("");
 const visible = ref(false);
 
-const backgroundImage = "../../background.png";
-
-const emailRule = [
-  (v) => !!v || "Email je obavezan",
-  (v) => /.+@.+/.test(v) || "Email nije validan",
-];
-
-const passwordRule = [
-  (v) => !!v || "Lozinka je obavezna",
-  (v) => (v && v.length >= 8) || "Lozinka mora biti duža od 8 karaktera",
-];
-
-const passwordConfirmRule = [
-  (v) => !!v || "Potvrda lozinke je obavezna",
-  (v) => v === form.value.password || "Lozinke se ne poklapaju",
-];
-
-const roleRule = [(v) => !!v || "Role je obavezan"];
-
-const authStore = useAuthStore();
-
 const submit = async () => {
   try {
-    await authStore.register(form.value);
-    await useUserStore().getUser();
-    const role = useUserStore().user.role;
-    if (role === "patient") {
-      await usePatientStore().getPatient();
-    } else if (role === "doctor") {
-      await useDoctorStore().getDoctor();
-    }
+    await register(form.value);
+    await getUser();
+    if (user.role === "patient") await getPatient();
+    else if (user.role === "doctor") await getDoctor();
     await router.push("/dashboard");
   } catch (error) {
     console.log(error);
@@ -61,113 +44,116 @@ const submit = async () => {
   }
 };
 
-if (authStore.auth.isAuthenticated) {
-  router.push("/dashboard");
-}
+if (auth.isAuthenticated) router.push("/dashboard");
 </script>
 
 <template>
-  <v-img :src="backgroundImage" cover height="100%">
-    <v-btn
-        @click="router.go(-1)"
-        size="large"
-        class="mt-6 mx-6">
-      <v-icon>mdi-arrow-left</v-icon>
-    </v-btn>
-  <v-container class="fluid fill-height">
-    <v-row class="justify-center align-center mb-16">
-      <v-col cols="12" sm="8" md="6" lg="4">
-        <v-card border variant="flat" class="pa-4 mx-auto">
-          <v-card-title class="text-center text-h5"
-            >Registracija računa</v-card-title
-          >
-          <v-card-item>
-            <v-sheet>
-              <v-form @submit.prevent="submit">
-                <div class="text-subtitle-1 text-medium-emphasis">Email</div>
-                <v-text-field
-                  density="compact"
-                  placeholder="Email adresa"
-                  variant="outlined"
-                  v-model="form.email"
-                  :rules="emailRule"
-                ></v-text-field>
+  <Background>
+    <BackButton position="absolute" />
+    <v-container fluid class="fill-height">
+      <v-row class="justify-center mb-16">
+        <v-col cols="12" sm="8" md="6" lg="4">
+          <v-card border variant="flat" class="pa-4 my-12">
+            <v-card-title class="text-center text-h5"
+              >Registracija računa</v-card-title
+            >
+            <v-card-item>
+              <v-sheet>
+                <v-form @submit.prevent="submit">
+                  <v-label
+                    class="text-subtitle-1 text-hard-emphasis"
+                    text="Email"
+                  />
+                  <v-text-field
+                    density="compact"
+                    placeholder="Unesite email adresu"
+                    variant="outlined"
+                    v-model="form.email"
+                    :rules="rules.email"
+                  ></v-text-field>
 
-                <div class="text-subtitle-1 text-medium-emphasis">Lozinka</div>
-                <v-text-field
-                  :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
-                  :type="visible ? 'text' : 'password'"
-                  density="compact"
-                  placeholder="Unesite lozinku"
-                  variant="outlined"
-                  v-model="form.password"
-                  @click:append-inner="visible = !visible"
-                  :rules="passwordRule"
-                ></v-text-field>
+                  <v-label
+                    class="text-subtitle-1 text-hard-emphasis"
+                    text="Lozinka"
+                  />
+                  <v-text-field
+                    :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
+                    :type="visible ? 'text' : 'password'"
+                    density="compact"
+                    placeholder="Unesite lozinku"
+                    variant="outlined"
+                    v-model="form.password"
+                    @click:append-inner="visible = !visible"
+                    :rules="rules.password"
+                  ></v-text-field>
 
-                <div class="text-subtitle-1 text-medium-emphasis">
-                  Potvrdi lozinku
-                </div>
-                <v-text-field
-                  :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
-                  :type="visible ? 'text' : 'password'"
-                  density="compact"
-                  placeholder="Potvrdi lozinku"
-                  variant="outlined"
-                  v-model="form.passwordConfirm"
-                  @click:append-inner="visible = !visible"
-                  :rules="passwordConfirmRule"
-                ></v-text-field>
+                  <v-label
+                    class="text-subtitle-1 text-hard-emphasis"
+                    text="Potvrdi lozinku"
+                  />
+                  <v-text-field
+                    :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
+                    :type="visible ? 'text' : 'password'"
+                    density="compact"
+                    placeholder="Unesite ponovno lozinku"
+                    variant="outlined"
+                    v-model="form.passwordConfirm"
+                    @click:append-inner="visible = !visible"
+                    :rules="rules.passwordConfirm(form.password)"
+                  ></v-text-field>
 
-                <div
-                  class="mt-6 text-center text-subtitle-1 text-medium-emphasis"
-                >
-                  Da li si pacijent ili doktor?
-                </div>
-                <v-container class="d-flex justify-center align-content-center">
-                  <v-radio-group v-model="form.role" inline :rules="roleRule">
-                    <v-container class="d-flex justify-space-evenly">
-                      <v-radio
-                        label="Pacijent"
-                        color="blue"
-                        value="patient"
-                      ></v-radio>
-                      <v-radio
-                        label="Doktor"
-                        color="red"
-                        value="doctor"
-                      ></v-radio>
-                    </v-container>
-                  </v-radio-group>
-                </v-container>
+                  <div
+                    class="mt-6 text-center text-subtitle-1 text-medium-emphasis"
+                  >
+                    Da li ste pacijent ili doktor?
+                  </div>
+                  <v-container
+                    class="d-flex justify-center align-content-center"
+                  >
+                    <v-radio-group v-model="form.role" inline :rules="rules.role">
+                      <v-container class="d-flex justify-space-evenly">
+                        <v-radio
+                          label="Pacijent"
+                          color="blue"
+                          value="patient"
+                        ></v-radio>
+                        <v-radio
+                          label="Doktor"
+                          color="red"
+                          value="doctor"
+                        ></v-radio>
+                      </v-container>
+                    </v-radio-group>
+                  </v-container>
 
-                <v-alert
-                  v-model="alertVisible"
-                  density="compact"
+                  <v-alert
+                    v-model="alertVisible"
+                    density="compact"
                     variant="tonal"
-                  type="error">
-                  {{ alertMessage }}
-                </v-alert>
+                    type="error"
+                  >
+                    {{ alertMessage }}
+                  </v-alert>
 
-                <v-btn
-                  border
-                  type="submit"
-                  block
-                  variant="tonal"
-                  color="blue-darken-2"
-                  size="large"
-                  class="mb-8 mt-2"
-                  >Registriraj se</v-btn>
-              </v-form>
-            </v-sheet>
-          </v-card-item>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
-</v-img>
+                  <v-btn
+                    border
+                    type="submit"
+                    block
+                    variant="tonal"
+                    color="blue-darken-2"
+                    size="large"
+                    class="my-2"
+                    >Registriraj se</v-btn
+                  >
+                  <v-card-text class="text-center text-medium-emphasis pb-6">Imate li račun? <RouterLink to="/login" class="text-blue-darken-2 text-decoration-none">Prijavi se</RouterLink></v-card-text>
+                </v-form>
+              </v-sheet>
+            </v-card-item>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
+  </Background>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

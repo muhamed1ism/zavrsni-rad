@@ -68,7 +68,7 @@ export const useUserStore = defineStore("user", {
         );
         if (res.status === 200) {
           this.user.email = email;
-          await router.push("/settings");
+          await router.push("/account-management");
         }
       } catch (error) {
         console.error("Error updating email: ", error);
@@ -84,7 +84,7 @@ export const useUserStore = defineStore("user", {
           },
         });
         if (res.status === 200) {
-          await router.push("/settings");
+          await router.push("/account-management");
         }
       } catch (error) {
         console.error("Error updating password: ", error);

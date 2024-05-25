@@ -3,15 +3,15 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { useAppointmentStore } from "@/stores/useAppointmentStore";
 import { useUserStore } from "@/stores/useUserStore";
 import router from "@/router";
+import BackButton from "@/components/BackButton.vue";
 
-const userStore = useUserStore();
-const authStore = useAuthStore();
-const appointmentStore = useAppointmentStore();
-const role = userStore.user.role;
+const { user } = useUserStore();
+const { auth } = useAuthStore();
+const { appointments, approveAppointment, rejectAppointment, getAppointments } = useAppointmentStore();
 
 const approve = async (id) => {
   try {
-    await appointmentStore.approveAppointment(id);
+    await approveAppointment(id);
   } catch (error) {
     console.log(error);
   }
@@ -19,7 +19,7 @@ const approve = async (id) => {
 
 const reject = async (id) => {
   try {
-    await appointmentStore.rejectAppointment(id);
+    await rejectAppointment(id);
   } catch (error) {
     console.log(error);
   }
@@ -29,27 +29,22 @@ const formatDate = (date) => {
   return new Date(date).toLocaleDateString("hr-HR");
 };
 
-appointmentStore.getAppointments();
+getAppointments();
 
-if (!authStore.auth.isAuthenticated) {
-  router.push("/login");
-} else if (!authStore.auth.hasProfile || role !== "doctor") {
-  router.push("/dashboard");
-}
+if (!auth.isAuthenticated) router.push("/error/401");
+else if (user.role !== "doctor") router.push("/error/403");
+else if (!auth.hasProfile) router.push("/profile/create");
 </script>
 
 <template>
+  <BackButton />
   <v-container>
-    <v-btn
-        @click="router.go(-1)"
-        size="large"
-        class="mt-2 mx-2">
-      <v-icon>mdi-arrow-left</v-icon>
-    </v-btn>
-    <h1 class="mt-4 mx-2 mb-6 font-weight-medium">Upravljenje narudžbama pacijenata</h1>
-    <v-row class="mx-6">
+    <h1 class="mb-4 my-4 mx-2 font-weight-medium">
+      Upravljenje narudžbama pacijenata
+    </h1>
+    <v-row class="mx-0">
       <template
-        v-for="appointment in appointmentStore.appointments"
+        v-for="appointment in appointments"
         :key="appointment.id"
       >
         <v-col sm="4" md="3" lg="3" v-if="appointment.id !== null">
@@ -73,7 +68,6 @@ if (!authStore.auth.isAuthenticated) {
                   <h4 class="font-weight-medium">Status:</h4>
                   <p class="ml-5">{{ appointment.status }}</p>
                 </v-row>
-
               </v-card-text>
               <v-card-actions
                 v-if="appointment.status !== 'otkazan'"
@@ -103,17 +97,29 @@ if (!authStore.auth.isAuthenticated) {
           </v-card>
         </v-col>
       </template>
+      <template v-if="appointments.length === 0">
+        <v-card border elevation="0" class="py-11 my-4 flex-fill">
+          <v-card-item>
+            <v-card-title>
+              <h4 class="font-weight-medium text-center text-medium-emphasis">
+                Nema naručenih termina
+              </h4>
+            </v-card-title>
+          </v-card-item>
+        </v-card>
+      </template>
     </v-row>
-    <v-row class="mx-9 mt-4" justify="end">
+
+    <v-row class="mx-2 mt-4" justify="end">
       <RouterLink to="/appointments">
         <v-btn
-            prepend-icon="mdi-calendar-clock"
-            append-icon="mdi-arrow-right"
-            variant="flat"
-            elevation="0"
-            text="Naručeni termini"
-            size="large"
-            border
+          prepend-icon="mdi-calendar-clock"
+          append-icon="mdi-arrow-right"
+          variant="flat"
+          elevation="0"
+          text="Naručeni termini"
+          size="large"
+          border
         />
       </RouterLink>
     </v-row>

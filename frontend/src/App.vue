@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <AppBar />
-    <v-main class="h-100" style="background-color: rgba(18, 18, 18, 0.1)">
+    <v-main  class="h-100" style="background-color: rgba(18, 18, 18, 0.1)">
       <router-view />
 
     </v-main>

@@ -64,7 +64,7 @@ export const usePatientStore = defineStore("patient", {
       } catch (error) {
         if (error.response.status === 404) {
           useAuthStore().auth.hasProfile = false;
-          await router.push("/patient/create");
+          await router.push("/profile/create");
           window.location.reload();
         }
         console.error("Failed to get patient: ", error);
