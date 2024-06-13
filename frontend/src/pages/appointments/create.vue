@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import {onMounted, ref} from "vue";
 import { useUserStore } from "@/stores/useUserStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useDoctorStore } from "@/stores/useDoctorStore";
@@ -8,21 +8,25 @@ import router from "@/router";
 import BackButton from "@/components/BackButton.vue";
 import Background from "@/components/Background.vue";
 
+const doctors = ref([]);
 const form = ref({
   doctorId: "",
   date: null,
   time: "",
 });
 
-const { user } = useUserStore();
-const { auth } = useAuthStore();
-const { doctors, getDoctors } = useDoctorStore();
-const { createAppointment } = useAppointmentStore();
+const userStore = useUserStore();
+const authStore = useAuthStore();
+const appointmentStore = useAppointmentStore();
+const doctorStore = useDoctorStore();
 
 const isDark = localStorage.getItem("darkTheme") === "true";
 const body = document.querySelector("body");
 
-getDoctors();
+onMounted(async () => {
+  await doctorStore.getDoctors();
+  doctors.value = doctorStore.doctors;
+});
 
 const dateFormat = (date) => {
   return date.toLocaleDateString("hr-HR");
@@ -36,15 +40,15 @@ const disabledTimes = [
 
 const submit = async () => {
   try {
-    await createAppointment(form.value);
+    await appointmentStore.createAppointment(form.value);
   } catch (error) {
     console.log(error);
   }
 };
 
-if (!auth.isAuthenticated) router.push("/error/401");
-else if (user.role !== "patient") router.push("/error/403")
-else if (!auth.hasProfile)  router.push("/profile/create");
+if (!authStore.auth.isAuthenticated) router.push("/error/401");
+else if (userStore.user.role !== "patient") router.push("/error/403")
+else if (!authStore.auth.hasProfile)  router.push("/profile/create");
 </script>
 
 <template>

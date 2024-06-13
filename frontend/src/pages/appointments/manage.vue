@@ -4,69 +4,96 @@ import { useAppointmentStore } from "@/stores/useAppointmentStore";
 import { useUserStore } from "@/stores/useUserStore";
 import router from "@/router";
 import BackButton from "@/components/BackButton.vue";
+import {computed, onMounted, ref, watch} from "vue";
 
-const { user } = useUserStore();
-const { auth } = useAuthStore();
-const { appointments, approveAppointment, rejectAppointment, getAppointments } = useAppointmentStore();
+const appointments = ref([]);
+const search = ref("");
 
-const approve = async (id) => {
-  try {
-    await approveAppointment(id);
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const reject = async (id) => {
-  try {
-    await rejectAppointment(id);
-  } catch (error) {
-    console.log(error);
-  }
-};
+const userStore = useUserStore();
+const authStore = useAuthStore();
+const appointmentStore = useAppointmentStore();
 
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString("hr-HR");
 };
 
-getAppointments();
+onMounted(async () => {
+  await appointmentStore.getAppointments();
+  appointments.value = appointmentStore.appointments;
+});
 
-if (!auth.isAuthenticated) router.push("/error/401");
-else if (user.role !== "doctor") router.push("/error/403");
-else if (!auth.hasProfile) router.push("/profile/create");
+watch(
+    () => appointmentStore.appointments,
+    (newAppointments) => {
+      appointments.value = newAppointments;
+    }
+);
+
+const filteredAppointments = computed(() => {
+  if (!search.value) return appointments.value;
+  return appointments.value.filter((appointment) => {
+    const lowerCaseSearchTerm = search.value.toLowerCase();
+    const date = formatDate(appointment.date);
+    return appointment.patientName.toLowerCase().includes(lowerCaseSearchTerm) ||
+        date.includes(lowerCaseSearchTerm) ||
+        appointment.time.includes(lowerCaseSearchTerm) ||
+        appointment.status.toLowerCase().includes(lowerCaseSearchTerm);
+  });
+})
+
+if (!authStore.auth.isAuthenticated) router.push("/error/401");
+else if (userStore.user.role !== "doctor") router.push("/error/403");
+else if (!authStore.auth.hasProfile) router.push("/profile/create");
 </script>
 
 <template>
   <BackButton />
   <v-container>
-    <h1 class="mb-4 my-4 mx-2 font-weight-medium">
-      Upravljenje narudžbama pacijenata
-    </h1>
+    <v-row class="mx-2 d-flex align-center">
+      <v-col>
+        <h1 class="mb-4 my-4 font-weight-medium">
+          Upravljenje narudžbama pacijenata
+        </h1>
+      </v-col>
+      <v-col class="mb-4" cols="12" sm="12" md="4">
+        <v-text-field
+            v-model="search"
+            prepend-inner-icon="mdi-magnify"
+            label="Pretraži"
+            variant="outlined"
+            density="compact"
+            single-line
+            hide-details
+        />
+      </v-col>
+    </v-row>
     <v-row class="mx-0">
       <template
-        v-for="appointment in appointments"
+        v-for="appointment in filteredAppointments"
         :key="appointment.id"
       >
-        <v-col sm="4" md="3" lg="3" v-if="appointment.id !== null">
+        <v-col cols="12" sm="6" md="3" lg="3" xl="2" v-if="appointment.id !== null">
           <v-card border elevation="0">
             <v-card-item>
-              <v-card-title class="mb-6 mt-2 mx-2">
-                <h4 class="font-weight-medium">
-                  Pacijent: {{ appointment.patientName }}
-                </h4>
+              <v-card-title class="mb-6 mt-2 mx-2 wrap-text">
+                <h4 class="font-weight-medium">Pacijent: </h4>
+                <p class="font-weight-regular text-h5">{{ appointment.patientName }}</p>
               </v-card-title>
-              <v-card-text class="mx-2">
-                <v-row class="mb-2">
+              <v-card-text class="mx-2" :class="$vuetify.display.md ? 'ml-0' : 'ml-4'">
+                <v-row class="mb-2 d-flex justify-space-between">
                   <h4 class="font-weight-medium">Datum:</h4>
-                  <p class="ml-4">{{ formatDate(appointment.date) }}</p>
+                  <p :class="$vuetify.display.md ? 'ml-1' : 'ml-4'">{{ formatDate(appointment.date) }}</p>
+                  <p></p>
                 </v-row>
-                <v-row class="mb-2">
+                <v-row class="mb-2 d-flex justify-space-between">
                   <h4 class="font-weight-medium">Vrijeme:</h4>
                   <p class="ml-3">{{ appointment.time }}</p>
+                  <p></p>
                 </v-row>
-                <v-row class="mb-1">
+                <v-row class="mb-1 d-flex justify-space-between">
                   <h4 class="font-weight-medium">Status:</h4>
                   <p class="ml-5">{{ appointment.status }}</p>
+                  <p></p>
                 </v-row>
               </v-card-text>
               <v-card-actions
@@ -77,14 +104,14 @@ else if (!auth.hasProfile) router.push("/profile/create");
                   class="flex-fill"
                   color="blue-darken-2"
                   variant="tonal"
-                  @click="approve(appointment.id)"
+                  @click="appointmentStore.approveAppointment(appointment.id)"
                   >Odobri</v-btn
                 >
                 <v-btn
                   class="flex-fill"
                   color="error"
                   variant="tonal"
-                  @click="reject(appointment.id)"
+                  @click="appointmentStore.rejectAppointment(appointment.id)"
                   >Odbij</v-btn
                 >
               </v-card-actions>
@@ -126,4 +153,10 @@ else if (!auth.hasProfile) router.push("/profile/create");
   </v-container>
 </template>
 
-<style scoped></style>
+<style scoped>
+.wrap-text {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+</style>

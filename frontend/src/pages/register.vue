@@ -9,28 +9,27 @@ import { rules } from "@/components/FormValidationRules.vue";
 import BackButton from "@/components/BackButton.vue";
 import Background from "@/components/Background.vue";
 
-const { user, getUser } = useUserStore();
-const { auth, register } = useAuthStore();
-const { getPatient } = usePatientStore();
-const { getDoctor } = useDoctorStore();
-
 const form = ref({
   email: "",
   password: "",
   passwordConfirm: "",
   role: "patient",
 });
-
 const alertVisible = ref(false);
 const alertMessage = ref("");
 const visible = ref(false);
 
+const userStore = useUserStore();
+const authStore = useAuthStore();
+const patientStore = usePatientStore();
+const doctorStore = useDoctorStore();
+
 const submit = async () => {
   try {
-    await register(form.value);
-    await getUser();
-    if (user.role === "patient") await getPatient();
-    else if (user.role === "doctor") await getDoctor();
+    await authStore.register(form.value);
+    await userStore.getUser();
+    if (userStore.user.role === "patient") await patientStore.getPatient();
+    else if (userStore.user.role === "doctor") await doctorStore.getDoctor();
     await router.push("/dashboard");
   } catch (error) {
     console.log(error);
@@ -44,7 +43,7 @@ const submit = async () => {
   }
 };
 
-if (auth.isAuthenticated) router.push("/dashboard");
+if (authStore.auth.isAuthenticated) router.push("/dashboard");
 </script>
 
 <template>

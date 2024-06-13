@@ -1,19 +1,23 @@
+import os
 from flask import Flask
 
-from app.models import db
-from app.extensions import jwt, argon2, cors, bp
-from app import routes
+from config import DevelopmentConfig, TestingConfig, ProductionConfig
+from app.extensions import jwt, argon2, cors, db
+from app.routes import register_blueprints
 
 
-def create_app(test_config=None):
+def create_app():
     # Flask
     app = Flask(__name__)
 
-    # Config
-    if test_config is None:
-        app.config.from_pyfile('config.py', silent=True)
-    else:
-        app.config.from_mapping(test_config)
+    # Configuration
+    config = {
+        'development': DevelopmentConfig,
+        'testing': TestingConfig,
+        'production': ProductionConfig
+    }
+    config_name = os.getenv('FLASK_ENV', 'development')
+    app.config.from_object(config[config_name])
 
     # CORS
     cors.init_app(app)
@@ -25,7 +29,7 @@ def create_app(test_config=None):
     argon2.init_app(app)
 
     # Blueprint
-    app.register_blueprint(bp)
+    register_blueprints(app)
 
     # Database
     db.init_app(app)

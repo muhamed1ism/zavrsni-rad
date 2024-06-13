@@ -1,22 +1,21 @@
 <script setup>
 import { computed, ref } from "vue";
-import { useAuthStore } from "@/stores/useAuthStore";
 import { usePatientStore } from "@/stores/usePatientStore";
 import { rules } from "@/components/FormValidationRules.vue";
 import router from "@/router";
 
-const { auth } = useAuthStore();
-const { patient, updatePatient } = usePatientStore();
-const body = document.querySelector("body");
-const isDark = localStorage.getItem("theme") === "dark";
+const patientStore = usePatientStore();
 
 const form = ref({
-  firstName: patient.firstName || "",
-  lastName: patient.lastName || "",
-  address: patient.address || "",
-  phoneNumber: patient.phoneNumber || "",
-  dateOfBirth: patient.dateOfBirth || null,
+  firstName: patientStore.patient.firstName || "",
+  lastName: patientStore.patient.lastName || "",
+  address: patientStore.patient.address || "",
+  phoneNumber: patientStore.patient.phoneNumber || "",
+  dateOfBirth: patientStore.patient.dateOfBirth || null,
 });
+
+const body = document.querySelector("body");
+const isDark = localStorage.getItem("darkTheme") === "true";
 
 const maxDate = computed(() => {
   const date = new Date();
@@ -30,15 +29,12 @@ const dateFormat = (date) => {
 
 const submit = async () => {
   try {
-    await updatePatient(form.value);
+    await patientStore.updatePatient(form.value);
     await router.push("/profile");
   } catch (error) {
     console.log(error);
   }
 };
-
-if (!auth.isAuthenticated) router.push("/login");
-else if (!auth.hasProfile) router.push("/profile/create");
 </script>
 
 <template>

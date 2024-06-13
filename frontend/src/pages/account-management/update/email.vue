@@ -7,19 +7,19 @@ import { rules } from "@/components/FormValidationRules.vue";
 import BackButton from "@/components/BackButton.vue";
 import Background from "@/components/Background.vue";
 
-const { auth } = useAuthStore();
-const { user, updateEmail } = useUserStore();
-
-const form = {
-  email: user.email,
-};
-
 const alertMessage = ref("");
 const alertVisible = ref(false);
+const authStore = useAuthStore();
+
+const userStore = useUserStore();
+
+const form = {
+  email: userStore.user.email,
+};
 
 const submit = async () => {
   try {
-    await updateEmail(form.email);
+    await userStore.updateEmail(form.email);
   } catch (error) {
     if (error.response.status === 400) {
       alertMessage.value = "Nova email adresa ne smije biti ista kao stara";
@@ -29,8 +29,8 @@ const submit = async () => {
   }
 };
 
-if (!auth.isAuthenticated) router.push("/error/401");
-else if (!auth.hasProfile) router.push("/profile/create");
+if (!authStore.auth.isAuthenticated) router.push("/error/401");
+else if (!authStore.auth.hasProfile) router.push("/profile/create");
 </script>
 
 <template>

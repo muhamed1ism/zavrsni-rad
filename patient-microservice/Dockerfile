@@ -1,7 +1,8 @@
 FROM python:3.12-slim
 WORKDIR /app
-COPY requirements.txt /app/requirements.txt
-RUN pip install -r requirements.txt
+RUN pip install pipenv
+COPY Pipfile Pipfile.lock /app/
+RUN pipenv install --system --deploy
 COPY . /app
 
-CMD flask run --host=0.0.0.0 --port=5001
+CMD gunicorn -b 0.0.0.0:5001 run:app

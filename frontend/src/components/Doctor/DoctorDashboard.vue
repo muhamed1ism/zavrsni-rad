@@ -2,48 +2,53 @@
 import { usePatientStore } from "@/stores/usePatientStore";
 import { useDoctorStore } from "@/stores/useDoctorStore";
 import { useAppointmentStore } from "@/stores/useAppointmentStore";
-import { computed } from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 
-const { patients, getPatients } = usePatientStore();
-const { getDoctor } = useDoctorStore();
-const {
-  appointments,
-  countApprovedAppointments,
-  countPendingAppointments,
-  countRejectedAppointments,
-  getApprovedAppointments,
-  approvedAppointments,
-  pendingAppointments,
-  rejectedAppointments,
-  getAppointments,
-} = useAppointmentStore();
+const patients = ref([]);
+const appointments = ref([]);
 
-getDoctor();
-countApprovedAppointments();
-countPendingAppointments();
-countRejectedAppointments();
-getPatients();
-getAppointments();
-getApprovedAppointments();
+const patientStore = usePatientStore();
+const doctorStore = useDoctorStore();
+const appointmentStore = useAppointmentStore();
+
+onMounted(async () => {
+  await patientStore.getPatients();
+  await doctorStore.getDoctor();
+  await appointmentStore.getAppointments();
+  await appointmentStore.getApprovedAppointments();
+  await appointmentStore.countApprovedAppointments();
+  await appointmentStore.countPendingAppointments();
+  await appointmentStore.countRejectedAppointments();
+  patients.value = patientStore.patients;
+  appointments.value = appointmentStore.appointments;
+});
+
+watch(
+    [() => patientStore.patients, () => appointmentStore.appointments],
+    ([newPatients, newAppointments]) => {
+      patients.value = newPatients;
+      appointments.value = newAppointments;
+    }
+);
 
 const cardHeaders = computed(() => [
   {
     title: "Odobreni",
     style: "background-color: mediumseagreen",
     icon: "mdi-check",
-    value: approvedAppointments,
+    value: appointmentStore.approvedAppointments,
   },
   {
     title: "Na čekanju",
     style: "background-color: darkgray",
     icon: "mdi-clock",
-    value: pendingAppointments,
+    value: appointmentStore.pendingAppointments,
   },
   {
     title: "Odbijeni",
     style: "background-color: indianred",
     icon: "mdi-close",
-    value: rejectedAppointments,
+    value: appointmentStore.rejectedAppointments,
   },
 ]);
 
@@ -125,11 +130,14 @@ const buttons = [
 
     <v-row class="mx-4">
       <v-col cols="12" md="6">
-        <h2 class="mb-4 font-weight-regular">Pacijenti</h2>
+        <RouterLink class="no-decoration" to="patients">
+          <h2 class="mb-4 font-weight-regular">Pacijenti</h2>
+        </RouterLink>
         <v-card border elevation="0">
           <v-data-table
             :headers="patientHeaders"
             :items="patients"
+            hide-default-footer
             items-per-page-text="Broj stavki po stranici"
             :items-per-page="5"
           >
@@ -148,11 +156,14 @@ const buttons = [
       </v-col>
 
       <v-col cols="12" md="6">
-        <h2 class="mb-4 font-weight-regular">Naručeni termini</h2>
+        <RouterLink class="no-decoration" to="appointments">
+          <h2 class="mb-4 font-weight-regular">Odobreni naručeni termini</h2>
+        </RouterLink>
         <v-card border elevation="0">
           <v-data-table
             :headers="appointmentHeaders"
             :items="appointments"
+            hide-default-footer
             items-per-page-text="Broj stavki po stranici"
             :items-per-page="5"
           >
@@ -194,4 +205,9 @@ const buttons = [
   </v-container>
 </template>
 
-<style scoped></style>
+<style scoped>
+.no-decoration {
+  text-decoration: none;
+  color: unset;
+}
+</style>

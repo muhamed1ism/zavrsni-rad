@@ -1,13 +1,10 @@
 <script setup>
 import { usePatientStore } from "@/stores/usePatientStore";
-import { useAuthStore } from "@/stores/useAuthStore";
-import router from "@/router";
 import ProfilePicture from "@/components/ProfilePicture.vue";
 
-const { auth } = useAuthStore();
-const { patient } = usePatientStore();
+const patientStore = usePatientStore();
 
-const patientDateOfBirth = new Date(patient.dateOfBirth).toLocaleDateString(
+const patientDateOfBirth = new Date(patientStore.patient.dateOfBirth).toLocaleDateString(
   "hr-HR",
 );
 
@@ -15,30 +12,27 @@ const title = "Moji podaci";
 const patientName = [
   {
     title: "Ime",
-    value: `${patient.firstName}`,
+    value: `${patientStore.patient.firstName}`,
   },
   {
     title: "Prezime",
-    value: `${patient.lastName}`,
+    value: `${patientStore.patient.lastName}`,
   },
 ]
 const patientData = [
   {
     title: "Adresa",
-    value: `${patient.address}`,
+    value: `${patientStore.patient.address}`,
   },
   {
     title: "Broj telefona",
-    value: `${patient.phoneNumber}`,
+    value: `${patientStore.patient.phoneNumber}`,
   },
   {
     title: "Datum rođenja",
     value: `${patientDateOfBirth}`,
   },
 ];
-
-if (!auth.isAuthenticated) router.push("/login");
-else if (!auth.hasProfile) router.push("/profile/create");
 </script>
 
 <template>

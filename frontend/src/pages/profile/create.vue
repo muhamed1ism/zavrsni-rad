@@ -6,17 +6,17 @@ import PatientProfileCreate from "@/components/Patient/Profile/PatientProfileCre
 import DoctorProfileCreate from "@/components/Doctor/Profile/DoctorProfileCreate.vue";
 import Background from "@/components/Background.vue";
 
-const { user } = useUserStore();
-const { auth } = useAuthStore();
+const userStore = useUserStore();
+const authStore = useAuthStore();
 
-if (!auth.isAuthenticated) router.push("/login");
-else if (auth.hasProfile) router.push("/dashboard");
+if (!authStore.auth.isAuthenticated) router.push("/login");
+if (authStore.auth.hasProfile) router.push("/dashboard");
 </script>
 
 <template>
   <Background>
-    <PatientProfileCreate v-if="user.role === 'patient'" />
-    <DoctorProfileCreate v-if="user.role === 'doctor'" />
+    <PatientProfileCreate v-if="userStore.user.role === 'patient'" />
+    <DoctorProfileCreate v-if="userStore.user.role === 'doctor'" />
   </Background>
 </template>
 

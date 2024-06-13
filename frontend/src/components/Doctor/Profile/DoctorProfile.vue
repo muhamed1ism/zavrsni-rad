@@ -1,13 +1,15 @@
 <script setup>
 import { useDoctorStore } from "@/stores/useDoctorStore";
-import { useAuthStore } from "@/stores/useAuthStore";
-import router from "@/router";
 import ProfilePicture from "@/components/ProfilePicture.vue";
+import { onMounted } from "vue";
 
-const { auth } = useAuthStore();
-const { doctor } = useDoctorStore();
+const doctorStore = useDoctorStore();
 
-const doctorDateOfBirth = new Date(doctor.dateOfBirth).toLocaleDateString(
+onMounted(async () => {
+  await doctorStore.getDoctor();
+});
+
+const doctorDateOfBirth = new Date(doctorStore.doctor.dateOfBirth).toLocaleDateString(
   "hr-HR",
 );
 
@@ -15,34 +17,31 @@ const title = "Moji podaci";
 const doctorName = [
   {
     title: "Ime",
-    value: `${doctor.firstName}`,
+    value: `${doctorStore.doctor.firstName}`,
   },
   {
     title: "Prezime",
-    value: `${doctor.lastName}`,
+    value: `${doctorStore.doctor.lastName}`,
   },
 ]
 const doctorData = [
   {
     title: "Specijalnost",
-    value: `${doctor.specialty}`,
+    value: `${doctorStore.doctor.specialty}`,
   },
   {
     title: "Adresa",
-    value: `${doctor.address}`,
+    value: `${doctorStore.doctor.address}`,
   },
   {
     title: "Broj telefona",
-    value: `${doctor.phoneNumber}`,
+    value: `${doctorStore.doctor.phoneNumber}`,
   },
   {
     title: "Datum rođenja",
     value: `${doctorDateOfBirth}`,
   },
 ];
-
-if (!auth.isAuthenticated) router.push("/login");
-else if (!auth.hasProfile) router.push("/profile/create");
 </script>
 
 <template>

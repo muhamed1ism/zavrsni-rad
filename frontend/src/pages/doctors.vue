@@ -1,37 +1,69 @@
 <script setup>
+import {onMounted, ref, watch} from "vue";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useDoctorStore } from "@/stores/useDoctorStore";
 import { useUserStore } from "@/stores/useUserStore";
 import router from "@/router";
 import BackButton from "@/components/BackButton.vue";
 
-const { auth } = useAuthStore();
-const { user } = useUserStore();
-const { doctors, getDoctors } = useDoctorStore();
+const doctors = ref([]);
+const search = ref("");
 
-getDoctors();
+const authStore = useAuthStore();
+const userStore = useUserStore();
+const doctorStore = useDoctorStore();
+
+onMounted(async () => {
+  await doctorStore.getDoctors();
+  doctors.value = doctorStore.doctors;
+});
+
+watch(
+  () => doctorStore.doctors,
+  (newDoctors) => {
+    doctors.value = newDoctors;
+  }
+);
 
 const doctorHeaders = [
-  { title: "ID", value: "id", align: "start" },
-  { title: "Ime", value: "name" },
+  { title: "ID", value: "id", align: "start", sortable: true },
+  { title: "Ime", value: "name", sortable: true },
   {
     title: "Specijalnost",
     value: "specialty",
+    sortable: true
   },
 ];
 
-if (!auth.isAuthenticated) router.push("/error/401");
-else if (!auth.hasProfile) router.push("/profile/create");
+if (!authStore.auth.isAuthenticated) router.push("/error/401");
+else if (!authStore.auth.hasProfile) router.push("/profile/create");
 </script>
 
 <template>
   <BackButton />
   <v-container>
-    <h1 class="mb-4 my-4 mx-2 font-weight-medium">Doktori</h1>
+    <v-row class="d-flex align-center">
+      <v-col>
+        <h1 class="mb-4 my-4 mx-2 font-weight-medium">Doktori</h1>
+      </v-col>
+      <v-col class="mb-4" cols="12" sm="5" lg="4">
+        <v-text-field
+            v-model="search"
+            prepend-inner-icon="mdi-magnify"
+            label="Pretraži"
+            variant="outlined"
+            density="compact"
+            single-line
+            hide-details
+        />
+      </v-col>
+    </v-row>
     <v-card border elevation="0">
       <v-data-table
         :headers="doctorHeaders"
         :items="doctors"
+        :search="search"
+        multi-sort
         items-per-page-text="Broj stavki po stranici"
         :items-per-page="10"
       >
@@ -42,7 +74,7 @@ else if (!auth.hasProfile) router.push("/profile/create");
     </v-card>
     <v-row class="mx-2 mt-4" justify="end">
       <v-btn
-        v-if="user.role === 'doctor'"
+        v-if="userStore.user.role === 'doctor'"
         to="/patients"
         prepend-icon="mdi-account-group"
         append-icon="mdi-arrow-right"
@@ -53,7 +85,7 @@ else if (!auth.hasProfile) router.push("/profile/create");
         border
       />
       <v-btn
-        v-if="user.role === 'patient'"
+        v-if="userStore.user.role === 'patient'"
         to="/appointments"
         prepend-icon="mdi-calendar-clock"
         append-icon="mdi-arrow-right"

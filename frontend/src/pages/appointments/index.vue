@@ -4,125 +4,39 @@ import { useAppointmentStore } from "@/stores/useAppointmentStore";
 import router from "@/router";
 import { useUserStore } from "@/stores/useUserStore";
 import BackButton from "@/components/BackButton.vue";
+import {onMounted, ref, watch} from "vue";
+import PatientAppointments from "@/components/Patient/PatientAppointments.vue";
+import DoctorAppointments from "@/components/Doctor/DoctorAppointments.vue";
 
-const { auth } = useAuthStore();
-const { appointments, getAppointments, cancelAppointment, restoreAppointment } = useAppointmentStore();
-const { user } = useUserStore();
+const appointments = ref([]);
 
-if (!auth.isAuthenticated) router.push("/error/401");
-else if (!auth.hasProfile) router.push("/profile/create");
+const authStore = useAuthStore();
+const appointmentStore = useAppointmentStore();
+const userStore = useUserStore();
 
-getAppointments();
+onMounted(
+  async () => {
+    await appointmentStore.getAppointments();
+    appointments.value = appointmentStore.appointments;
+  }
+);
 
-const patientHeaders = [
-  { title: "ID", text: "ID", value: "id" },
-  { title: "Doktor", text: "Doktor", value: "doctorName" },
-  { title: "Datum", text: "Datum", value: "date" },
-  { title: "Vrijeme", text: "Vrijeme", value: "time" },
-  { title: "Status", text: "Status", value: "status" },
-  {
-    title: "Akcije",
-    text: "Akcije",
-    value: "actions",
-    sortable: false,
-    align: "center",
-  },
-];
+watch(
+  () => appointmentStore.appointments,
+  (newAppointments) => {
+    appointments.value = newAppointments;
+  }
+);
 
-const doctorHeaders = [
-  { title: "ID", text: "ID", value: "id" },
-  { title: "Pacijent", text: "Pacijent", value: "patientName" },
-  { title: "Datum", text: "Datum", value: "date" },
-  { title: "Vrijeme", text: "Vrijeme", value: "time" },
-  { title: "Status", text: "Status", value: "status" },
-];
+if (!authStore.auth.isAuthenticated) router.push("/error/401");
+else if (!authStore.auth.hasProfile) router.push("/profile/create");
 </script>
 
 <template>
   <BackButton />
-  <v-container v-if="user.role === 'patient'">
-    <h1 class="mb-4 my-4 mx-2 font-weight-medium">Moji naručeni termini</h1>
-    <v-card border elevation="0">
-      <v-data-table
-        :headers="patientHeaders"
-        :items="appointments"
-        items-per-page-text="Broj stavki po stranici"
-        :items-per-page="10"
-      >
-        <template v-slot:item.date="{ item }">
-          {{ item.date ? new Date(item.date).toLocaleDateString("hr-HR") : "" }}
-        </template>
-        <template v-slot:no-data>
-          <p>Nema naručenih termina</p>
-        </template>
-        <template v-slot:item.actions="{ item }">
-          <v-btn
-            v-if="item.id !== null && item.status === 'na čekanju'"
-            prepend-icon="mdi-close"
-            variant="tonal"
-            color="error"
-            width="100"
-            @click="cancelAppointment(item.id)"
-          >
-            Otkaži</v-btn
-          >
-          <v-btn
-            v-else-if="item.id !== null && item.status === 'otkazan'"
-            prepend-icon="mdi-check"
-            variant="tonal"
-            color="success"
-            width="100"
-            @click="restoreAppointment(item.id)"
-          >
-            Vrati</v-btn
-          >
-        </template>
-      </v-data-table>
-    </v-card>
-    <v-row class="mx-2 mt-4" justify="end">
-      <v-btn
-        to="/appointments/create"
-        prepend-icon="mdi-calendar-plus"
-        append-icon="mdi-arrow-right"
-        variant="flat"
-        elevation="0"
-        text="Zakaži termin"
-        size="large"
-        border
-      />
-    </v-row>
-  </v-container>
-
-  <v-container v-else-if="user.role === 'doctor'">
-    <h1 class="mb-4 my-4 mx-2 font-weight-medium">Termini pacijenata</h1>
-    <v-card border elevation="0">
-      <v-data-table
-        :headers="doctorHeaders"
-        :items="appointments"
-        items-per-page-text="Broj stavki po stranici"
-        :items-per-page="10"
-      >
-        <template v-slot:item.date="{ item }">
-          {{ item.date ? new Date(item.date).toLocaleDateString("hr-HR") : "" }}
-        </template>
-        <template v-slot:no-data>
-          <p>Nema naručenih termina</p>
-        </template>
-      </v-data-table>
-    </v-card>
-    <v-row class="mx-2 mt-4" justify="end">
-      <v-btn
-        to="/appointments/manage"
-        prepend-icon="mdi-calendar-edit"
-        append-icon="mdi-arrow-right"
-        variant="flat"
-        elevation="0"
-        text="Upravljanje terminima"
-        size="large"
-        border
-      />
-    </v-row>
-  </v-container>
+  <PatientAppointments v-if="userStore.user.role === 'patient'" :appointments="appointments"
+                       :appointment-store="appointmentStore"/>
+  <DoctorAppointments v-else-if="userStore.user.role === 'doctor'" :appointments="appointments"/>
 </template>
 
 <style scoped></style>

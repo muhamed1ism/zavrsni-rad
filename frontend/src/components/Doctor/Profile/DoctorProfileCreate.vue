@@ -2,10 +2,7 @@
 import { computed, ref } from "vue";
 import { useDoctorStore } from "@/stores/useDoctorStore";
 import { rules } from "@/components/FormValidationRules.vue";
-
-const { createDoctor } = useDoctorStore();
-const body = document.querySelector("body");
-const isDark = localStorage.getItem("theme") === "dark";
+import { onMounted } from "vue";
 
 const form = ref({
   firstName: "",
@@ -15,6 +12,12 @@ const form = ref({
   phoneNumber: "",
   dateOfBirth: null,
 });
+
+const doctorStore = useDoctorStore();
+
+const body = document.querySelector("body");
+
+const isDark = localStorage.getItem("darkTheme") === "true";
 
 const maxDate = computed(() => {
   const date = new Date();
@@ -30,10 +33,14 @@ const convertToISO = (date) => {
   return new Date(date).toISOString();
 };
 
+onMounted(async () => {
+  await doctorStore.getDoctor();
+});
+
 const submit = async () => {
   try {
     form.value.dateOfBirth = convertToISO(form.value.dateOfBirth);
-    await createDoctor(form.value);
+    await doctorStore.createDoctor(form.value);
   } catch (error) {
     console.log(error);
   }

@@ -2,12 +2,28 @@
 import { usePatientStore } from "@/stores/usePatientStore";
 import { useAppointmentStore } from "@/stores/useAppointmentStore";
 import ProfilePicture from "@/components/ProfilePicture.vue";
+import {onMounted, ref, watch} from "vue";
 
-const { patient, getPatient } = usePatientStore();
-const { appointments, getApprovedAppointments } = useAppointmentStore();
+const patient = ref({});
+const appointments = ref([]);
 
-getApprovedAppointments();
-getPatient();
+const patientStore = usePatientStore();
+const appointmentStore = useAppointmentStore();
+
+onMounted(async () => {
+  await patientStore.getPatient();
+  await appointmentStore.getAppointments();
+  patient.value = patientStore.patient;
+  appointments.value = appointmentStore.appointments;
+});
+
+watch(
+    [() => patientStore.patient, () => appointmentStore.appointments],
+    ([newPatient, newAppointments]) => {
+      patient.value = newPatient;
+      appointments.value = newAppointments;
+    }
+);
 
 const buttons = [
   {
@@ -37,6 +53,7 @@ const patientHeaders = [
   { title: "Doktor", text: "Doktor", value: "doctorName" },
   { title: "Datum", text: "Datum", value: "date" },
   { title: "Vrijeme", text: "Vrijeme", value: "time" },
+  { title: "Status", text: "Status", value: "status" },
 ];
 </script>
 
@@ -97,13 +114,16 @@ const patientHeaders = [
         />
       </v-col>
     </v-row>
-
-    <h2 class="mx-6 mb-4 font-weight-medium">Moji termini</h2>
+    
+    <RouterLink class="no-decoration" to="appointments">
+      <h2 class="mx-6 mb-4 font-weight-medium">Moji termini</h2>
+    </RouterLink>
     <v-card variant="flat" elevation="0" border class="mx-6">
       <v-data-table
         :headers="patientHeaders"
         :items="appointments"
         items-per-page-text="Broj stavki po stranici"
+        hide-default-footer
         :items-per-page="6"
       >
         <template v-slot:item.date="{ item }">
@@ -123,5 +143,9 @@ const patientHeaders = [
 }
 .text-sm-name {
   font-size: 1.6rem;
+}
+.no-decoration {
+  text-decoration: none;
+  color: unset;
 }
 </style>

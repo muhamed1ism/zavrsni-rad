@@ -6,14 +6,15 @@ import { useDoctorStore } from "@/stores/useDoctorStore";
 import router from "@/router";
 import ProfilePicture from "@/components/ProfilePicture.vue";
 
-const { auth, logout } = useAuthStore();
-const { user } = useUserStore();
-const { patient } = usePatientStore();
-const { doctor } = useDoctorStore();
-const profile = (user.role === "patient") ? patient : doctor;
+const authStore = useAuthStore();
+const userStore = useUserStore();
+const patientStore = usePatientStore();
+const doctorStore = useDoctorStore();
+
+const profile = (userStore.user.role === "patient") ? patientStore.patient : doctorStore.doctor;
 
 const navItems = [
-  ...auth.isAuthenticated
+  ...authStore.auth.isAuthenticated
     ? [
         {
           title: "Nadzorna ploča",
@@ -28,7 +29,7 @@ const navItems = [
       ]
     : [{ title: "Početna stranica", icon: "mdi-home", to: "/" }],
 
-  ...user.role === "patient"
+  ...userStore.user.role === "patient"
     ? [
         {
           title: "Moji termini",
@@ -49,7 +50,7 @@ const navItems = [
       ]
     : [],
 
-  ...user.role === "doctor"
+  ...userStore.user.role === "doctor"
     ? [
         {
           title: "Svi naručeni termini",
@@ -81,7 +82,7 @@ const navItems = [
 
 const logOut = async () => {
   try {
-    await logout();
+    await authStore.logout();
     await router.push("/");
     window.location.reload();
   } catch (error) {
@@ -100,10 +101,10 @@ const logOut = async () => {
   >
     <v-list color="blue-darken-2" nav>
       <v-list-item
-        v-if="auth.isAuthenticated"
+        v-if="authStore.auth.isAuthenticated"
         lines="two"
         :title="profile.firstName + ' ' + profile.lastName"
-        :subtitle="user.email"
+        :subtitle="userStore.user.email"
       >
         <template v-slot:prepend>
           <ProfilePicture picture-size="50"/>
@@ -123,7 +124,7 @@ const logOut = async () => {
     <template v-slot:append>
       <div class="pa-4">
         <RouterLink
-          v-if="!auth.isAuthenticated"
+          v-if="!authStore.auth.isAuthenticated"
           to="/login"
           class="no-underline"
         >
@@ -137,7 +138,7 @@ const logOut = async () => {
           />
         </RouterLink>
         <v-btn
-          v-else-if="auth.isAuthenticated"
+          v-else-if="authStore.auth.isAuthenticated"
           slim
           block
           append-icon="mdi-logout"

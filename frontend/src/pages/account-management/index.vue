@@ -4,14 +4,14 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import router from "@/router";
 import Background from "@/components/Background.vue";
 
-const { auth } = useAuthStore();
-const { user } = useUserStore();
+const authStore = useAuthStore();
+const userStore = useUserStore();
 
 const title = "Upravljanje računom";
 const settings = [
   {
     title: "Email",
-    value: `${user.email}`,
+    value: `${userStore.user.email}`,
     route: "/account-management/update/email",
   },
   {
@@ -21,8 +21,8 @@ const settings = [
   },
 ];
 
-if (!auth.isAuthenticated) router.push("/error/401");
-else if (!auth.hasProfile) router.push("/profile/create");
+if (!authStore.auth.isAuthenticated) router.push("/error/401");
+else if (!authStore.auth.hasProfile) router.push("/profile/create");
 </script>
 
 <template>

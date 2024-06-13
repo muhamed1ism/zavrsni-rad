@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import axios from "axios";
 import { useAuthStore } from "@/stores/useAuthStore";
 import router from "@/router";
+import {markRaw} from "vue";
 
 const apiUrl = "http://localhost:5003";
 
@@ -55,7 +56,7 @@ export const useAppointmentStore = defineStore("appointment", {
           },
         });
         if (res.status === 200 && res.data.length > 0) {
-          this.appointments = res.data;
+          this.appointments = markRaw(res.data);
         } else {
           this.appointments = [];
         }

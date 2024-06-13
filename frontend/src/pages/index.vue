@@ -3,11 +3,9 @@ import router from "@/router";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 const image = "../../doctor.png";
-const { auth } = useAuthStore();
+const authStore = useAuthStore();
 
-if (auth.isAuthenticated) {
-  router.push("/dashboard");
-}
+if (authStore.auth.isAuthenticated) router.push("/dashboard");
 </script>
 
 <template>
