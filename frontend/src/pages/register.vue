@@ -3,8 +3,6 @@ import router from "@/router";
 import { ref } from "vue";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useUserStore } from "@/stores/useUserStore";
-import { usePatientStore } from "@/stores/usePatientStore";
-import { useDoctorStore } from "@/stores/useDoctorStore";
 import { rules } from "@/components/FormValidationRules.vue";
 import BackButton from "@/components/BackButton.vue";
 import Background from "@/components/Background.vue";
@@ -21,15 +19,11 @@ const visible = ref(false);
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
-const patientStore = usePatientStore();
-const doctorStore = useDoctorStore();
 
 const submit = async () => {
   try {
     await authStore.register(form.value);
     await userStore.getUser();
-    if (userStore.user.role === "patient") await patientStore.getPatient();
-    else if (userStore.user.role === "doctor") await doctorStore.getDoctor();
     await router.push("/dashboard");
   } catch (error) {
     console.log(error);
