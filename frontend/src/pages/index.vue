@@ -60,7 +60,7 @@ if (authStore.auth.isAuthenticated) router.push("/dashboard");
           color="rgb(33, 33, 33)"
           text="GitHub"
           target="_blank"
-          href="https://github.com/muhamed1ism/zavrsni-rad"
+          href="https://github.com/muhamed1ism/doctor-patient-appointment-system"
         />
       </v-col>
     </v-row>
