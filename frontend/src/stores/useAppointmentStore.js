@@ -212,7 +212,7 @@ export const useAppointmentStore = defineStore("appointment", {
       try {
         await this.getAppointments();
         this.appointments = this.appointments.filter(
-          (appointment) => appointment.status === "odobren",
+          (appointment) => appointment.status === "approved",
         );
       } catch (error) {
         console.error("Error getting patient's approved appointments: ", error);

@@ -21,10 +21,10 @@ if (authStore.auth.isAuthenticated) router.push("/dashboard");
         ></v-img>
       </v-col>
       <v-col class="v-col-auto text-center text-lg-center">
-        <h1 class="text-h2 font-weight-medium mb-3 ms-n1">eBolnica</h1>
+        <h1 class="text-h2 font-weight-medium mb-3 ms-n1">eHospital</h1>
         <p class="mb-10 mx-auto ms-lg-0">
-          Dobrodošli u našu aplikaciju za <br />
-          narudžbu pacijenata kod doktora!
+          Welcome to our application for <br />
+          scheduling patient appointments with doctors!
         </p>
       </v-col>
     </v-row>
@@ -36,7 +36,7 @@ if (authStore.auth.isAuthenticated) router.push("/dashboard");
           density="default"
           size="large"
           color="blue-darken-2"
-          text="Započni"
+          text="Get Started"
           to="/login"
         />
       </v-col>
@@ -47,7 +47,7 @@ if (authStore.auth.isAuthenticated) router.push("/dashboard");
           density="default"
           size="large"
           color="blue-darken-2"
-          text="O nama"
+          text="About Us"
           to="/about"
         />
       </v-col>

@@ -62,14 +62,14 @@ else if (!authStore.auth.hasProfile)  router.push("/profile/create");
               class="text-center"
               :class="$vuetify.display.smAndUp ? 'text-h5' : ''"
             >
-              Naruči termin kod doktora
+              Book an appointment
             </v-card-title>
             <v-card-item>
               <v-sheet>
                 <v-form @submit.prevent="submit">
                   <v-label
                     class="text-subtitle-1 text-hard-emphasis"
-                    text="Doktor"
+                    text="Doctor"
                   />
                   <v-select
                     v-model="form.doctorId"
@@ -83,20 +83,19 @@ else if (!authStore.auth.hasProfile)  router.push("/profile/create");
                     density="compact"
                   >
                     <template #selection="{ item }" v-if="form.doctorId === ''">
-                      <v-label>Odaberi doktora</v-label>
+                      <v-label>Select doctor</v-label>
                     </template>
                   </v-select>
 
                   <v-label
                     class="text-subtitle-1 text-hard-emphasis"
-                    text="Datum termina"
+                    text="Date"
                   />
                   <VueDatePicker
                     class="mb-6"
                     v-model="form.date"
-                    placeholder="Unesite datum termina"
+                    placeholder="Enter appointment date"
                     :format="dateFormat"
-                    locale="hr"
                     auto-apply
                     disable-year-select
                     :enable-time-picker="false"
@@ -108,13 +107,12 @@ else if (!authStore.auth.hasProfile)  router.push("/profile/create");
 
                   <v-label
                     class="text-subtitle-1 text-hard-emphasis"
-                    text="Odaberi vrijeme"
+                    text="Time"
                   />
                   <VueDatePicker
                     class="mb-10"
-                    placeholder="Unesite vrijeme"
+                    placeholder="Enter appointment time"
                     v-model="form.time"
-                    locale="hr"
                     :teleport="body"
                     time-picker
                     :disabled-times="disabledTimes"
@@ -135,7 +133,7 @@ else if (!authStore.auth.hasProfile)  router.push("/profile/create");
                     color="blue-darken-2"
                     size="large"
                     class="mb-4"
-                    >Naruči se</v-btn
+                    >Book appointment</v-btn
                   >
                 </v-form>
               </v-sheet>

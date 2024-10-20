@@ -21,6 +21,6 @@ def count_rejected_appointments():
     doctor_id = get_doctor_id()
 
     appointments = db.session.query(Appointment).filter(Appointment.doctor_id == doctor_id,
-                                                        Appointment.status == 'odbijen').count()
+                                                        Appointment.status == 'rejected').count()
 
     return jsonify(appointments), 200

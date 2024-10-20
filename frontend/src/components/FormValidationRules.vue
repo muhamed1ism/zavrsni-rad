@@ -1,18 +1,18 @@
 <script>
   export const rules = {
     firstName: [
-      (v) => !!v || "Ime je obavezno",
-      (v) => (v && v.length <= 20) || "Ime mora biti manje od 20 karaktera",
+      (v) => !!v || "First name is required",
+      (v) => (v && v.length <= 20) || "First name must be less than 20 characters",
     ],
 
     lastName: [
-      (v) => !!v || "Prezime je obavezno",
-      (v) => (v && v.length <= 20) || "Prezime mora biti manje od 20 karaktera",
+      (v) => !!v || "Last name is required",
+      (v) => (v && v.length <= 20) || "Last name must be less than 20 characters",
     ],
 
     specialty: [
-      (v) => !!v || "Specijalnost je obavezna",
-      (v) => (v && v.length <= 20) || "Specijalnost mora biti manje od 20 karaktera",
+      (v) => !!v || "Specialty is required",
+      (v) => (v && v.length <= 20) || "Specialty must be less than 20 characters",
     ],
 
     phoneNumber: [
@@ -20,30 +20,30 @@
         const numberWithoutSpace = v.replace(/\s+/g, "");
         const regex = /^[0-9+]+$/;
         if (!regex.test(numberWithoutSpace) && numberWithoutSpace !== "") {
-          return "Broj telefona nije validan. Dozvoljeni su samo brojevi i znak +";
+          return "Phone number must contain only numbers";
         }
         return true;
       },
     ],
 
     email: [
-      (v) => !!v || "Email je obavezan",
-      (v) => /.+@.+/.test(v) || "Email nije validan",
+      (v) => !!v || "Email is required",
+      (v) => /.+@.+/.test(v) || "Email must be valid",
     ],
 
-    currentPassword: [(v) => !!v || "Trenutna lozinka je obavezna"],
+    currentPassword: [(v) => !!v || "Current password is required"],
 
     password: [
-      (v) => !!v || "Lozinka je obavezna",
-      (v) => (v && v.length >= 8) || "Lozinka mora biti duža od 8 karaktera",
+      (v) => !!v || "Password is required",
+      (v) => (v && v.length >= 8) || "Password must be at least 8 characters",
     ],
 
     passwordConfirm: (password) => [
-      (v) => !!v || "Potvrda lozinke je obavezna",
-      (v) => v === password || "Lozinke se ne poklapaju",
+      (v) => !!v || "Password confirmation is required",
+      (v) => v === password || "Passwords do not match",
     ],
 
-    role: [(v) => !!v || "Role je obavezan"],
+    role: [(v) => !!v || "Role is required"],
   };
 </script>
 

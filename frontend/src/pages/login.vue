@@ -33,7 +33,7 @@ const submit = async () => {
   } catch (error) {
     console.log(error);
     if (error.response.status === 401) {
-      alertMessage.value = "Pogrešan email ili lozinka";
+      alertMessage.value = "Wrong email or password";
       alertVisible.value = true;
     }
   }
@@ -49,7 +49,7 @@ if (authStore.auth.isAuthenticated) router.push("/dashboard");
       <v-row class="justify-center mb-16">
         <v-col cols="12" sm="8" md="6" lg="4">
           <v-card border variant="flat" class="pa-4 my-12">
-            <v-card-title class="text-center text-h5">Prijava</v-card-title>
+            <v-card-title class="text-center text-h5">Login</v-card-title>
             <v-card-item>
               <v-sheet>
                 <v-form @submit.prevent="submit">
@@ -60,7 +60,7 @@ if (authStore.auth.isAuthenticated) router.push("/dashboard");
 
                   <v-text-field
                     density="compact"
-                    placeholder="Email adresa"
+                    placeholder="Email address"
                     prepend-inner-icon="mdi-email-outline"
                     variant="outlined"
                     v-model="form.email"
@@ -70,14 +70,14 @@ if (authStore.auth.isAuthenticated) router.push("/dashboard");
                   <div
                     class="text-subtitle-1 text-medium-emphasis d-flex align-center justify-space-between"
                   >
-                    Lozinka
+                    Password
                   </div>
 
                   <v-text-field
                     :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
                     :type="visible ? 'text' : 'password'"
                     density="compact"
-                    placeholder="Unesite lozinku"
+                    placeholder="Enter password"
                     prepend-inner-icon="mdi-lock-outline"
                     variant="outlined"
                     v-model="form.password"
@@ -102,7 +102,7 @@ if (authStore.auth.isAuthenticated) router.push("/dashboard");
                     color="blue-darken-2"
                     size="large"
                     class="mb-8 mt-2"
-                    >Prijavi se</v-btn
+                    >Login</v-btn
                   >
 
                   <v-card-text class="text-center">
@@ -110,7 +110,7 @@ if (authStore.auth.isAuthenticated) router.push("/dashboard");
                       class="text-blue-darken-2 text-decoration-none"
                       to="/register"
                     >
-                      Napravi račun <v-icon icon="mdi-chevron-right" />
+                      Create an account <v-icon icon="mdi-chevron-right" />
                     </RouterLink>
                   </v-card-text>
                 </v-form>

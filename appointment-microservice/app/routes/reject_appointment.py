@@ -22,7 +22,7 @@ def reject_appointment(appointment_id):
     if not appointment:
         abort(404, description='Appointment not found.')
 
-    appointment.status = 'odbijen'
+    appointment.status = 'rejected'
     appointment.save()
 
     return jsonify(msg='Appointment rejected successfully.'), 200

@@ -33,19 +33,19 @@ watch(
 
 const cardHeaders = computed(() => [
   {
-    title: "Odobreni",
+    title: "Approved",
     style: "background-color: mediumseagreen",
     icon: "mdi-check",
     value: appointmentStore.approvedAppointments,
   },
   {
-    title: "Na čekanju",
+    title: "Pending",
     style: "background-color: darkgray",
     icon: "mdi-clock",
     value: appointmentStore.pendingAppointments,
   },
   {
-    title: "Odbijeni",
+    title: "Rejected",
     style: "background-color: indianred",
     icon: "mdi-close",
     value: appointmentStore.rejectedAppointments,
@@ -54,36 +54,36 @@ const cardHeaders = computed(() => [
 
 const patientHeaders = [
   { title: "ID", value: "id", align: "start" },
-  { title: "Ime", value: "name" },
-  { title: "Datum rođenja", value: "dateOfBirth" },
-  { title: "Broj telefona", value: "phoneNumber" },
+  { title: "Name", value: "name" },
+  { title: "Date of birth", value: "dateOfBirth" },
+  { title: "Phone number", value: "phoneNumber" },
 ];
 
 const appointmentHeaders = [
   { title: "ID", value: "id", align: "start" },
-  { title: "Pacijent", value: "patientName" },
-  { title: "Datum narudžbe", value: "date" },
-  { title: "Vrijeme narudžbe", value: "time" },
+  { title: "Patient", value: "patientName" },
+  { title: "Date", value: "date" },
+  { title: "Time", value: "time" },
 ];
 
 const buttons = [
   {
-    title: "Svi naručeni termini",
+    title: "All appointments",
     icon: "mdi-calendar-clock",
     to: "/appointments",
   },
   {
-    title: "Upravljanje terminima",
+    title: "Manage appointments",
     icon: "mdi-calendar-edit",
     to: "/appointments/manage",
   },
   {
-    title: "Moji pacijenti",
+    title: "My patients",
     icon: "mdi-account-multiple",
     to: "/patients",
   },
   {
-    title: "Svi doktori",
+    title: "Doctors",
     icon: "mdi-account-group",
     to: "/doctors",
   },
@@ -96,9 +96,11 @@ const buttons = [
       class="mb-4 my-4 mx-2 font-weight-medium"
       :class="$vuetify.display.xs ? 'text-center' : ''"
     >
-      Nadzorna ploča doktora
+      Doctor dashboard
     </h1>
-    <h2 class="mx-6 mb-4 font-weight-regular">Broj naručenih termina</h2>
+    <h2 class="mx-6 mb-4 font-weight-regular">
+      Appointments statistics
+    </h2>
     <v-row class="mx-4">
       <v-col
         cols="12"
@@ -131,14 +133,13 @@ const buttons = [
     <v-row class="mx-4">
       <v-col cols="12" md="6">
         <RouterLink class="no-decoration" to="patients">
-          <h2 class="mb-4 font-weight-regular">Pacijenti</h2>
+          <h2 class="mb-4 font-weight-regular">Patients</h2>
         </RouterLink>
         <v-card border elevation="0">
           <v-data-table
             :headers="patientHeaders"
             :items="patients"
             hide-default-footer
-            items-per-page-text="Broj stavki po stranici"
             :items-per-page="5"
           >
             <template v-slot:item.dateOfBirth="{ item }">
@@ -149,7 +150,9 @@ const buttons = [
               }}
             </template>
             <template v-slot:no-data>
-              <p>Nema naručenih pacijenata</p>
+              <p>
+                No patients
+              </p>
             </template>
           </v-data-table>
         </v-card>
@@ -157,14 +160,15 @@ const buttons = [
 
       <v-col cols="12" md="6">
         <RouterLink class="no-decoration" to="appointments">
-          <h2 class="mb-4 font-weight-regular">Odobreni naručeni termini</h2>
+          <h2 class="mb-4 font-weight-regular">
+            Approved appointments
+          </h2>
         </RouterLink>
         <v-card border elevation="0">
           <v-data-table
             :headers="appointmentHeaders"
             :items="appointments"
             hide-default-footer
-            items-per-page-text="Broj stavki po stranici"
             :items-per-page="5"
           >
             <template v-slot:item.date="{ item }">
@@ -173,7 +177,9 @@ const buttons = [
               }}
             </template>
             <template v-slot:no-data>
-              <p>Nema naručenih termina</p>
+              <p>
+                No appointments
+              </p>
             </template>
           </v-data-table>
         </v-card>

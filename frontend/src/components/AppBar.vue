@@ -48,7 +48,7 @@ theme.global.name.value = darkTheme.value ? "dark" : "light";
         class="text-decoration-none pl-2 font-weight-light"
         :class="darkTheme ? 'text-white' : 'text-black', $vuetify.display.smAndUp ? 'text-h4 pl-2' : 'text-h5'"
         :to="authStore.auth.isAuthenticated ? '/dashboard' : '/'"
-        text="eBolnica"
+        text="eHospital"
       />
     </v-app-bar-title>
 
@@ -65,13 +65,13 @@ theme.global.name.value = darkTheme.value ? "dark" : "light";
       </v-btn>
       <RouterLink v-if="!authStore.auth.isAuthenticated" to="/login" class="no-underline" >
         <v-btn v-if="$vuetify.display.smAndUp" append-icon="mdi-login" variant="outlined" color="blue-darken-2"
-               text="Prijavi se" />
+               text="Login" />
         <v-btn v-else slim size="small" icon="mdi-login" variant="outlined" color="blue-darken-2" rounded/>
       </RouterLink>
 
       <div v-else-if="authStore.auth.isAuthenticated">
         <v-btn v-if="$vuetify.display.smAndUp" slim append-icon="mdi-logout" @click="logOut" variant="flat"
-            color="blue-darken-2" text="Odjavi se" />
+            color="blue-darken-2" text="Logout" />
         <v-btn v-else slim size="small" icon="mdi-logout" @click="logOut" variant="flat" color="blue-darken-2"
                rounded />
       </div>

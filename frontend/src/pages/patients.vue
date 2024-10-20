@@ -27,10 +27,10 @@ watch(
 
 const patientHeaders = [
   { title: "ID", value: "id", align: "start", sortable: true },
-  { title: "Ime", value: "name", sortable: true },
-  { title: "Adresa", value: "address", sortable: true },
-  { title: "Datum rođenja", value: "dateOfBirth", sortable: true },
-  { title: "Broj telefona", value: "phoneNumber", sortable: true },
+  { title: "Name", value: "name", sortable: true },
+  { title: "Address", value: "address", sortable: true },
+  { title: "Date of birth", value: "dateOfBirth", sortable: true },
+  { title: "Phone number", value: "phoneNumber", sortable: true },
 ];
 
 if (!authStore.auth.isAuthenticated) router.push("/error/401");
@@ -43,13 +43,13 @@ else if (!authStore.auth.hasProfile) router.push("/dashboard");
   <v-container>
     <v-row class="d-flex align-center">
       <v-col>
-        <h1 class="mb-4 my-4 mx-2 font-weight-medium">Moji pacijenti</h1>
+        <h1 class="mb-4 my-4 mx-2 font-weight-medium">My patients</h1>
       </v-col>
       <v-col class="mb-4" cols="12" sm="5" lg="4">
         <v-text-field
             v-model="search"
             prepend-inner-icon="mdi-magnify"
-            label="Pretraži"
+            label="Search"
             variant="outlined"
             density="compact"
             single-line
@@ -64,7 +64,6 @@ else if (!authStore.auth.hasProfile) router.push("/dashboard");
         :items="patients"
         :search="search"
         multi-sort
-        items-per-page-text="Broj stavki po stranici"
         :items-per-page="10"
       >
         <template v-slot:item.dateOfBirth="{ item }">
@@ -75,7 +74,7 @@ else if (!authStore.auth.hasProfile) router.push("/dashboard");
           }}
         </template>
         <template v-slot:no-data>
-          <p>Nema naručenih pacijenata</p>
+          <p>No patients</p>
         </template>
       </v-data-table>
     </v-card>
@@ -86,7 +85,7 @@ else if (!authStore.auth.hasProfile) router.push("/dashboard");
         append-icon="mdi-arrow-right"
         variant="flat"
         elevation="0"
-        text="Svi doktori"
+        text="Doctors"
         size="large"
         border
       />

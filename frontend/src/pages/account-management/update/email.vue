@@ -22,7 +22,7 @@ const submit = async () => {
     await userStore.updateEmail(form.email);
   } catch (error) {
     if (error.response.status === 400) {
-      alertMessage.value = "Nova email adresa ne smije biti ista kao stara";
+      alertMessage.value = "New email cannot be the same as the old one";
       alertVisible.value = true;
     }
     console.log(error);
@@ -41,12 +41,12 @@ else if (!authStore.auth.hasProfile) router.push("/profile/create");
         <v-col cols="12" sm="8" md="6" lg="4">
           <v-card border variant="flat" class="pa-4 my-12">
             <v-card-title class="text-center text-h5"
-              >Unesite novu email adresu</v-card-title
+              >Enter new email</v-card-title
             >
             <v-label class="text-subtitle-1 text-hard-emphasis" text="Email" />
             <v-text-field
               density="compact"
-              placeholder="Unesite email adresu"
+              placeholder="Email"
               variant="outlined"
               v-model="form.email"
               :rules="rules.email"
@@ -64,14 +64,14 @@ else if (!authStore.auth.hasProfile) router.push("/profile/create");
                 color="blue-darken-2"
                 variant="tonal"
                 @click="submit"
-                >Promijeni email</v-btn
+                >Save</v-btn
               >
               <v-btn
                 append-icon="mdi-close"
                 color="error"
                 variant="tonal"
                 @click="router.push('/account-management')"
-                >Odustani</v-btn
+                >Cancel</v-btn
               >
             </div>
           </v-card>

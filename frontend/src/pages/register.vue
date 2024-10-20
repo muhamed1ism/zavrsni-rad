@@ -29,8 +29,8 @@ const submit = async () => {
     console.log(error);
     if (error.response.status === 409) {
       alertMessage.value = (
-          "Korisnik sa ovom email adresom već postoji " +
-          "ili niste unijeli ispravno podatke"
+          "User with this email already exists" +
+          " or passwords do not match"
       );
       alertVisible.value = true;
     }
@@ -48,7 +48,7 @@ if (authStore.auth.isAuthenticated) router.push("/dashboard");
         <v-col cols="12" sm="8" md="6" lg="4">
           <v-card border variant="flat" class="pa-4 my-12">
             <v-card-title class="text-center text-h5"
-              >Registracija računa</v-card-title
+              >Register</v-card-title
             >
             <v-card-item>
               <v-sheet>
@@ -59,7 +59,7 @@ if (authStore.auth.isAuthenticated) router.push("/dashboard");
                   />
                   <v-text-field
                     density="compact"
-                    placeholder="Unesite email adresu"
+                    placeholder="Enter email address"
                     variant="outlined"
                     v-model="form.email"
                     :rules="rules.email"
@@ -67,13 +67,13 @@ if (authStore.auth.isAuthenticated) router.push("/dashboard");
 
                   <v-label
                     class="text-subtitle-1 text-hard-emphasis"
-                    text="Lozinka"
+                    text="Password"
                   />
                   <v-text-field
                     :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
                     :type="visible ? 'text' : 'password'"
                     density="compact"
-                    placeholder="Unesite lozinku"
+                    placeholder="Enter password"
                     variant="outlined"
                     v-model="form.password"
                     @click:append-inner="visible = !visible"
@@ -82,13 +82,13 @@ if (authStore.auth.isAuthenticated) router.push("/dashboard");
 
                   <v-label
                     class="text-subtitle-1 text-hard-emphasis"
-                    text="Potvrdi lozinku"
+                    text="Confirm password"
                   />
                   <v-text-field
                     :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
                     :type="visible ? 'text' : 'password'"
                     density="compact"
-                    placeholder="Unesite ponovno lozinku"
+                    placeholder="Enter password again"
                     variant="outlined"
                     v-model="form.passwordConfirm"
                     @click:append-inner="visible = !visible"
@@ -98,7 +98,7 @@ if (authStore.auth.isAuthenticated) router.push("/dashboard");
                   <div
                     class="mt-6 text-center text-subtitle-1 text-medium-emphasis"
                   >
-                    Da li ste pacijent ili doktor?
+                    Are you a patient or a doctor?
                   </div>
                   <v-container
                     class="d-flex justify-center align-content-center"
@@ -106,12 +106,12 @@ if (authStore.auth.isAuthenticated) router.push("/dashboard");
                     <v-radio-group v-model="form.role" inline :rules="rules.role">
                       <v-container class="d-flex justify-space-evenly">
                         <v-radio
-                          label="Pacijent"
+                          label="Patient"
                           color="blue"
                           value="patient"
                         ></v-radio>
                         <v-radio
-                          label="Doktor"
+                          label="Doctor"
                           color="red"
                           value="doctor"
                         ></v-radio>
@@ -136,9 +136,9 @@ if (authStore.auth.isAuthenticated) router.push("/dashboard");
                     color="blue-darken-2"
                     size="large"
                     class="my-2"
-                    >Registriraj se</v-btn
+                    >Register</v-btn
                   >
-                  <v-card-text class="text-center text-medium-emphasis pb-6">Imate li račun? <RouterLink to="/login" class="text-blue-darken-2 text-decoration-none">Prijavi se</RouterLink></v-card-text>
+                  <v-card-text class="text-center text-medium-emphasis pb-6">Have an account? <RouterLink to="/login" class="text-blue-darken-2 text-decoration-none">Login</RouterLink></v-card-text>
                 </v-form>
               </v-sheet>
             </v-card-item>

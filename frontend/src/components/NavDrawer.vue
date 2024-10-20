@@ -17,33 +17,33 @@ const navItems = [
   ...authStore.auth.isAuthenticated
     ? [
         {
-          title: "Nadzorna ploča",
+          title: "Dashboard",
           icon: "mdi-view-dashboard",
           to: "/dashboard",
         },
         {
-          title: "Moj profil",
+          title: "My profile",
           icon: "mdi-card-account-details",
           to: "/profile",
         },
       ]
-    : [{ title: "Početna stranica", icon: "mdi-home", to: "/" }],
+    : [{ title: "Home", icon: "mdi-home", to: "/" }],
 
   ...userStore.user.role === "patient"
     ? [
         {
-          title: "Moji termini",
+          title: "My appointments",
           icon: "mdi-calendar-clock",
           to: "/appointments",
         },
         {
-          title: "Zakaži pregled",
+          title: "Book appointment",
           icon: "mdi-calendar-plus",
           to: "/appointments/create",
         },
         { title: "Doktori", icon: "mdi-account-group", to: "/doctors" },
         {
-          title: "Upravljanje računom",
+          title: "Manage account",
           icon: "mdi-account-wrench",
           to: "/account-management",
         },
@@ -53,31 +53,31 @@ const navItems = [
   ...userStore.user.role === "doctor"
     ? [
         {
-          title: "Svi naručeni termini",
+          title: "All appointments",
           icon: "mdi-calendar-clock",
           to: "/appointments",
         },
         {
-          title: "Upravljanje terminima",
+          title: "Manage appointments",
           icon: "mdi-calendar-edit",
           to: "/appointments/manage",
         },
         {
-          title: "Moji pacijenti",
+          title: "My patients",
           icon: "mdi-account-multiple",
           to: "/patients",
         },
-        { title: "Svi doktori", icon: "mdi-account-group", to: "/doctors" },
+        { title: "Doctors", icon: "mdi-account-group", to: "/doctors" },
         {
-          title: "Upravljanje računom",
+          title: "Manage account",
           icon: "mdi-account-wrench",
           to: "/account-management",
         },
       ]
     : [],
 
-  { title: "O nama", icon: "mdi-information", to: "/about" },
-  { title: "Kontaktirajte nas", icon: "mdi-phone", to: "/contact" },
+  { title: "About us", icon: "mdi-information", to: "/about" },
+  { title: "Contact", icon: "mdi-phone", to: "/contact" },
 ];
 
 const logOut = async () => {
@@ -134,7 +134,7 @@ const logOut = async () => {
             append-icon="mdi-login"
             variant="outlined"
             color="blue-darken-2"
-            text="Prijavi se"
+            text="Login"
           />
         </RouterLink>
         <v-btn
@@ -145,7 +145,7 @@ const logOut = async () => {
           @click="logOut"
           variant="flat"
           color="blue-darken-2"
-          text="Odjavi se"
+          text="Logout"
         />
       </div>
     </template>

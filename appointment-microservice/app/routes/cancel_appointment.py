@@ -22,7 +22,7 @@ def cancel_appointment(appointment_id):
     if not appointment:
         abort(404, description='Appointment not found.')
 
-    appointment.status = 'otkazan'
+    appointment.status = 'cancelled'
     appointment.save()
 
     return jsonify(msg='Appointment canceled successfully.'), 200

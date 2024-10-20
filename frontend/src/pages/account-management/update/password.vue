@@ -27,8 +27,8 @@ const submit = async () => {
   } catch (error) {
     if (error.response.status === 400) {
       alertMessage.value =
-        "Trenutna lozinka nije ispravna" +
-        " ili je nova lozinka ista kao trenutna";
+        "Current password is incorrect" +
+        " or new password is the same as the old one";
       alertVisible.value = true;
     }
     console.log(error);
@@ -47,17 +47,17 @@ else if (!authStore.auth.hasProfile) router.push("/profile/create");
         <v-col cols="12" sm="8" md="6" lg="4">
           <v-card border variant="flat" class="pa-4 my-12">
             <v-card-title class="text-center text-h5"
-              >Unesite novu lozinku</v-card-title
+              >Enter new password</v-card-title
             >
             <v-label
               class="text-subtitle-1 text-hard-emphasis"
-              text="Trenutna lozinka"
+              text="Current password"
             />
             <v-text-field
               :append-inner-icon="visible_1 ? 'mdi-eye-off' : 'mdi-eye'"
               :type="visible_1 ? 'text' : 'password'"
               density="compact"
-              placeholder="Unesite trenutnu lozinku"
+              placeholder="Enter current password"
               variant="outlined"
               v-model="form.currentPassword"
               @click:append-inner="visible_1 = !visible_1"
@@ -66,13 +66,13 @@ else if (!authStore.auth.hasProfile) router.push("/profile/create");
 
             <v-label
               class="text-subtitle-1 text-hard-emphasis"
-              text="Nova lozinka"
+              text="New password"
             />
             <v-text-field
               :append-inner-icon="visible_2 ? 'mdi-eye-off' : 'mdi-eye'"
               :type="visible_2 ? 'text' : 'password'"
               density="compact"
-              placeholder="Unesite novu lozinku"
+              placeholder="Enter new password"
               variant="outlined"
               v-model="form.newPassword"
               @click:append-inner="visible_2 = !visible_2"
@@ -81,13 +81,13 @@ else if (!authStore.auth.hasProfile) router.push("/profile/create");
 
             <v-label
               class="text-subtitle-1 text-hard-emphasis"
-              text="Potvrdi novu lozinku"
+              text="Confirm new password"
             />
             <v-text-field
               :append-inner-icon="visible_3 ? 'mdi-eye-off' : 'mdi-eye'"
               :type="visible_3 ? 'text' : 'password'"
               density="compact"
-              placeholder="Unesite ponovno novu lozinku"
+              placeholder="Enter new password again"
               variant="outlined"
               v-model="form.newPasswordConfirm"
               @click:append-inner="visible_3 = !visible_3"
@@ -108,14 +108,14 @@ else if (!authStore.auth.hasProfile) router.push("/profile/create");
                 color="blue-darken-2"
                 variant="tonal"
                 @click="submit"
-                >Promijeni lozinku</v-btn
+                >Save</v-btn
               >
               <v-btn
                 append-icon="mdi-close"
                 color="error"
                 variant="tonal"
                 @click="router.push('/account-management')"
-                >Odustani</v-btn
+                >Cancel</v-btn
               >
             </div>
           </v-card>

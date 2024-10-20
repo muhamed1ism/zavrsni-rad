@@ -10,9 +10,9 @@ const search = ref("");
 
 const headers = [
   { title: "ID", text: "ID", value: "id", sortable: true },
-  { title: "Pacijent", text: "Pacijent", value: "patientName", sortable: true },
-  { title: "Datum", text: "Datum", value: "date", sortable: true },
-  { title: "Vrijeme", text: "Vrijeme", value: "time", sortable: true },
+  { title: "Patient", text: "Patient", value: "patientName", sortable: true },
+  { title: "Date", text: "Date", value: "date", sortable: true },
+  { title: "Time", text: "Time", value: "time", sortable: true },
   { title: "Status", text: "Status", value: "status", sortable: true },
 ];
 
@@ -22,9 +22,9 @@ const formatDate = (dateString) => {
 };
 
 const getColor = (status) => {
-  if (status === "odobren") return "success";
-  else if (status === "odbijen") return "error";
-  else if (status === "na čekanju") return "warning";
+  if (status === "approved") return "success";
+  else if (status === "rejected") return "error";
+  else if (status === "pending") return "warning";
 };
 </script>
 
@@ -32,13 +32,15 @@ const getColor = (status) => {
   <v-container>
     <v-row class="d-flex align-center">
       <v-col>
-        <h1 class="mb-4 my-4 mx-2 font-weight-medium">Termini pacijenata</h1>
+        <h1 class="mb-4 my-4 mx-2 font-weight-medium">
+          Appointments
+        </h1>
       </v-col>
       <v-col class="mb-4" cols="12" sm="5" lg="4">
         <v-text-field
             v-model="search"
             prepend-inner-icon="mdi-magnify"
-            label="Pretraži"
+            label="Search"
             variant="outlined"
             density="compact"
             single-line
@@ -52,7 +54,6 @@ const getColor = (status) => {
           :items="appointments"
           :search="search"
           multi-sort
-          items-per-page-text="Broj stavki po stranici"
           :items-per-page="10"
       >
         <template v-slot:item.date="{ item }">
@@ -64,7 +65,7 @@ const getColor = (status) => {
           </v-chip>
         </template>
         <template v-slot:no-data>
-          <p>Nema naručenih termina</p>
+          <p>No appointments</p>
         </template>
       </v-data-table>
     </v-card>
@@ -75,7 +76,7 @@ const getColor = (status) => {
           append-icon="mdi-arrow-right"
           variant="flat"
           elevation="0"
-          text="Upravljanje terminima"
+          text="Manage appointments"
           size="large"
           border
       />

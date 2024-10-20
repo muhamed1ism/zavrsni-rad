@@ -7,7 +7,7 @@ import Background from "@/components/Background.vue";
 const authStore = useAuthStore();
 const userStore = useUserStore();
 
-const title = "Upravljanje računom";
+const title = "Manage account";
 const settings = [
   {
     title: "Email",
@@ -42,7 +42,7 @@ else if (!authStore.auth.hasProfile) router.push("/profile/create");
             <v-card-title class="text-center text-h5 mb-6">{{
               title
             }}</v-card-title>
-            <v-card-text v-for="item in settings" :key="item" class="">
+            <v-card-text v-for="item in settings" :key="item">
               <v-label
                 class="text-subtitle-1 text-hard-emphasis"
                 :text="item.title"

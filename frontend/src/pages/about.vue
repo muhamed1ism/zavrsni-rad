@@ -1,28 +1,39 @@
 <template>
   <BackButton />
   <v-container>
-    <h1 class="mb-4 my-4 mx-2 font-weight-medium">O nama</h1>
-    <h3 class="mx-4 mb-4 font-weight-regular">Naša misija</h3>
+    <h1 class="mb-4 my-4 mx-2 font-weight-medium">
+      About us
+    </h1>
+    <h3 class="mx-4 mb-4 font-weight-regular">
+      Our mission
+    </h3>
     <p class="mx-6 mb-4 font-weight-light">
-      Ovdje kratko opisujemo misiju naše kompanije i naših usluga.
+      Here we describe our mission: what we do, what we stand for, and what we
+      aim to achieve.
     </p>
 
-    <h3 class="mx-4 mb-4 font-weight-regular">Naš tim</h3>
+    <h3 class="mx-4 mb-4 font-weight-regular">
+      Our team
+    </h3>
     <p class="mx-6 mb-4 font-weight-light">
-      Ovdje predstavljamo naš tim: tko smo, kakve su naše stručne vještine i što
-      nas motivira.
+      Here we introduce our team members: who we are, what we do, and what
+      makes us unique.
     </p>
 
-    <h3 class="mx-4 mb-4 font-weight-regular">Kako radimo</h3>
+    <h3 class="mx-4 mb-4 font-weight-regular">
+      Our approach to work
+    </h3>
     <p class="mx-6 mb-4 font-weight-light">
-      Ovdje opisujemo naš pristup radu: kako pružamo naše usluge, kako
-      komuniciramo s klijentima, koje tehnologije koristimo itd.
+      Here we explain our approach to work: how we work, what we value, and
+      what we expect from our team members.
     </p>
 
-    <h3 class="mx-4 mb-4 font-weight-regular">Naša vizija</h3>
+    <h3 class="mx-4 mb-4 font-weight-regular">
+      Our vision for the future
+    </h3>
     <p class="mx-6 mb-4 font-weight-light">
-      Ovdje iznosimo našu viziju i ciljeve za budućnost. Kako se vidimo u
-      budućnosti i što očekujemo postići svojim radom.
+      Here we outline our vision for the future: where we are headed, what we
+      want to achieve, and how we plan to get there.
     </p>
   </v-container>
 </template>

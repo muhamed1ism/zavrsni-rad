@@ -13,32 +13,32 @@ const doctorDateOfBirth = new Date(doctorStore.doctor.dateOfBirth).toLocaleDateS
   "hr-HR",
 );
 
-const title = "Moji podaci";
+const title = "My profile";
 const doctorName = [
   {
-    title: "Ime",
+    title: "First name",
     value: `${doctorStore.doctor.firstName}`,
   },
   {
-    title: "Prezime",
+    title: "Last name",
     value: `${doctorStore.doctor.lastName}`,
   },
 ]
 const doctorData = [
   {
-    title: "Specijalnost",
+    title: "Specialty",
     value: `${doctorStore.doctor.specialty}`,
   },
   {
-    title: "Adresa",
+    title: "Address",
     value: `${doctorStore.doctor.address}`,
   },
   {
-    title: "Broj telefona",
+    title: "Phone number",
     value: `${doctorStore.doctor.phoneNumber}`,
   },
   {
-    title: "Datum rođenja",
+    title: "Date of birth",
     value: `${doctorDateOfBirth}`,
   },
 ];
@@ -101,7 +101,7 @@ const doctorData = [
                     variant="tonal"
                     append-icon="mdi-pencil"
                     :to="`/profile/update`"
-                    text="Uredi"
+                    text="Edit"
                 />
               </v-col>
             </v-row>

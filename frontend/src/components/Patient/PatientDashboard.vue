@@ -27,22 +27,22 @@ watch(
 
 const buttons = [
   {
-    title: "Moj profil",
+    title: "My profile",
     icon: "mdi-account",
     to: "/profile",
   },
   {
-    title: "Naručeni termini",
+    title: "My appointments",
     icon: "mdi-calendar-clock",
     to: "/appointments",
   },
   {
-    title: "Zakaži termin",
+    title: "Book appointment",
     icon: "mdi-calendar-plus",
     to: "/appointments/create",
   },
   {
-    title: "Svi doktori",
+    title: "Doctors",
     icon: "mdi-account-group",
     to: "/doctors",
   },
@@ -50,9 +50,9 @@ const buttons = [
 
 const patientHeaders = [
   { title: "ID", text: "ID", value: "id" },
-  { title: "Doktor", text: "Doktor", value: "doctorName" },
-  { title: "Datum", text: "Datum", value: "date" },
-  { title: "Vrijeme", text: "Vrijeme", value: "time" },
+  { title: "Doctor", text: "Doctor", value: "doctorName" },
+  { title: "Date", text: "Date", value: "date" },
+  { title: "Time", text: "Time", value: "time" },
   { title: "Status", text: "Status", value: "status" },
 ];
 </script>
@@ -78,7 +78,7 @@ const patientHeaders = [
               : 'mx-2 mt-4 font-weight-regular'
           "
         >
-          Dobro došli,
+          Welcome,
         </h2>
         <h1
           :class="
@@ -116,13 +116,12 @@ const patientHeaders = [
     </v-row>
     
     <RouterLink class="no-decoration" to="appointments">
-      <h2 class="mx-6 mb-4 font-weight-medium">Moji termini</h2>
+      <h2 class="mx-6 mb-4 font-weight-medium">My appointments</h2>
     </RouterLink>
     <v-card variant="flat" elevation="0" border class="mx-6">
       <v-data-table
         :headers="patientHeaders"
         :items="appointments"
-        items-per-page-text="Broj stavki po stranici"
         hide-default-footer
         :items-per-page="6"
       >
@@ -130,7 +129,9 @@ const patientHeaders = [
           {{ item.date ? new Date(item.date).toLocaleDateString("hr-HR") : "" }}
         </template>
         <template v-slot:no-data>
-          <p>Nema zakazanih termina</p>
+          <p>
+            No appointments
+          </p>
         </template>
       </v-data-table>
     </v-card>

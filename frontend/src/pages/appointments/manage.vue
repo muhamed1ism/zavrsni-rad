@@ -52,14 +52,14 @@ else if (!authStore.auth.hasProfile) router.push("/profile/create");
     <v-row class="mx-2 d-flex align-center">
       <v-col>
         <h1 class="mb-4 my-4 font-weight-medium">
-          Upravljenje narudžbama pacijenata
+          Manage appointments
         </h1>
       </v-col>
       <v-col class="mb-4" cols="12" sm="12" md="4">
         <v-text-field
             v-model="search"
             prepend-inner-icon="mdi-magnify"
-            label="Pretraži"
+            label="Search"
             variant="outlined"
             density="compact"
             single-line
@@ -76,17 +76,17 @@ else if (!authStore.auth.hasProfile) router.push("/profile/create");
           <v-card border elevation="0">
             <v-card-item>
               <v-card-title class="mb-6 mt-2 mx-2 wrap-text">
-                <h4 class="font-weight-medium">Pacijent: </h4>
+                <h4 class="font-weight-medium">Patients: </h4>
                 <p class="font-weight-regular text-h5">{{ appointment.patientName }}</p>
               </v-card-title>
               <v-card-text class="mx-2" :class="$vuetify.display.md ? 'ml-0' : 'ml-4'">
                 <v-row class="mb-2 d-flex justify-space-between">
-                  <h4 class="font-weight-medium">Datum:</h4>
+                  <h4 class="font-weight-medium">Date:</h4>
                   <p :class="$vuetify.display.md ? 'ml-1' : 'ml-4'">{{ formatDate(appointment.date) }}</p>
                   <p></p>
                 </v-row>
                 <v-row class="mb-2 d-flex justify-space-between">
-                  <h4 class="font-weight-medium">Vrijeme:</h4>
+                  <h4 class="font-weight-medium">Time:</h4>
                   <p class="ml-3">{{ appointment.time }}</p>
                   <p></p>
                 </v-row>
@@ -97,7 +97,7 @@ else if (!authStore.auth.hasProfile) router.push("/profile/create");
                 </v-row>
               </v-card-text>
               <v-card-actions
-                v-if="appointment.status !== 'otkazan'"
+                v-if="appointment.status !== 'cancelled'"
                 class="d-flex justify-center"
               >
                 <v-btn
@@ -105,19 +105,19 @@ else if (!authStore.auth.hasProfile) router.push("/profile/create");
                   color="blue-darken-2"
                   variant="tonal"
                   @click="appointmentStore.approveAppointment(appointment.id)"
-                  >Odobri</v-btn
+                  >Approve</v-btn
                 >
                 <v-btn
                   class="flex-fill"
                   color="error"
                   variant="tonal"
                   @click="appointmentStore.rejectAppointment(appointment.id)"
-                  >Odbij</v-btn
+                  >Reject</v-btn
                 >
               </v-card-actions>
               <v-card-actions v-else class="d-flex justify-center">
                 <v-btn disabled class="flex-fill" color="error" variant="tonal"
-                  >Otkazan</v-btn
+                  >Cancel</v-btn
                 >
               </v-card-actions>
             </v-card-item>
@@ -129,7 +129,7 @@ else if (!authStore.auth.hasProfile) router.push("/profile/create");
           <v-card-item>
             <v-card-title>
               <h4 class="font-weight-medium text-center text-medium-emphasis">
-                Nema naručenih termina
+                No appointments found
               </h4>
             </v-card-title>
           </v-card-item>
@@ -144,7 +144,7 @@ else if (!authStore.auth.hasProfile) router.push("/profile/create");
           append-icon="mdi-arrow-right"
           variant="flat"
           elevation="0"
-          text="Naručeni termini"
+          text="All appointments"
           size="large"
           border
         />

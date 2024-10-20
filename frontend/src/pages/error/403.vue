@@ -9,7 +9,7 @@ import BackButton from "@/components/BackButton.vue";
     <v-row>
       <v-col>
         <h1 class="text-h1 text-center text-medium-emphasis">Error 403</h1>
-        <p class="text-h2 text-center text-medium-emphasis">Zabranjen pristup ovoj stranici</p>
+        <p class="text-h2 text-center text-medium-emphasis">Forbidden</p>
       </v-col>
     </v-row>
   </v-container>

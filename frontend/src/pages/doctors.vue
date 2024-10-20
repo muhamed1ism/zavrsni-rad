@@ -27,9 +27,9 @@ watch(
 
 const doctorHeaders = [
   { title: "ID", value: "id", align: "start", sortable: true },
-  { title: "Ime", value: "name", sortable: true },
+  { title: "Name", value: "name", sortable: true },
   {
-    title: "Specijalnost",
+    title: "Specialty",
     value: "specialty",
     sortable: true
   },
@@ -44,13 +44,13 @@ else if (!authStore.auth.hasProfile) router.push("/profile/create");
   <v-container>
     <v-row class="d-flex align-center">
       <v-col>
-        <h1 class="mb-4 my-4 mx-2 font-weight-medium">Doktori</h1>
+        <h1 class="mb-4 my-4 mx-2 font-weight-medium">Doctors</h1>
       </v-col>
       <v-col class="mb-4" cols="12" sm="5" lg="4">
         <v-text-field
             v-model="search"
             prepend-inner-icon="mdi-magnify"
-            label="Pretraži"
+            label="Search"
             variant="outlined"
             density="compact"
             single-line
@@ -64,11 +64,10 @@ else if (!authStore.auth.hasProfile) router.push("/profile/create");
         :items="doctors"
         :search="search"
         multi-sort
-        items-per-page-text="Broj stavki po stranici"
         :items-per-page="10"
       >
         <template v-slot:no-data>
-          <p>Nema doktora</p>
+          <p>No doctors</p>
         </template>
       </v-data-table>
     </v-card>
@@ -80,7 +79,7 @@ else if (!authStore.auth.hasProfile) router.push("/profile/create");
         append-icon="mdi-arrow-right"
         variant="flat"
         elevation="0"
-        text="Moji pacijenti"
+        text="My patients"
         size="large"
         border
       />
@@ -91,7 +90,7 @@ else if (!authStore.auth.hasProfile) router.push("/profile/create");
         append-icon="mdi-arrow-right"
         variant="flat"
         elevation="0"
-        text="Moji termini"
+        text="My appointments"
         size="large"
         border
       />

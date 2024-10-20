@@ -8,28 +8,28 @@ const patientDateOfBirth = new Date(patientStore.patient.dateOfBirth).toLocaleDa
   "hr-HR",
 );
 
-const title = "Moji podaci";
+const title = "My profile";
 const patientName = [
   {
-    title: "Ime",
+    title: "First name",
     value: `${patientStore.patient.firstName}`,
   },
   {
-    title: "Prezime",
+    title: "Last name",
     value: `${patientStore.patient.lastName}`,
   },
 ]
 const patientData = [
   {
-    title: "Adresa",
+    title: "Address",
     value: `${patientStore.patient.address}`,
   },
   {
-    title: "Broj telefona",
+    title: "Phone number",
     value: `${patientStore.patient.phoneNumber}`,
   },
   {
-    title: "Datum rođenja",
+    title: "Date of birth",
     value: `${patientDateOfBirth}`,
   },
 ];
@@ -92,7 +92,7 @@ const patientData = [
                     variant="tonal"
                     append-icon="mdi-pencil"
                     :to="`/profile/update`"
-                    text="Uredi"
+                    text="Edit"
                 />
               </v-col>
             </v-row>

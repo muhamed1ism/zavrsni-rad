@@ -46,60 +46,59 @@ const submit = async () => {
       <v-col cols="12" sm="8" md="6" lg="5">
         <v-card border variant="flat" class="pa-4 my-12">
           <v-card-title class="text-center text-h5"
-            >Unesite svoje podatke</v-card-title
+            >Enter your profile information</v-card-title
           >
           <v-card-item>
             <v-sheet>
               <v-form @submit.prevent="submit">
-                <div class="text-subtitle-1 text-medium-emphasis">Ime</div>
+                <div class="text-subtitle-1 text-medium-emphasis">First name</div>
                 <v-text-field
                   density="compact"
-                  placeholder="Unesite ime"
+                  placeholder="Enter first name"
                   variant="outlined"
                   v-model="form.firstName"
                   :rules="rules.firstName"
                 ></v-text-field>
 
-                <div class="text-subtitle-1 text-medium-emphasis">Prezime</div>
+                <div class="text-subtitle-1 text-medium-emphasis">Last name</div>
                 <v-text-field
                   density="compact"
-                  placeholder="Unesite prezime"
+                  placeholder="Enter last name"
                   variant="outlined"
                   v-model="form.lastName"
                   :rules="rules.lastName"
                 ></v-text-field>
 
                 <div class="text-subtitle-1 text-medium-emphasis">
-                  Adresa stanovanja
+                  Address
                 </div>
                 <v-text-field
                   density="compact"
-                  placeholder="Unesite adresu stanovanja"
+                  placeholder="Enter address"
                   variant="outlined"
                   v-model="form.address"
                 ></v-text-field>
 
                 <div class="text-subtitle-1 text-medium-emphasis">
-                  Broj telefona
+                  Phone number
                 </div>
                 <v-text-field
                   density="compact"
-                  placeholder="Unesite broj telefona"
+                  placeholder="Enter phone number"
                   variant="outlined"
                   v-model="form.phoneNumber"
                   :rules="rules.phoneNumber"
                 ></v-text-field>
 
                 <div class="text-subtitle-1 text-medium-emphasis">
-                  Datum rođenja
+                  Date of birth
                 </div>
                 <v-container>
                   <v-row justify="center">
                     <VueDatePicker
                       v-model="form.dateOfBirth"
-                      placeholder="Unesite datum rođenja"
+                      placeholder="Enter date of birth"
                       :format="dateFormat"
-                      locale="hr"
                       auto-apply
                       :enable-time-picker="false"
                       :teleport="body"
@@ -127,7 +126,7 @@ const submit = async () => {
                   color="blue-darken-2"
                   size="large"
                   class="mb-8 mt-2"
-                  >Spremi</v-btn
+                  >Save</v-btn
                 >
               </v-form>
             </v-sheet>

@@ -22,7 +22,7 @@ def approve_appointment(appointment_id):
     if not appointment:
         abort(404, description='Appointment not found.')
 
-    appointment.status = 'odobren'
+    appointment.status = 'approved'
     appointment.save()
 
     return jsonify(msg='Appointment approved successfully.'), 200

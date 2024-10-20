@@ -15,7 +15,7 @@ get_doctors_patients_bp = Blueprint('get_doctors_patients', __name__)
 def get_doctors_patients():
     doctor_id = get_doctor_id()
     appointments = db.session.query(Appointment).filter(
-        Appointment.doctor_id == doctor_id, Appointment.status == 'odobren'
+        Appointment.doctor_id == doctor_id, Appointment.status == 'approved'
     ).all()
 
     if not appointments:
