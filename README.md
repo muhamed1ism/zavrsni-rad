@@ -6,7 +6,7 @@
 - [Project Structure](#-project-structure)
 - [Usage](#-usage)
 - [Docker Setup](#-docker-setup)
-- [CI/CD Pipeline](#-ci/cd-pipeline)
+- [CI/CD Pipeline](#-cicd-pipeline)
 - [Contributing](#-contributing)
 - [License](#-license)
 - [Acknowledgments](#-acknowledgments)
